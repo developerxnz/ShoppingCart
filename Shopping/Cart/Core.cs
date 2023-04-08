@@ -4,27 +4,31 @@ using Shopping.Product;
 
 namespace Shopping.Cart;
 
+public interface ICartCommand : ICommand {}
+
+public record OrderCommand<T>(CorrelationId CorrelationId, T Data) : Command<T>(CorrelationId, Data), ICartCommand;
+
 public record CartId(Guid Value);
 
 public record CartItem(Sku Sku, uint Quantity);
 
 public record AddItemData(DateTime AddedOnUtc, Sku Sku, uint Quantity);
 public record AddItemToCartCommand(DateTime AddedOnUtc, Sku Sku, uint Quantity, CorrelationId CorrelationId ) 
-    : Command<AddItemData>(
+    : OrderCommand<AddItemData>(
         CorrelationId, 
         new AddItemData(AddedOnUtc, Sku, Quantity)
     );
     
 public record RemoveItemData(DateTime RemovedOnUtc, CartId CartId, Sku Sku);
 public record RemoveItemFromCartCommand(DateTime RemovedOnUtc, CartId CartId, Sku Sku, CorrelationId CorrelationId ) 
-    : Command<RemoveItemData>(
+    : OrderCommand<RemoveItemData>(
         CorrelationId, 
         new RemoveItemData(RemovedOnUtc, CartId, Sku)
     );
     
 public record UpdateItemInCartData(DateTime UpdatedOnUtc, CartId CartId, Sku Sku, uint Quantity);
 public record UpdateItemInCartCommand(DateTime UpdatedOnUtc, CartId CartId, Sku Sku, uint Quantity, CorrelationId CorrelationId ) 
-    : Command<UpdateItemInCartData>(
+    : OrderCommand<UpdateItemInCartData>(
         CorrelationId, 
         new UpdateItemInCartData(UpdatedOnUtc, CartId, Sku, Quantity)
     );

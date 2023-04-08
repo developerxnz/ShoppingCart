@@ -7,14 +7,14 @@ namespace Shopping.Delivery.Core;
 
 public interface IDeliveryCommandHandler
 {
-    ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(ICommand command);
+    ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(IDeliveryCommand command);
 
-    ErrorOr<CommandResult<DeliveryAggregate>> HandlerForExisting(ICommand command, DeliveryAggregate aggregate);
+    ErrorOr<CommandResult<DeliveryAggregate>> HandlerForExisting(IDeliveryCommand command, DeliveryAggregate aggregate);
 }
 
 public class DeliveryCommandHandler : Handler<DeliveryAggregate>, IDeliveryCommandHandler
 {
-    public ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(ICommand command)
+    public ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(IDeliveryCommand command)
     {
         switch (command)
         {
@@ -34,31 +34,44 @@ public class DeliveryCommandHandler : Handler<DeliveryAggregate>, IDeliveryComma
 
         return new CommandResult<DeliveryAggregate>(
             aggregate,
-            new[] {new DeliveryCreatedEvent(command.CreatedOnUtc, command.OrderId, new (1), command.CorrelationId, new (command.Id.Value))}
+            new[]
+            {
+                new DeliveryCreatedEvent(command.CreatedOnUtc, command.OrderId, new(1), command.CorrelationId,
+                    new(command.Id.Value))
+            }
         );
     }
 
-    public ErrorOr<CommandResult<DeliveryAggregate>> HandlerForExisting(ICommand command, DeliveryAggregate aggregate)
+    public ErrorOr<CommandResult<DeliveryAggregate>> HandlerForExisting(IDeliveryCommand command,
+        DeliveryAggregate aggregate)
     {
-        switch (command)
+        return aggregate.MetaData.Version switch
         {
-            case CompleteDeliveryCommand completeDeliveryCommand:
-                return GenerateEventsForDeliveryCompleted(completeDeliveryCommand, aggregate)
-                    .Match(
-                        delivery => ApplyEvents(delivery.Aggregate, delivery.Events),
-                        error => ErrorOr.ErrorOr.From(error).Value
-                    );
-            default:
-                throw new ArgumentOutOfRangeException(nameof(command));
-                
-        }
+            {Value: 0} => Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription),
+            _ => ExecuteCommand(command, aggregate)
+        };
     }
-    
-    private ErrorOr<CommandResult<DeliveryAggregate>> GenerateEventsForDeliveryCompleted(CompleteDeliveryCommand command, DeliveryAggregate aggregate)
+
+    private ErrorOr<CommandResult<DeliveryAggregate>> ExecuteCommand(IDeliveryCommand command,
+        DeliveryAggregate aggregate) =>
+        (command switch
+        {
+            CompleteDeliveryCommand completeDeliveryCommand =>
+                GenerateEventsForDeliveryCompleted(completeDeliveryCommand, aggregate),
+            _ => throw new ArgumentOutOfRangeException(nameof(command))
+        })
+        .Match(
+            commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
+            error => ErrorOr.ErrorOr.From(error).Value
+        );
+
+    private ErrorOr<CommandResult<DeliveryAggregate>> GenerateEventsForDeliveryCompleted(
+        CompleteDeliveryCommand command, DeliveryAggregate aggregate)
     {
         if (aggregate.DeliveredOnUtc.HasValue)
         {
-            return Error.Validation(Constants.DeliveryAlreadyDeliveredCode, Constants.DeliveryAlreadyDeliveredDescription);
+            return Error.Validation(Constants.DeliveryAlreadyDeliveredCode,
+                Constants.DeliveryAlreadyDeliveredDescription);
         }
 
         if (aggregate.MetaData.Version.Value == 0)
@@ -75,9 +88,9 @@ public class DeliveryCommandHandler : Handler<DeliveryAggregate>, IDeliveryComma
             });
     }
 
-    protected override DeliveryAggregate Apply(DeliveryAggregate aggregate,IEvent @event)
+    protected override DeliveryAggregate Apply(DeliveryAggregate aggregate, IEvent @event)
     {
-        MetaData metaData = aggregate.MetaData with {Version = @event.Version,TimeStamp = @event.TimeStamp};
+        MetaData metaData = aggregate.MetaData with {Version = @event.Version, TimeStamp = @event.TimeStamp};
         return @event switch
         {
             DeliveryCompletedEvent x => aggregate with {DeliveredOnUtc = x.CompletedOnUtc, MetaData = metaData},

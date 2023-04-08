@@ -9,14 +9,14 @@ namespace Shopping;
 
 public interface IOrderCommandHandler
 {
-    ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(ICommand command);
+    ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command);
 
-    ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(ICommand command, OrderAggregate aggregate);
+    ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(IOrderCommand command, OrderAggregate aggregate);
 }
 
 public class OrderCommandHandler : Handler<OrderAggregate>, IOrderCommandHandler
 {
-    public ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(ICommand command)
+    public ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command)
     {
         switch (command)
         {
@@ -27,36 +27,27 @@ public class OrderCommandHandler : Handler<OrderAggregate>, IOrderCommandHandler
         }
     }
 
-    public ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(ICommand command, OrderAggregate aggregate)
+    public ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(IOrderCommand command, OrderAggregate aggregate)
     {
-        switch( aggregate.MetaData.Version )
+        return aggregate.MetaData.Version switch
         {
-            case { Value: 0 }:
-                return Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription);
-            default:
-                return t(command, aggregate);
-        }
-    }
-
-    private ErrorOr<CommandResult<OrderAggregate>> t(ICommand command, OrderAggregate aggregate)
-    {
-        return command switch
-        {
-            CompleteOrderCommand completeOrderCommand =>
-                GenerateEventsForOrderCompleted(completeOrderCommand, aggregate)
-                    .Match(
-                        result => ApplyEvents(result.Aggregate, result.Events),
-                        error => ErrorOr.ErrorOr.From(error).Value
-                    ),
-            CancelOrderCommand cancelOrderCommand =>
-                GenerateEventsForOrderCancelled(cancelOrderCommand, aggregate)
-                    .Match(
-                        order => ApplyEvents(order.Aggregate, order.Events),
-                        error => ErrorOr.ErrorOr.From(error).Value
-                    ),
-            _ => throw new ArgumentOutOfRangeException(nameof(command))
+            {Value: 0} => Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription),
+            _ => ExecuteCommand(command, aggregate)
         };
     }
+
+    private ErrorOr<CommandResult<OrderAggregate>> ExecuteCommand(IOrderCommand command, OrderAggregate aggregate) =>
+        (command switch
+        {
+            CompleteOrderCommand completeOrderCommand =>
+                GenerateEventsForOrderCompleted(completeOrderCommand, aggregate),
+            CancelOrderCommand cancelOrderCommand =>
+                GenerateEventsForOrderCancelled(cancelOrderCommand, aggregate),
+            _ => throw new ArgumentOutOfRangeException(nameof(command))
+        })
+        .Match(
+            commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
+            error => ErrorOr.ErrorOr.From(error).Value);
 
     private ErrorOr<CommandResult<OrderAggregate>> GenerateEventsForOrderCreated(CreateOrderCommand command)
     {

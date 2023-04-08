@@ -38,7 +38,7 @@ public class OrdersService : IOrderService
 
     public Task CancelOrder(CustomerId customerId, OrderId orderId, CorrelationId correlationId)
     {
-        ICommand command = new CancelOrderCommand(DateTime.UtcNow, customerId, orderId, correlationId);
+        IOrderCommand command = new CancelOrderCommand(DateTime.UtcNow, customerId, orderId, correlationId);
         DateTime aggregateDateTime = DateTime.UtcNow;
 
         //get order from db

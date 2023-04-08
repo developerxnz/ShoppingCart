@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Shopping.Core;
 using ErrorOr;
 using Shopping.Cart;
@@ -10,14 +9,14 @@ namespace Shopping.Delivery.Core;
 
 public interface ICartCommandHandler
 {
-    ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICommand command);
+    ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command);
 
-    ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICommand command, CartAggregate aggregate);
+    ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICartCommand command, CartAggregate aggregate);
 }
 
 public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
 {
-    public ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICommand command)
+    public ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command)
     {
         switch (command)
         {
@@ -28,14 +27,14 @@ public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
         }
     }
 
-    public ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICommand command, CartAggregate aggregate) =>
+    public ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICartCommand command, CartAggregate aggregate) =>
         aggregate.MetaData.Version switch
         {
             {Value: 0} => Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription),
             _ => ExecuteCommand(command, aggregate)
         };
 
-    private ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICommand command, CartAggregate aggregate) =>
+    private ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
         (command switch
         {
             AddItemToCartCommand addItemToCartCommand =>
