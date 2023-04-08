@@ -1,0 +1,6 @@
+Shopping/obj/*
+Shopping/bin/*
+ShoppingUnitTests/obj/*
+ShoppingUnitTests/bin/*
+
+.idea

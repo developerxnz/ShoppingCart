@@ -1,0 +1,38 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">/Users/DevX/Library/Caches/JetBrains/Rider2022.3/resharper-host/temp/Rider/vAny/CoverageData/_Shopping.1486813903/Snapshot/snapshot.utdcvr</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=084e3b26_002Daeb5_002D4e02_002D85bc_002Dac926df5e657/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=241907b2_002D3ef8_002D4f64_002Dacea_002D02823e7d4719/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4345acb4_002Dabb0_002D4dcf_002D87ac_002D09260c8994f8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="OrderHandlerUnitTest #6" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=76af54cc_002Dcd54_002D4f94_002Db166_002D26c7402e16ec/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CreateOrder_Should" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest.CreateOrder_Should&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b415ceb3_002Daecb_002D4dad_002D827e_002D29779f05f4b8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2d653a7_002Dc2c7_002D4bce_002Dbdc0_002Dfea1d17342f2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f51729ff_002D823d_002D4d43_002D979c_002Df42b19df4634/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.CartHandlerTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
