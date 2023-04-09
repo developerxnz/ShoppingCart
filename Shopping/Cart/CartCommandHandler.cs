@@ -18,20 +18,21 @@ public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
 {
     public ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command)
     {
-        switch (command)
+        return command switch
         {
-            case AddItemToCartCommand addItemToCartCommand:
-                return GenerateEventsForItemAdded(addItemToCartCommand);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(command));
-        }
+            AddItemToCartCommand addItemToCartCommand => GenerateEventsForItemAdded(addItemToCartCommand),
+            _ => throw new ArgumentOutOfRangeException(nameof(command))
+        };
     }
 
     public ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICartCommand command, CartAggregate aggregate) =>
         aggregate.MetaData.Version switch
         {
             {Value: 0} => Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription),
-            _ => ExecuteCommand(command, aggregate)
+            _ => AggregateCheck(command, aggregate)
+                .Match(
+                result => ExecuteCommand(command, aggregate),
+                error => ErrorOr.ErrorOr.From(error).Value)
         };
 
     private ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
@@ -48,6 +49,26 @@ public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
         .Match(
             commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
             error => ErrorOr.ErrorOr.From(error).Value);
+
+    private ErrorOr<bool> AggregateCheck(ICartCommand command, CartAggregate aggregate)
+    {
+        CartId cartId =
+            (command switch
+            {
+                AddItemToCartCommand addItemToCartCommand => addItemToCartCommand.CartId ?? aggregate.Id,
+                RemoveItemFromCartCommand removeItemFromCartCommand => removeItemFromCartCommand.CartId,
+                UpdateItemInCartCommand updateItemInCartCommand =>
+                    updateItemInCartCommand.CartId,
+                _ => throw new ArgumentOutOfRangeException(nameof(command))
+            });
+            
+        if (aggregate.Id != cartId)
+        {
+            return Error.Validation(Constants.InvalidAggregateForIdCode, Constants.InvalidAggregateForIdDescription);
+        }
+
+        return true;
+    }
 
     private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemAdded(AddItemToCartCommand command)
     {

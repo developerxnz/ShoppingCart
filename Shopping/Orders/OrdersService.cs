@@ -5,6 +5,35 @@ using Version = Shopping.Core.Version;
 
 namespace Shopping;
 
+public interface IOrderService
+{
+    /// <summary>
+    /// Creates a new Order
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="correlationId"></param>
+    /// <returns></returns>
+    Task CreateOrder(CustomerId customerId, CorrelationId correlationId);
+
+    /// <summary>
+    /// Completes and Existing Order
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="orderId"></param>
+    /// <param name="correlationId"></param>
+    /// <returns></returns>
+    Task CompleteOrder(CustomerId customerId, OrderId orderId, CorrelationId correlationId);
+
+    /// <summary>
+    /// Cancels an Existing Order
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="orderId"></param>
+    /// <param name="correlationId"></param>
+    /// <returns></returns>
+    Task CancelOrder(CustomerId customerId, OrderId orderId, CorrelationId correlationId);
+}
+
 public class OrdersService : IOrderService
 {
     private readonly IOrderCommandHandler _commandHandler;

@@ -19,6 +19,9 @@ public static class Constants
     
     public const string InvalidCartItemSkuCode = "O.5";
     public const string InvalidCartItemSkuDescription = "Sku not found in cart.";
+    
+    public const string InvalidAggregateForIdCode = "O.6";
+    public const string InvalidAggregateForIdDescription = "Aggregate Id doesn't match Command Aggregate Id.";
 }
 
 public record CausationId(Guid Value);

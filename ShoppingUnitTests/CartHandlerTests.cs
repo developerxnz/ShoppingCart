@@ -23,7 +23,7 @@ public class CartHandlerTests
         CartId cartId = new(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
         Sku sku = new(Guid.NewGuid());
-        AddItemToCartCommand command = new(addedOnUtc, sku, 1, correlationId);
+        AddItemToCartCommand command = new(addedOnUtc, null, sku, 1, correlationId);
 
         _commandHandler.HandlerForNew(command)
             .Switch(
@@ -45,7 +45,7 @@ public class CartHandlerTests
         DateTime addedOnUtc = DateTime.UtcNow;
         CorrelationId correlationId = new(Guid.NewGuid());
         Sku sku = new(Guid.NewGuid());
-        AddItemToCartCommand command = new(addedOnUtc, sku, 1, correlationId);
+        AddItemToCartCommand command = new(addedOnUtc, null, sku, 1, correlationId);
         CartAggregate aggregate = new CartAggregate(addedOnUtc);
 
         _commandHandler.HandlerForExisting(command, aggregate)
@@ -84,7 +84,7 @@ public class CartHandlerTests
         CartId cartId = new(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
         Sku sku = new(Guid.NewGuid());
-        AddItemToCartCommand command = new(addedOnUtc, sku, 1, correlationId);
+        AddItemToCartCommand command = new(addedOnUtc, null, sku, 1, correlationId);
         var items = new List<CartItem> {new(sku, 5)};
         MetaData metaData = new(new(cartId.Value), new(6), addedOnUtc);
         CartAggregate aggregate = new CartAggregate(addedOnUtc) {Id = cartId, Items = items, MetaData = metaData};
