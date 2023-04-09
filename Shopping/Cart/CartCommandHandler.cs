@@ -16,14 +16,12 @@ public interface ICartCommandHandler
 
 public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, ICartCommandHandler
 {
-    public override ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command)
-    {
-        return command switch
+    public override ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command) =>
+        command switch
         {
             AddItemToCartCommand addItemToCartCommand => GenerateEventsForItemAdded(addItemToCartCommand),
             _ => throw new ArgumentOutOfRangeException(nameof(command))
         };
-    }
 
     protected override ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
         (command switch
@@ -87,6 +85,11 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
     private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemUpdated(UpdateItemInCartCommand command,
         CartAggregate aggregate)
     {
+        if (command.Quantity == 0)
+        {
+            return Error.Validation(Constants.InvalidQuantityCode, Constants.InvalidQuantityDescription);
+        }
+        
         if (aggregate.Items.All(x => x.Sku != command.Sku))
         {
             return Error.Validation(Constants.InvalidCartItemSkuCode, Constants.InvalidCartItemSkuDescription);
@@ -111,7 +114,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
 
         aggregate = @event switch
         {
-            CartItemAddedEvent x => AppendItem(aggregate, x) with { },
+            CartItemAddedEvent x => AppendItem(aggregate, x),
             CartItemRemovedEvent x => RemoveItem(aggregate, x.Sku),
             CartItemUpdatedEvent x => UpdateItem(aggregate, x),
             _ => throw new ArgumentOutOfRangeException(nameof(@event))

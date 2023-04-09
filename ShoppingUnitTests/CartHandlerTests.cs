@@ -189,17 +189,17 @@ public class CartHandlerTests
     }
     
     [Fact]
-    public void UpdateItemInCart_Should_Throw_Exception_Whe_Sku_Doesnt_Exist()
+    public void UpdateItemInCart_Should_Throw_Exception_When_Sku_Doesnt_Exist()
     {
         DateTime createdOnUtc = DateTime.UtcNow;
-        DateTime updateddOnUtc = DateTime.UtcNow;
+        DateTime updatedOnUtc = DateTime.UtcNow;
         CartId cartId = new(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
         Sku sku = new(Guid.NewGuid());
         Sku invalidSku = new(Guid.NewGuid());
-        UpdateItemInCartCommand command = new(updateddOnUtc, cartId, invalidSku, 10, correlationId);
+        UpdateItemInCartCommand command = new(updatedOnUtc, cartId, invalidSku, 10, correlationId);
         var items = new List<CartItem> {new(sku, 5)};
-        MetaData metaData = new(new(cartId.Value), new(6), updateddOnUtc);
+        MetaData metaData = new(new(cartId.Value), new(6), updatedOnUtc);
         CartAggregate aggregate = new CartAggregate(createdOnUtc) {Id = cartId, Items = items, MetaData = metaData};
         ErrorOr<CommandResult<CartAggregate>> result = _commandHandler.HandlerForExisting(command, aggregate);
 
@@ -216,6 +216,37 @@ public class CartHandlerTests
 
                     Assert.Equal(Constants.InvalidCartItemSkuCode, code);
                     Assert.Equal(Constants.InvalidCartItemSkuDescription, description);
+                }
+            );
+    }
+    
+    [Fact]
+    public void UpdateItemInCart_Should_Throw_Exception_When_Invalid_Quantity()
+    {
+        DateTime createdOnUtc = DateTime.UtcNow;
+        DateTime updatedOnUtc = DateTime.UtcNow;
+        CartId cartId = new(Guid.NewGuid());
+        CorrelationId correlationId = new(Guid.NewGuid());
+        Sku sku = new(Guid.NewGuid());
+        UpdateItemInCartCommand command = new(updatedOnUtc, cartId, sku, 0, correlationId);
+        var items = new List<CartItem> {new(sku, 5)};
+        MetaData metaData = new(new(cartId.Value), new(6), updatedOnUtc);
+        CartAggregate aggregate = new CartAggregate(createdOnUtc) {Id = cartId, Items = items, MetaData = metaData};
+        ErrorOr<CommandResult<CartAggregate>> result = _commandHandler.HandlerForExisting(command, aggregate);
+
+        result
+            .Switch(
+                _ => { Assert.Fail($"Expected {Constants.InvalidQuantityDescription}"); },
+                errors =>
+                {
+                    var (code, description) =
+                        errors
+                            .Where(x => x.Type == ErrorType.Validation)
+                            .Select(x => (x.Code, x.Description))
+                            .First();
+
+                    Assert.Equal(Constants.InvalidQuantityCode, code);
+                    Assert.Equal(Constants.InvalidQuantityDescription, description);
                 }
             );
     }
