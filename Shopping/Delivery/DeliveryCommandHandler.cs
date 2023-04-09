@@ -12,9 +12,9 @@ public interface IDeliveryCommandHandler
     ErrorOr<CommandResult<DeliveryAggregate>> HandlerForExisting(IDeliveryCommand command, DeliveryAggregate aggregate);
 }
 
-public class DeliveryCommandHandler : Handler<DeliveryAggregate>, IDeliveryCommandHandler
+public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliveryCommand>, IDeliveryCommandHandler
 {
-    public ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(IDeliveryCommand command)
+    public override ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(IDeliveryCommand command)
     {
         switch (command)
         {
@@ -42,17 +42,24 @@ public class DeliveryCommandHandler : Handler<DeliveryAggregate>, IDeliveryComma
         );
     }
 
-    public ErrorOr<CommandResult<DeliveryAggregate>> HandlerForExisting(IDeliveryCommand command,
-        DeliveryAggregate aggregate)
+    protected override ErrorOr<bool> AggregateCheck(IDeliveryCommand command, DeliveryAggregate aggregate)
     {
-        return aggregate.MetaData.Version switch
+        DeliveryId deliveryId =
+            (command switch
+            {
+                CompleteDeliveryCommand addItemToCartCommand => addItemToCartCommand.DeliveryId ?? aggregate.Id,
+                _ => throw new ArgumentOutOfRangeException(nameof(command))
+            });
+
+        if (aggregate.Id != deliveryId)
         {
-            {Value: 0} => Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription),
-            _ => ExecuteCommand(command, aggregate)
-        };
+            return Error.Validation(Constants.InvalidAggregateForIdCode, Constants.InvalidAggregateForIdDescription);
+        }
+
+        return true;
     }
 
-    private ErrorOr<CommandResult<DeliveryAggregate>> ExecuteCommand(IDeliveryCommand command,
+    protected override ErrorOr<CommandResult<DeliveryAggregate>> ExecuteCommand(IDeliveryCommand command,
         DeliveryAggregate aggregate) =>
         (command switch
         {

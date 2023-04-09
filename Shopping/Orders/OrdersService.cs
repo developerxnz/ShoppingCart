@@ -34,7 +34,7 @@ public interface IOrderService
     Task CancelOrder(CustomerId customerId, OrderId orderId, CorrelationId correlationId);
 }
 
-public class OrdersService : IOrderService
+public sealed class OrdersService : IOrderService
 {
     private readonly IOrderCommandHandler _commandHandler;
 

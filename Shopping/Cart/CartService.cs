@@ -45,7 +45,7 @@ public interface ICartService
     Task UpdateCart(CartId cartId, Sku sku, uint quantity, CorrelationId correlationId);
 }
 
-public class CartService : ICartService
+public sealed class CartService : ICartService
 {
     private readonly ICartCommandHandler _commandHandler;
 

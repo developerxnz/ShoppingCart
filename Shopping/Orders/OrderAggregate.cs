@@ -10,7 +10,7 @@ public enum OrderStatus
     Pending
 }
 
-public record OrderAggregate : Aggregate<OrderAggregate>
+public sealed record OrderAggregate : Aggregate<OrderAggregate>, IAggregate
 {
     public OrderId Id { get; init; } = new(Guid.NewGuid());
     

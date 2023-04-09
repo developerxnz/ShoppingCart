@@ -14,9 +14,9 @@ public interface IOrderCommandHandler
     ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(IOrderCommand command, OrderAggregate aggregate);
 }
 
-public class OrderCommandHandler : Handler<OrderAggregate>, IOrderCommandHandler
+public sealed class OrderCommandHandler : Handler<OrderAggregate, IOrderCommand>, IOrderCommandHandler
 {
-    public ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command)
+    public override ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command)
     {
         switch (command)
         {
@@ -27,16 +27,25 @@ public class OrderCommandHandler : Handler<OrderAggregate>, IOrderCommandHandler
         }
     }
 
-    public ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(IOrderCommand command, OrderAggregate aggregate)
+    protected override ErrorOr<bool> AggregateCheck(IOrderCommand command, OrderAggregate aggregate)
     {
-        return aggregate.MetaData.Version switch
+        OrderId orderId =
+            (command switch
+            {
+                CompleteOrderCommand addItemToCartCommand => addItemToCartCommand.OrderId ?? aggregate.Id,
+                CancelOrderCommand removeItemFromCartCommand => removeItemFromCartCommand.OrderId,
+                _ => throw new ArgumentOutOfRangeException(nameof(command))
+            });
+            
+        if (aggregate.Id != orderId)
         {
-            {Value: 0} => Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription),
-            _ => ExecuteCommand(command, aggregate)
-        };
+            return Error.Validation(Constants.InvalidAggregateForIdCode, Constants.InvalidAggregateForIdDescription);
+        }
+
+        return true;
     }
 
-    private ErrorOr<CommandResult<OrderAggregate>> ExecuteCommand(IOrderCommand command, OrderAggregate aggregate) =>
+    protected override ErrorOr<CommandResult<OrderAggregate>> ExecuteCommand(IOrderCommand command, OrderAggregate aggregate) =>
         (command switch
         {
             CompleteOrderCommand completeOrderCommand =>

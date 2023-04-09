@@ -16,7 +16,7 @@ public interface IDeliveryAggregate
     OrderId OrderId { get; }
 }
 
-public record DeliveryAggregate : Aggregate<DeliveryAggregate>
+public sealed record DeliveryAggregate : Aggregate<DeliveryAggregate>, IAggregate
 {
     public DeliveryId Id { get; init; } = new(Guid.NewGuid());
     

@@ -2,7 +2,7 @@ using Shopping.Core;
 
 namespace Shopping.Cart;
 
-public record CartAggregate: Aggregate<CartAggregate>
+public sealed record CartAggregate: Aggregate<CartAggregate>, IAggregate
 {
     public CartId Id { get; init; } = new(Guid.NewGuid());
 

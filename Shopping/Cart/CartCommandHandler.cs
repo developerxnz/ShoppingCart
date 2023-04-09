@@ -14,9 +14,9 @@ public interface ICartCommandHandler
     ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICartCommand command, CartAggregate aggregate);
 }
 
-public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
+public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, ICartCommandHandler
 {
-    public ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command)
+    public override ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command)
     {
         return command switch
         {
@@ -25,17 +25,7 @@ public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
         };
     }
 
-    public ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICartCommand command, CartAggregate aggregate) =>
-        aggregate.MetaData.Version switch
-        {
-            {Value: 0} => Error.Validation(Constants.InconsistentVersionCode, Constants.InconsistentVersionDescription),
-            _ => AggregateCheck(command, aggregate)
-                .Match(
-                result => ExecuteCommand(command, aggregate),
-                error => ErrorOr.ErrorOr.From(error).Value)
-        };
-
-    private ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
+    protected override ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
         (command switch
         {
             AddItemToCartCommand addItemToCartCommand =>
@@ -49,26 +39,6 @@ public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
         .Match(
             commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
             error => ErrorOr.ErrorOr.From(error).Value);
-
-    private ErrorOr<bool> AggregateCheck(ICartCommand command, CartAggregate aggregate)
-    {
-        CartId cartId =
-            (command switch
-            {
-                AddItemToCartCommand addItemToCartCommand => addItemToCartCommand.CartId ?? aggregate.Id,
-                RemoveItemFromCartCommand removeItemFromCartCommand => removeItemFromCartCommand.CartId,
-                UpdateItemInCartCommand updateItemInCartCommand =>
-                    updateItemInCartCommand.CartId,
-                _ => throw new ArgumentOutOfRangeException(nameof(command))
-            });
-            
-        if (aggregate.Id != cartId)
-        {
-            return Error.Validation(Constants.InvalidAggregateForIdCode, Constants.InvalidAggregateForIdDescription);
-        }
-
-        return true;
-    }
 
     private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemAdded(AddItemToCartCommand command)
     {
@@ -148,6 +118,26 @@ public class CartCommandHandler : Handler<CartAggregate>, ICartCommandHandler
         };
 
         return aggregate with {MetaData = metaData};
+    }
+
+    protected override ErrorOr<bool> AggregateCheck(ICartCommand command, CartAggregate aggregate)
+    {
+        CartId cartId =
+            (command switch
+            {
+                AddItemToCartCommand addItemToCartCommand => addItemToCartCommand.CartId ?? aggregate.Id,
+                RemoveItemFromCartCommand removeItemFromCartCommand => removeItemFromCartCommand.CartId,
+                UpdateItemInCartCommand updateItemInCartCommand =>
+                    updateItemInCartCommand.CartId,
+                _ => throw new ArgumentOutOfRangeException(nameof(command))
+            });
+            
+        if (aggregate.Id != cartId)
+        {
+            return Error.Validation(Constants.InvalidAggregateForIdCode, Constants.InvalidAggregateForIdDescription);
+        }
+
+        return true;
     }
 
     private CartAggregate AppendItem(CartAggregate aggregate, CartItemAddedEvent @event)
