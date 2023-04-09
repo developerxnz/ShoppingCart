@@ -13,6 +13,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4345acb4_002Dabb0_002D4dcf_002D87ac_002D09260c8994f8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="OrderHandlerUnitTest #6" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.CartHandlerTests.UpdateItemInCart_Should_Throw_Exception_When_Invalid_Quantity&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=76af54cc_002Dcd54_002D4f94_002Db166_002D26c7402e16ec/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CreateOrder_Should" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;

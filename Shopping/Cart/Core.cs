@@ -12,35 +12,47 @@ public record CartId(Guid Value);
 
 public record CartItem(Sku Sku, uint Quantity);
 
-public record AddItemData(DateTime AddedOnUtc, CartId? CartId, Sku Sku, uint Quantity);
-public record AddItemToCartCommand(DateTime AddedOnUtc, CartId? CartId, Sku Sku, uint Quantity, CorrelationId CorrelationId ) 
+public record AddItemData(DateTime AddedOnUtc, CustomerId CustomerId, CartId? CartId, Sku Sku, uint Quantity);
+public record AddItemToCartCommand(DateTime AddedOnUtc, CustomerId CustomerId, CartId? CartId, Sku Sku, uint Quantity, CorrelationId CorrelationId ) 
     : CartCommand<AddItemData>(
         CorrelationId, 
-        new AddItemData(AddedOnUtc, CartId, Sku, Quantity)
+        new AddItemData(AddedOnUtc, CustomerId, CartId, Sku, Quantity)
     );
     
-public record RemoveItemData(DateTime RemovedOnUtc, CartId CartId, Sku Sku);
-public record RemoveItemFromCartCommand(DateTime RemovedOnUtc, CartId CartId, Sku Sku, CorrelationId CorrelationId ) 
+public record RemoveItemData(DateTime RemovedOnUtc, CustomerId CustomerId, CartId CartId, Sku Sku);
+public record RemoveItemFromCartCommand(DateTime RemovedOnUtc, CustomerId CustomerId, CartId CartId, Sku Sku, CorrelationId CorrelationId ) 
     : CartCommand<RemoveItemData>(
         CorrelationId, 
-        new RemoveItemData(RemovedOnUtc, CartId, Sku)
+        new RemoveItemData(RemovedOnUtc, CustomerId, CartId, Sku)
     );
     
-public record UpdateItemInCartData(DateTime UpdatedOnUtc, CartId CartId, Sku Sku, uint Quantity);
-public record UpdateItemInCartCommand(DateTime UpdatedOnUtc, CartId CartId, Sku Sku, uint Quantity, CorrelationId CorrelationId ) 
+public record UpdateItemInCartData(DateTime UpdatedOnUtc, CustomerId CustomerId, CartId CartId, Sku Sku, uint Quantity);
+public record UpdateItemInCartCommand(DateTime UpdatedOnUtc, CustomerId CustomerId, CartId CartId, Sku Sku, uint Quantity, CorrelationId CorrelationId ) 
     : CartCommand<UpdateItemInCartData>(
         CorrelationId, 
-        new UpdateItemInCartData(UpdatedOnUtc, CartId, Sku, Quantity)
+        new UpdateItemInCartData(UpdatedOnUtc, CustomerId, CartId, Sku, Quantity)
     );
     
 public record CartItemAddedEvent(
-        DateTime AddedOnUtc, Sku Sku, uint Quantity, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+        DateTime AddedOnUtc, CustomerId CustomerId, Sku Sku, uint Quantity, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
     : Event(CorrelationId, CausationId, Version, AddedOnUtc) { }
     
 public record CartItemRemovedEvent(
-        DateTime RemovedOnUtc, Sku Sku, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+        DateTime RemovedOnUtc, CustomerId CustomerId, Sku Sku, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
     : Event(CorrelationId, CausationId, Version, RemovedOnUtc) { }
     
 public record CartItemUpdatedEvent(
-        DateTime UpdatedOnUtc, Sku Sku, uint Quantity, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+        DateTime UpdatedOnUtc,CustomerId CustomerId, Sku Sku, uint Quantity, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
     : Event(CorrelationId, CausationId, Version, UpdatedOnUtc) { }
+    
+    
+public record UpdateCartItemRequest(CustomerId CustomerId, CartId CartId, Sku Sku, uint Quantity);
+public record UpdateCartItemResponse(CorrelationId CorrelationId);
+
+public record RemoveItemFromCartRequest(CustomerId CustomerId, CartId CartId, Sku Sku);
+
+public record RemoveItemFromCartResponse(CorrelationId CorrelationId);
+
+public record AddToCartRequest(CustomerId CustomerId, CartId CartId, Sku Sku, uint Quantity);
+
+public record AddToCartResponse(CorrelationId CorrelationId);

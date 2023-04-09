@@ -40,7 +40,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
 
     private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemAdded(AddItemToCartCommand command)
     {
-        CartAggregate aggregate = new(command.AddedOnUtc);
+        CartAggregate aggregate = new(command.AddedOnUtc, command.CustomerId);
         return ExecuteCommand(command, aggregate);
     }
 
@@ -53,6 +53,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             {
                 new CartItemAddedEvent(
                     command.AddedOnUtc,
+                    command.CustomerId,
                     command.Sku,
                     command.Quantity,
                     aggregate.MetaData.Version.Increment(),
@@ -75,6 +76,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             {
                 new CartItemRemovedEvent(
                     command.RemovedOnUtc,
+                    command.CustomerId,
                     command.Sku,
                     aggregate.MetaData.Version.Increment(),
                     command.CorrelationId,
@@ -100,6 +102,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             {
                 new CartItemUpdatedEvent(
                     command.UpdatedOnUtc,
+                    command.CustomerId,
                     command.Sku,
                     command.Quantity,
                     aggregate.MetaData.Version.Increment(),
