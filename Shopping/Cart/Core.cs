@@ -47,12 +47,12 @@ public record CartItemUpdatedEvent(
     
     
 public record UpdateCartItemRequest(CustomerId CustomerId, CartId CartId, Sku Sku, uint Quantity);
-public record UpdateCartItemResponse(CorrelationId CorrelationId);
+public record UpdateCartItemResponse(CartId CartId, CorrelationId CorrelationId);
 
 public record RemoveItemFromCartRequest(CustomerId CustomerId, CartId CartId, Sku Sku);
 
-public record RemoveItemFromCartResponse(CorrelationId CorrelationId);
+public record RemoveItemFromCartResponse(CartId CartId, CorrelationId CorrelationId);
 
 public record AddToCartRequest(CustomerId CustomerId, CartId CartId, Sku Sku, uint Quantity);
 
-public record AddToCartResponse(CorrelationId CorrelationId);
+public record AddToCartResponse(CartId CartId, CorrelationId CorrelationId);

@@ -70,7 +70,7 @@ public sealed class CartService : ICartService
         
         await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
 
-        return new AddToCartResponse(correlationId);
+        return new AddToCartResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
     public async Task<ErrorOr<AddToCartResponse>> AddToCart(AddToCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
@@ -90,7 +90,7 @@ public sealed class CartService : ICartService
         
         await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
         
-        return new AddToCartResponse(correlationId);
+        return new AddToCartResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
     public async Task<ErrorOr<RemoveItemFromCartResponse>> RemoveFromCart(RemoveItemFromCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
@@ -110,7 +110,7 @@ public sealed class CartService : ICartService
         
         await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
         
-        return new RemoveItemFromCartResponse(correlationId);
+        return new RemoveItemFromCartResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
     public async Task<ErrorOr<UpdateCartItemResponse>> UpdateCart(UpdateCartItemRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
@@ -130,7 +130,7 @@ public sealed class CartService : ICartService
         
         await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
 
-        return new UpdateCartItemResponse(correlationId);
+        return new UpdateCartItemResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
     
     private async Task<ErrorOr<CartAggregate>> LoadAsync(CustomerId customerId, CartId cartId, CancellationToken cancellationToken)

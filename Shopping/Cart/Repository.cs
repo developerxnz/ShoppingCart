@@ -80,10 +80,9 @@ public sealed class CartRepository: IRepository<Cart, IEvent>
         }
         
         using TransactionalBatchResponse response = await batch.ExecuteAsync();
-
-        if (response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            
+            throw new Exception(response.ErrorMessage);
         }
     }
 
