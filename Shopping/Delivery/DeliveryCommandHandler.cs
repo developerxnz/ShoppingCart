@@ -36,7 +36,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
             aggregate,
             new[]
             {
-                new DeliveryCreatedEvent(command.CreatedOnUtc, command.OrderId, new(1), command.CorrelationId,
+                new DeliveryCreatedEvent(command.CreatedOnUtc, command.CustomerId, command.OrderId, new(1), command.CorrelationId,
                     new(command.Id.Value))
             }
         );
@@ -47,7 +47,8 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
         DeliveryId deliveryId =
             (command switch
             {
-                CompleteDeliveryCommand addItemToCartCommand => addItemToCartCommand.DeliveryId ?? aggregate.Id,
+                CompleteDeliveryCommand completeDeliveryCommand => completeDeliveryCommand.DeliveryId,
+                CancelDeliveryCommand cancelDeliveryCommand => cancelDeliveryCommand.DeliveryId,
                 _ => throw new ArgumentOutOfRangeException(nameof(command))
             });
 
@@ -89,7 +90,8 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
         return new CommandResult<DeliveryAggregate>(aggregate,
             new[]
             {
-                new DeliveryCompletedEvent(command.CompletedOnUtc, command.DeliveryId, command.OrderId,
+                new DeliveryCompletedEvent(command.CompletedOnUtc, command.CustomerId, command.DeliveryId,
+                    command.OrderId,
                     aggregate.MetaData.Version.Increment(),
                     command.CorrelationId, new(command.Id.Value))
             });
@@ -101,6 +103,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
         return @event switch
         {
             DeliveryCompletedEvent x => aggregate with {DeliveredOnUtc = x.CompletedOnUtc, MetaData = metaData},
+            DeliveryCancelledEvent x => aggregate with {CancelledOnUtc = x.CancelledOnUtc, MetaData = metaData},
             _ => throw new ArgumentOutOfRangeException(nameof(@event))
         };
     }

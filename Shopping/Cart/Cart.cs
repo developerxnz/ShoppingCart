@@ -3,7 +3,7 @@ using Shopping.Core;
 using Shopping.Delivery.Core;
 using Shopping.Product;
 
-namespace Shopping.Cart;
+namespace Shopping.Cart.Serivces;
 
 public interface ICartService
 {
@@ -16,7 +16,7 @@ public interface ICartService
     /// <param name="correlationId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ErrorOr<AddToCartResponse>> AddToCart(CustomerId customerId, Sku sku, uint quantity, CorrelationId correlationId, CancellationToken cancellationToken);
+    Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, uint quantity, CorrelationId correlationId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Adds an item to the Cart
@@ -25,7 +25,7 @@ public interface ICartService
     /// <param name="correlationId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ErrorOr<AddToCartResponse>> AddToCart(AddToCartRequest request, CorrelationId correlationId,CancellationToken cancellationToken);
+    Task<ErrorOr<AddToCartResponse>> AddToCartAsync(AddToCartRequest request, CorrelationId correlationId,CancellationToken cancellationToken);
 
     /// <summary>
     /// Removes and item from the Cart
@@ -34,7 +34,7 @@ public interface ICartService
     /// <param name="correlationId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ErrorOr<RemoveItemFromCartResponse>> RemoveFromCart(RemoveItemFromCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken);
+    Task<ErrorOr<RemoveItemFromCartResponse>> RemoveFromCartAsync(RemoveItemFromCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates an Item in the Cart
@@ -43,23 +43,23 @@ public interface ICartService
     /// <param name="correlationId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ErrorOr<UpdateCartItemResponse>> UpdateCart(UpdateCartItemRequest request, CorrelationId correlationId, CancellationToken cancellationToken);
+    Task<ErrorOr<UpdateCartItemResponse>> UpdateCartAsync(UpdateCartItemRequest request, CorrelationId correlationId, CancellationToken cancellationToken);
 }
 
-public sealed class CartService : ICartService
+public sealed class Cart : ICartService
 {
     private readonly ICartCommandHandler _commandHandler;
-    private readonly IRepository<Persistence.Cart, IEvent> _repository;
+    private readonly IRepository<Persistence.Cart> _repository;
     private readonly ITransformer<CartAggregate, Persistence.Cart> _transformer;
 
-    public CartService(ICartCommandHandler commandHandler, IRepository<Persistence.Cart, IEvent> repository, ITransformer<CartAggregate, Persistence.Cart> transformer)
+    public Cart(ICartCommandHandler commandHandler, IRepository<Persistence.Cart> repository, ITransformer<CartAggregate, Persistence.Cart> transformer)
     {
         _commandHandler = commandHandler;
         _repository = repository;
         _transformer = transformer;
     }
 
-    public async Task<ErrorOr<AddToCartResponse>> AddToCart(CustomerId customerId, Sku sku, uint quantity, CorrelationId correlationId, CancellationToken cancellationToken)
+    public async Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, uint quantity, CorrelationId correlationId, CancellationToken cancellationToken)
     {
         AddItemToCartCommand command = new AddItemToCartCommand(DateTime.UtcNow, customerId, null, sku, quantity, correlationId);
         var commandResult =_commandHandler.HandlerForNew(command);
@@ -73,7 +73,7 @@ public sealed class CartService : ICartService
         return new AddToCartResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
-    public async Task<ErrorOr<AddToCartResponse>> AddToCart(AddToCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
+    public async Task<ErrorOr<AddToCartResponse>> AddToCartAsync(AddToCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
     {
         var aggregateResult = await LoadAsync(request.CustomerId, request.CartId, cancellationToken);
         if (aggregateResult.IsError)
@@ -82,7 +82,7 @@ public sealed class CartService : ICartService
         }
         
         AddItemToCartCommand command = new AddItemToCartCommand(DateTime.UtcNow, request.CustomerId, request.CartId, request.Sku, request.Quantity, correlationId);
-        var commandResult =_commandHandler.HandlerForNew(command);
+        var commandResult =_commandHandler.HandlerForExisting(command, aggregateResult.Value);
         if (commandResult.IsError)
         {
             return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
@@ -93,7 +93,7 @@ public sealed class CartService : ICartService
         return new AddToCartResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
-    public async Task<ErrorOr<RemoveItemFromCartResponse>> RemoveFromCart(RemoveItemFromCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
+    public async Task<ErrorOr<RemoveItemFromCartResponse>> RemoveFromCartAsync(RemoveItemFromCartRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
     {
         var aggregateResult = await LoadAsync(request.CustomerId, request.CartId, cancellationToken);
         if (aggregateResult.IsError)
@@ -113,7 +113,7 @@ public sealed class CartService : ICartService
         return new RemoveItemFromCartResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
-    public async Task<ErrorOr<UpdateCartItemResponse>> UpdateCart(UpdateCartItemRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
+    public async Task<ErrorOr<UpdateCartItemResponse>> UpdateCartAsync(UpdateCartItemRequest request, CorrelationId correlationId, CancellationToken cancellationToken)
     {
         var aggregateResult = await LoadAsync(request.CustomerId, request.CartId, cancellationToken);
         if (aggregateResult.IsError)
@@ -142,6 +142,6 @@ public sealed class CartService : ICartService
     private async Task SaveAsync(CartAggregate aggregate, IEnumerable<Event> events, CancellationToken cancellationToken)
     {
         var transformedAggregate = _transformer.FromDomain(aggregate);
-        await _repository.BatchUpdate(transformedAggregate.CustomerId, transformedAggregate, events);
+        await _repository.BatchUpdateAsync(transformedAggregate.CustomerId, transformedAggregate, events);
     }
 }

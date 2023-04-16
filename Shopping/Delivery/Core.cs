@@ -12,24 +12,40 @@ public record DeliveryId (Guid Value);
 
 public record Delivery(DeliveryId DeliveryId, DateTime CreatedOnUtc, DateTime DeliveredOnUtc);
 
-public record CreateDeliveryData(DateTime CreatedOnUtc, OrderId OrderId);
-public record CreateDeliveryCommand(DateTime CreatedOnUtc, OrderId OrderId, CorrelationId CorrelationId ) 
+public record CreateDeliveryData(DateTime CreatedOnUtc, CustomerId CustomerId, OrderId OrderId);
+public record CreateDeliveryCommand(DateTime CreatedOnUtc, CustomerId CustomerId, OrderId OrderId, CorrelationId CorrelationId ) 
     : DeliveryCommand<CreateDeliveryData>(
         CorrelationId, 
-        new CreateDeliveryData(CreatedOnUtc, OrderId)
+        new CreateDeliveryData(CreatedOnUtc, CustomerId, OrderId)
     );
 
-public record CompleteDeliveryData(DateTime CompletedOnUtc, OrderId OrderId, DeliveryId DeliverId);
-public record CompleteDeliveryCommand(DateTime CompletedOnUtc, DeliveryId DeliveryId, OrderId OrderId, CorrelationId CorrelationId ) 
+public record CancelDeliveryData(DateTime CancelledOnUtc, CustomerId CustomerId, OrderId OrderId, DeliveryId DeliverId);
+public record CancelDeliveryCommand(DateTime CancelledOnUtc, CustomerId CustomerId, OrderId OrderId, DeliveryId DeliveryId, CorrelationId CorrelationId ) 
+    : DeliveryCommand<CancelDeliveryData>(
+        CorrelationId, 
+        new CancelDeliveryData(CancelledOnUtc, CustomerId, OrderId, DeliveryId)
+    );
+
+public record CompleteDeliveryData(DateTime CompletedOnUtc, CustomerId CustomerId, OrderId OrderId, DeliveryId DeliverId);
+public record CompleteDeliveryCommand(DateTime CompletedOnUtc, CustomerId CustomerId, DeliveryId DeliveryId, OrderId OrderId, CorrelationId CorrelationId ) 
     : DeliveryCommand<CompleteDeliveryData>(
         CorrelationId, 
-        new CompleteDeliveryData(CompletedOnUtc, OrderId, DeliveryId)
+        new CompleteDeliveryData(CompletedOnUtc, CustomerId, OrderId, DeliveryId)
     );
     
 public record DeliveryCreatedEvent(
-        DateTime CreatedOnUtc, OrderId OrderId, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+        DateTime CreatedOnUtc, CustomerId CustomerId, OrderId OrderId, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
     : Event(CorrelationId, CausationId, Version, CreatedOnUtc) { }
     
 public record DeliveryCompletedEvent(
-        DateTime CompletedOnUtc, DeliveryId DeliveryId, OrderId OrderId, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+        DateTime CompletedOnUtc, CustomerId CustomerId, DeliveryId DeliveryId, OrderId OrderId, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
     : Event(CorrelationId, CausationId, Version, CompletedOnUtc) { }
+    
+public record DeliveryCancelledEvent(
+        DateTime CancelledOnUtc, CustomerId CustomerId, DeliveryId DeliveryId, OrderId OrderId, Shopping.Core.Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+    : Event(CorrelationId, CausationId, Version, CancelledOnUtc) { }
+
+public sealed record DeliveryCreatedResponse(DeliveryId DeliverId, CorrelationId CorrelationId);
+public sealed record DeliveryCancelledResponse(DeliveryId DeliverId, CorrelationId CorrelationId);
+
+public sealed record DeliveryCompletedResponse(DeliveryId DeliverId, CorrelationId CorrelationId);

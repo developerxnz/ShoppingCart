@@ -21,6 +21,8 @@ public sealed record DeliveryAggregate : Aggregate<DeliveryAggregate>, IAggregat
     public DeliveryId Id { get; init; } = new(Guid.NewGuid());
     
     public DateTime CreatedOnUtc { get; init; }
+
+    public DateTime? CancelledOnUtc { get; init; } = null;
     
     public DateTime? DeliveredOnUtc { get; init; } = null;
     

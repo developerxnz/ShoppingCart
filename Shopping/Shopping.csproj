@@ -11,8 +11,4 @@
       <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.32.3" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Persistence" />
-    </ItemGroup>
-
 </Project>

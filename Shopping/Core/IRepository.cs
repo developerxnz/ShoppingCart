@@ -1,6 +1,6 @@
 namespace Shopping.Core;
 
-public interface IRepository<T, in T1> where T1: IEvent
+public interface IRepository<T>
 {
     /// <summary>
     /// Returns a document for the specified PartitionKeys and Id
@@ -26,5 +26,5 @@ public interface IRepository<T, in T1> where T1: IEvent
     /// <param name="aggregate"></param>
     /// <param name="events"></param>
     /// <returns></returns>
-    Task BatchUpdate(string partitionKey, T aggregate, IEnumerable<T1> events);
+    Task BatchUpdateAsync(string partitionKey, T aggregate, IEnumerable<IEvent> events);
 }

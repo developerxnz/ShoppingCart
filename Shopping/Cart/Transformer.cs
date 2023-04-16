@@ -12,11 +12,12 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
         return new Persistence.Cart
         {
             Id = domain.Id.Value.ToString(),
+            CustomerId = domain.CustomerId.Value.ToString(),
             CreatedOnUtc = domain.CreatedOnUtc,
-            ETag = "",
+            ETag = domain.Etag,
             Items = FromDomain(domain.Items),
             MetaData = new MetaData(
-                domain.MetaData.StreamId.ToString(),
+                domain.MetaData.StreamId.Value.ToString(),
                 domain.MetaData.Version.Value,
                 domain.MetaData.TimeStamp
             )
@@ -34,12 +35,20 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
         {
             return Error.Validation("Invalid CustomerId");
         }
+
+        var transformedItemsResult =
+            ToDomain(dto.Items);
+
+        if (transformedItemsResult.IsError)
+        {
+            return ErrorOr.ErrorOr.From(transformedItemsResult.Errors).Value;
+        }
         
         return new CartAggregate(dto.CreatedOnUtc, new CustomerId(customerId))
         {
             Id = new CartId(cartId),
             Etag = dto.ETag,
-            //Items = items,
+            Items = transformedItemsResult.Value,
             MetaData = new Core.MetaData(new StreamId(cartId), new(dto.MetaData.Version), dto.MetaData.TimeStamp) 
         };
     }
