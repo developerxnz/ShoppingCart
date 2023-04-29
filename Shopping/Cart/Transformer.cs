@@ -2,6 +2,7 @@ using Shopping.Core;
 using Shopping.Product;
 using MetaData = Shopping.Cart.Persistence.MetaData;
 using ErrorOr;
+using Version = Shopping.Core.Version;
 
 namespace Shopping.Cart;
 
@@ -49,14 +50,14 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
             Id = new CartId(cartId),
             Etag = dto.ETag,
             Items = transformedItemsResult.Value,
-            MetaData = new Core.MetaData(new StreamId(cartId), new(dto.MetaData.Version), dto.MetaData.TimeStamp) 
+            MetaData = new Core.MetaData(new StreamId(cartId), new Version(dto.MetaData.Version), dto.MetaData.TimeStamp) 
         };
     }
 
-    public ErrorOr<IEnumerable<CartAggregate>> ToDomain(IEnumerable<Persistence.Cart> dtos)
+    public ErrorOr<IEnumerable<CartAggregate>> ToDomain(IEnumerable<Persistence.Cart> carts)
     {
         var converted = new List<CartAggregate>();
-        foreach (var dto in dtos)
+        foreach (var dto in carts)
         {
             var response = ToDomain(dto);
             if (response.IsError)
@@ -75,10 +76,10 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
         return domains.Select(FromDomain).ToList();
     }
 
-    public ErrorOr<IEnumerable<CartItem>> ToDomain(IEnumerable<Persistence.CartItem> dtos)
+    public ErrorOr<IEnumerable<CartItem>> ToDomain(IEnumerable<Persistence.CartItem> cartItems)
     {
         var converted = new List<CartItem>();
-        foreach (var dto in dtos)
+        foreach (var dto in cartItems)
         {
             var t = ToDomain(dto);
 

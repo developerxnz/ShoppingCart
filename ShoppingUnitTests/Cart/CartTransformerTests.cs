@@ -1,14 +1,14 @@
 using Shopping.Cart;
-using Shopping.Cart.Persistence;
 using Shopping.Core;
 using Shopping.Product;
+using Cart = Shopping.Cart.Cart;
 using CartItem = Shopping.Cart.CartItem;
 
 namespace ShoppingUnitTests;
 
 public class CartTransformerTests
 {
-    private readonly ITransformer<CartAggregate, Cart> _transformer;
+    private readonly ITransformer<CartAggregate, Shopping.Cart.Persistence.Cart> _transformer;
 
     public CartTransformerTests()
     {
@@ -117,7 +117,7 @@ public class CartTransformerTests
             new Shopping.Cart.Persistence.CartItem(firstSku.Value.ToString(), firstQuantity),
             new Shopping.Cart.Persistence.CartItem(lastSku.Value.ToString(), lastQuantity)
         };
-        Cart dto = new()
+        Shopping.Cart.Persistence.Cart dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,
@@ -169,7 +169,7 @@ public class CartTransformerTests
             new Shopping.Cart.Persistence.CartItem(firstSku.Value.ToString(), firstQuantity),
             new Shopping.Cart.Persistence.CartItem(lastSku.Value.ToString(), lastQuantity)
         };
-        Cart dto = new()
+        Shopping.Cart.Persistence.Cart dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,

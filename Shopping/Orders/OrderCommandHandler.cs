@@ -4,6 +4,7 @@ using Shopping.Domain.Core.Handlers;
 using Shopping.Orders;
 using Shopping.Orders.Core;
 using Shopping.Extensions;
+using Version = Shopping.Core.Version;
 
 namespace Shopping;
 
@@ -71,8 +72,12 @@ public sealed class OrderCommandHandler : Handler<OrderAggregate, IOrderCommand>
             aggregate,
             new[]
             {
-                new OrderCreatedEvent(command.CreatedOnUtc, command.CustomerId, new(1), command.CorrelationId,
-                    new(command.Id.Value))
+                new OrderCreatedEvent(
+                    command.CreatedOnUtc, 
+                    command.CustomerId, 
+                    new Version(1), 
+                    command.CorrelationId,
+                    new CausationId(command.Id.Value))
             }
         );
     }
@@ -100,7 +105,7 @@ public sealed class OrderCommandHandler : Handler<OrderAggregate, IOrderCommand>
             {
                 new OrderCompletedEvent(command.CompletedOnUtc, command.CustomerId, command.OrderId,
                     aggregate.MetaData.Version.Increment(),
-                    command.CorrelationId, new(command.Id.Value))
+                    command.CorrelationId, new CausationId(command.Id.Value))
             });
     }
 
@@ -128,7 +133,7 @@ public sealed class OrderCommandHandler : Handler<OrderAggregate, IOrderCommand>
             {
                 new OrderCancelledEvent(command.CancelledOnUtc, command.CustomerId, command.OrderId,
                     aggregate.MetaData.Version.Increment(),
-                    command.CorrelationId, new(command.Id.Value))
+                    command.CorrelationId, new CausationId(command.Id.Value))
             });
     }
 

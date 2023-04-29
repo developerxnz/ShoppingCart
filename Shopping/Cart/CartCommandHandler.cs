@@ -5,7 +5,7 @@ using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;
 using Shopping.Product;
 
-namespace Shopping.Delivery.Core;
+namespace Shopping.Cart;
 
 public interface ICartCommandHandler
 {
@@ -58,7 +58,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
                     command.Quantity,
                     aggregate.MetaData.Version.Increment(),
                     command.CorrelationId,
-                    new(command.Id.Value))
+                    new CausationId(command.Id.Value))
             }
         );
     }
@@ -80,7 +80,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
                     command.Sku,
                     aggregate.MetaData.Version.Increment(),
                     command.CorrelationId,
-                    new(command.Id.Value))
+                    new CausationId(command.Id.Value))
             });
     }
 
@@ -107,7 +107,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
                     command.Quantity,
                     aggregate.MetaData.Version.Increment(),
                     command.CorrelationId,
-                    new(command.Id.Value))
+                    new CausationId(command.Id.Value))
             });
     }
 
@@ -133,8 +133,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             {
                 AddItemToCartCommand addItemToCartCommand => addItemToCartCommand.CartId ?? aggregate.Id,
                 RemoveItemFromCartCommand removeItemFromCartCommand => removeItemFromCartCommand.CartId,
-                UpdateItemInCartCommand updateItemInCartCommand =>
-                    updateItemInCartCommand.CartId,
+                UpdateItemInCartCommand updateItemInCartCommand => updateItemInCartCommand.CartId,
                 _ => throw new ArgumentOutOfRangeException(nameof(command))
             });
             
@@ -149,7 +148,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
     private CartAggregate AppendItem(CartAggregate aggregate, CartItemAddedEvent @event)
     {
         List<CartItem> items = aggregate.Items.ToList();
-        items.Add(new(@event.Sku, @event.Quantity));
+        items.Add(new CartItem(@event.Sku, @event.Quantity));
 
         return aggregate with {Items = items};
     }

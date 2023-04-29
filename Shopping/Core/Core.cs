@@ -29,7 +29,13 @@ public static class Constants
 
 public record CausationId(Guid Value);
 
-public record CustomerId(Guid Value);
+public record CustomerId(Guid Value)
+{
+    public static CustomerId Create()
+    {
+        return new CustomerId(Guid.NewGuid());
+    }
+};
 
 public record CommandId(Guid Value);
 

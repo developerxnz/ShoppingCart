@@ -2,6 +2,7 @@ using Shopping.Core;
 using ErrorOr;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;
+using Version = Shopping.Core.Version;
 
 namespace Shopping.Delivery.Core;
 
@@ -36,8 +37,13 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
             aggregate,
             new[]
             {
-                new DeliveryCreatedEvent(command.CreatedOnUtc, command.CustomerId, command.OrderId, new(1), command.CorrelationId,
-                    new(command.Id.Value))
+                new DeliveryCreatedEvent(
+                    command.CreatedOnUtc, 
+                    command.CustomerId, 
+                    command.OrderId, 
+                    new Version(1), 
+                    command.CorrelationId,
+                    new CausationId(command.Id.Value))
             }
         );
     }
@@ -64,8 +70,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
         DeliveryAggregate aggregate) =>
         (command switch
         {
-            CompleteDeliveryCommand completeDeliveryCommand =>
-                GenerateEventsForDeliveryCompleted(completeDeliveryCommand, aggregate),
+            CompleteDeliveryCommand completeDeliveryCommand => GenerateEventsForDeliveryCompleted(completeDeliveryCommand, aggregate),
             _ => throw new ArgumentOutOfRangeException(nameof(command))
         })
         .Match(

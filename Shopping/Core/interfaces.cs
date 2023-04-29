@@ -8,7 +8,7 @@ public interface ITransformer<TDomain, TDto>
 
     ErrorOr<TDomain> ToDomain(TDto dto);
 
-    ErrorOr<IEnumerable<TDomain>> ToDomain(IEnumerable<TDto> dtos);
+    ErrorOr<IEnumerable<TDomain>> ToDomain(IEnumerable<TDto> carts);
 
     IEnumerable<TDto> FromDomain(IEnumerable<TDomain> domains);
 }

@@ -1,11 +1,10 @@
 using ErrorOr;
 using Shopping.Core;
-using Shopping.Delivery.Core;
 using Shopping.Product;
 
-namespace Shopping.Cart.Serivces;
+namespace Shopping.Cart;
 
-public interface ICartService
+public interface ICart
 {
     /// <summary>
     /// Adds an item to the Cart
@@ -46,7 +45,7 @@ public interface ICartService
     Task<ErrorOr<UpdateCartItemResponse>> UpdateCartAsync(UpdateCartItemRequest request, CorrelationId correlationId, CancellationToken cancellationToken);
 }
 
-public sealed class Cart : ICartService
+public sealed class Cart : ICart
 {
     private readonly ICartCommandHandler _commandHandler;
     private readonly IRepository<Persistence.Cart> _repository;

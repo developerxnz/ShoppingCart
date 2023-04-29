@@ -5,7 +5,7 @@ using Version = Shopping.Core.Version;
 
 namespace Shopping;
 
-public interface IOrderService
+public interface IOrder
 {
     /// <summary>
     /// Creates a new Order
@@ -34,7 +34,7 @@ public interface IOrderService
     Task CancelOrder(CustomerId customerId, OrderId orderId, CorrelationId correlationId);
 }
 
-public sealed class OrdersService : IOrderService
+public sealed class OrdersService : IOrder
 {
     private readonly IOrderCommandHandler _commandHandler;
 
@@ -75,8 +75,8 @@ public sealed class OrdersService : IOrderService
             aggregateDateTime, 
             customerId
         ) { MetaData = new MetaData(
-            new(orderId.Value), 
-            new(3), 
+            new StreamId(orderId.Value), 
+            new Version(3), 
             aggregateDateTime
         )};
         
