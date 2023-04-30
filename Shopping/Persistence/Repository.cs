@@ -4,19 +4,17 @@ namespace Shopping.Persistence;
 
 public abstract class Repository<T>
 {
-    private readonly CosmosClient _client;
-    protected readonly Container Container;
+    private readonly Container _container;
 
-    protected Repository(CosmosClient client,string database, string container)
+    protected Repository(CosmosClient client,string database, string containerName)
     {
-        _client = client;
-        _client.GetContainer(database, container);
+        _container = client.GetContainer(database, containerName);
     }
     
     public async Task<T> GetByIdAsync(string partitionKey, string id, CancellationToken cancellationToken)
     {
         ItemRequestOptions requestOptions = new ItemRequestOptions();
-        ItemResponse<T> response = await Container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions, cancellationToken);
+        ItemResponse<T> response = await _container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions, cancellationToken);
 
         return response.Resource;
     }
@@ -31,7 +29,7 @@ public abstract class Repository<T>
 
         List<T> documents = new();
         QueryDefinition queryDefinition = new QueryDefinition("select * from c");
-        using FeedIterator<T>? feedIterator = Container.GetItemQueryIterator<T>(queryDefinition, "", requestOptions);
+        using FeedIterator<T>? feedIterator = _container.GetItemQueryIterator<T>(queryDefinition, "", requestOptions);
         while (feedIterator.HasMoreResults)
         {
             FeedResponse<T> items = await feedIterator.ReadNextAsync(cancellationToken);
@@ -44,7 +42,7 @@ public abstract class Repository<T>
     protected async Task BatchUpdateAsync(string partitionKey, object aggregate, IEnumerable<object> events)
     {
         PartitionKey key = new PartitionKey(partitionKey);
-        TransactionalBatch batch = Container.CreateTransactionalBatch(key);
+        TransactionalBatch batch = _container.CreateTransactionalBatch(key);
 
         batch.UpsertItem(aggregate);
         foreach (var @event in events)

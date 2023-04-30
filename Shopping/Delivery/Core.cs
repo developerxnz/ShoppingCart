@@ -8,7 +8,13 @@ public interface IDeliveryCommand : ICommand {}
 
 public record DeliveryCommand<T>(CorrelationId CorrelationId, T Data) : Command<T>(CorrelationId, Data), IDeliveryCommand;
 
-public record DeliveryId (Guid Value);
+public record DeliveryId(Guid Value)
+{
+    public static DeliveryId Create()
+    {
+        return new DeliveryId(Guid.NewGuid());
+    }
+};
 
 public record CreateDeliveryData(DateTime CreatedOnUtc, CustomerId CustomerId, OrderId OrderId);
 public record CreateDeliveryCommand(DateTime CreatedOnUtc, CustomerId CustomerId, OrderId OrderId, CorrelationId CorrelationId ) 
