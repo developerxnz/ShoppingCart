@@ -12,7 +12,7 @@ public class CartTransformerTests
 
     public CartTransformerTests()
     {
-        _transformer = new CartTransformer();
+        _transformer = new CartTransformer(new CartItemTransformer());
     }
 
     [Fact]
@@ -87,7 +87,6 @@ public class CartTransformerTests
             Assert.Equal(lastQuantity, cartDto.Items.Last().Quantity);
         }
     }
-
     
     [Fact]
     public void ToDomain_Should_Return_Expected_Domain()
@@ -99,7 +98,7 @@ public class CartTransformerTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         DateTime timestamp = DateTime.UtcNow;
         uint version = 25;
-        Shopping.Cart.Persistence.MetaData metaData = 
+        Shopping.Core.Persistence.MetaData metaData = 
             new(
                 streamId.Value.ToString(),
                 version,
@@ -151,7 +150,7 @@ public class CartTransformerTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         DateTime timestamp = DateTime.UtcNow;
         uint version = 25;
-        Shopping.Cart.Persistence.MetaData metaData = 
+        Shopping.Core.Persistence.MetaData metaData = 
             new(
                 streamId.Value.ToString(),
                 version,

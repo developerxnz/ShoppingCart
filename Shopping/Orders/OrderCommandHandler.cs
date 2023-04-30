@@ -1,12 +1,11 @@
 using ErrorOr;
 using Shopping.Core;
 using Shopping.Domain.Core.Handlers;
-using Shopping.Orders;
 using Shopping.Orders.Core;
 using Shopping.Extensions;
 using Version = Shopping.Core.Version;
 
-namespace Shopping;
+namespace Shopping.Orders;
 
 public interface IOrderCommandHandler
 {
@@ -61,11 +60,9 @@ public sealed class OrderCommandHandler : Handler<OrderAggregate, IOrderCommand>
 
     private ErrorOr<CommandResult<OrderAggregate>> GenerateEventsForOrderCreated(CreateOrderCommand command)
     {
-        OrderAggregate aggregate = new(
-            command.CreatedOnUtc,
-            command.CustomerId)
+        OrderAggregate aggregate = new(command.CreatedOnUtc, command.CustomerId)
         {
-            MetaData = new MetaData(new(command.CustomerId.Value), new Core.Version(1), command.CreatedOnUtc)
+            MetaData = new MetaData(new StreamId(command.CustomerId.Value), new Version(1), command.CreatedOnUtc)
         };
 
         return new CommandResult<OrderAggregate>(

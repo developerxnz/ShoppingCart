@@ -10,8 +10,6 @@ public record DeliveryCommand<T>(CorrelationId CorrelationId, T Data) : Command<
 
 public record DeliveryId (Guid Value);
 
-public record Delivery(DeliveryId DeliveryId, DateTime CreatedOnUtc, DateTime DeliveredOnUtc);
-
 public record CreateDeliveryData(DateTime CreatedOnUtc, CustomerId CustomerId, OrderId OrderId);
 public record CreateDeliveryCommand(DateTime CreatedOnUtc, CustomerId CustomerId, OrderId OrderId, CorrelationId CorrelationId ) 
     : DeliveryCommand<CreateDeliveryData>(
@@ -49,3 +47,6 @@ public sealed record DeliveryCreatedResponse(DeliveryId DeliverId, CorrelationId
 public sealed record DeliveryCancelledResponse(DeliveryId DeliverId, CorrelationId CorrelationId);
 
 public sealed record DeliveryCompletedResponse(DeliveryId DeliverId, CorrelationId CorrelationId);
+
+public sealed record CreateDeliveryRequest();
+public sealed record CreateDeliveryResponse();

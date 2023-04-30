@@ -7,7 +7,7 @@ public sealed record Delivery(
     string Id,
     DateTime CreatedOnUtc,
     DateTime? DeliveredOnUtc,
-    MetaData MetaData,
+    Shopping.Core.Persistence.MetaData MetaData,
     string OrderId
 );
 

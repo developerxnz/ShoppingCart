@@ -1,14 +1,20 @@
 using Shopping.Core;
 using Shopping.Product;
-using MetaData = Shopping.Cart.Persistence.MetaData;
 using ErrorOr;
 using Version = Shopping.Core.Version;
 
 namespace Shopping.Cart;
 
-public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
+public sealed class CartTransformer : Transformer<CartAggregate, Persistence.Cart>
 {
-    public Persistence.Cart FromDomain(CartAggregate domain)
+    private readonly CartItemTransformer _cartItemTransformer;
+
+    public CartTransformer(CartItemTransformer cartItemTransformer)
+    {
+        _cartItemTransformer = cartItemTransformer;
+    }
+
+    public override Persistence.Cart FromDomain(CartAggregate domain)
     {
         return new Persistence.Cart
         {
@@ -17,7 +23,7 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
             CreatedOnUtc = domain.CreatedOnUtc,
             ETag = domain.Etag,
             Items = FromDomain(domain.Items),
-            MetaData = new MetaData(
+            MetaData = new Core.Persistence.MetaData(
                 domain.MetaData.StreamId.Value.ToString(),
                 domain.MetaData.Version.Value,
                 domain.MetaData.TimeStamp
@@ -25,7 +31,7 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
         };
     }
 
-    public ErrorOr<CartAggregate> ToDomain(Persistence.Cart dto)
+    public override ErrorOr<CartAggregate> ToDomain(Persistence.Cart dto)
     {
         if (!Guid.TryParse(dto.CustomerId, out Guid customerId))
         {
@@ -37,8 +43,7 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
             return Error.Validation("Invalid CustomerId");
         }
 
-        var transformedItemsResult =
-            ToDomain(dto.Items);
+        var transformedItemsResult = _cartItemTransformer.ToDomain(dto.Items);
 
         if (transformedItemsResult.IsError)
         {
@@ -50,58 +55,15 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
             Id = new CartId(cartId),
             Etag = dto.ETag,
             Items = transformedItemsResult.Value,
-            MetaData = new Core.MetaData(new StreamId(cartId), new Version(dto.MetaData.Version), dto.MetaData.TimeStamp) 
+            MetaData = new MetaData(new StreamId(cartId), new Version(dto.MetaData.Version), dto.MetaData.TimeStamp) 
         };
     }
 
-    public ErrorOr<IEnumerable<CartAggregate>> ToDomain(IEnumerable<Persistence.Cart> carts)
-    {
-        var converted = new List<CartAggregate>();
-        foreach (var dto in carts)
-        {
-            var response = ToDomain(dto);
-            if (response.IsError)
-            {
-                return response.Errors;
-            }
-            
-            converted.Add(response.Value);
-        }
-
-        return converted;
-    }
-
-    public IEnumerable<Persistence.Cart> FromDomain(IEnumerable<CartAggregate> domains)
-    {
-        return domains.Select(FromDomain).ToList();
-    }
-
-    public ErrorOr<IEnumerable<CartItem>> ToDomain(IEnumerable<Persistence.CartItem> cartItems)
-    {
-        var converted = new List<CartItem>();
-        foreach (var dto in cartItems)
-        {
-            var t = ToDomain(dto);
-
-            if (t.IsError)
-            {
-                return t.Errors;
-            }
-
-            converted.Add(t.Value);
-        }
-
-        return converted;
-    }
-    
     private IEnumerable<Persistence.CartItem> FromDomain(IEnumerable<CartItem> items)
     {
-        return items.Select(FromDomain).ToList();
-    }
-
-    private Persistence.CartItem FromDomain(CartItem domain)
-    {
-        return new Persistence.CartItem(domain.Sku.Value.ToString(), domain.Quantity);
+        return items
+            .Select(_cartItemTransformer.FromDomain)
+            .ToList();
     }
 
     private ErrorOr<CartItem> ToDomain(Persistence.CartItem dto)
@@ -112,6 +74,26 @@ public class CartTransformer : ITransformer<CartAggregate, Persistence.Cart>
         }
 
         Sku sku = new Sku(skuGuid);
+        return new CartItem(sku, dto.Quantity);
+    }
+}
+
+public sealed class CartItemTransformer : Transformer<CartItem, Persistence.CartItem>
+{
+    public override Persistence.CartItem FromDomain(CartItem domain)
+    {
+        return new Persistence.CartItem(domain.Sku.Value.ToString(), domain.Quantity);
+    }
+
+    public override ErrorOr<CartItem> ToDomain(Persistence.CartItem dto)
+    {
+        if (!Guid.TryParse(dto.Sku, out Guid skuGuid))
+        {
+            return Error.Validation($"Invalid {nameof(dto.Sku)}");
+        }
+
+        Sku sku = new Sku(skuGuid);
+        
         return new CartItem(sku, dto.Quantity);
     }
 }

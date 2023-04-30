@@ -9,7 +9,13 @@ public interface IOrderCommand : ICommand {}
 public record OrderCommand<T>(CorrelationId CorrelationId, T Data) : Command<T>(CorrelationId, Data), IOrderCommand;
 
 
-public record OrderId(Guid Value);
+public record OrderId(Guid Value)
+{
+    public static OrderId Create()
+    {
+        return new OrderId(Guid.NewGuid());
+    }
+}
 
 public record OrderCreatedEvent(DateTime CreatedOnUtc, CustomerId CustomerId, Version Version, CorrelationId CorrelationId, CausationId CausationId) 
     : Event(CorrelationId, CausationId, Version, CreatedOnUtc) { }

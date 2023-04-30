@@ -1,16 +1,17 @@
 using Microsoft.Azure.Cosmos;
 using Shopping.Core;
+using MetaData = Shopping.Core.Persistence.MetaData;
+
+//using Shopping.Core;
 
 namespace Shopping.Orders.Persistence;
-
-public record MetaData(string StreamId, uint Version, DateTime TimeStamp);
 
 public record Order(
     string Id,
     DateTime? CancelledOnUtc,
     DateTime? CompletedOnUtc,
     DateTime CreatedOnUtc,
-    CustomerId CustomerId,
+    string CustomerId,
     MetaData MetaData);
 
 public class Repository : Shopping.Persistence.Repository<Order>, IRepository<Order>

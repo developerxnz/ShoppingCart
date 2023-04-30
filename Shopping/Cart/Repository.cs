@@ -1,10 +1,11 @@
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Shopping.Core;
+using MetaData = Shopping.Core.Persistence.MetaData;
 
 namespace Shopping.Cart.Persistence;
 
-public record MetaData(string StreamId, uint Version, DateTime TimeStamp);
+
 
 public record Cart
 {

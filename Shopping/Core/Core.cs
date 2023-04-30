@@ -39,7 +39,13 @@ public record CustomerId(Guid Value)
 
 public record CommandId(Guid Value);
 
-public record CorrelationId(Guid Value);
+public record CorrelationId(Guid Value)
+{
+    public static CorrelationId Create()
+    {
+        return new CorrelationId(Guid.NewGuid());
+    }
+}
 
 public record EventId(Guid Value);
 
@@ -49,4 +55,9 @@ public record StreamId(Guid Value);
 
 public record Version(uint Value);
 
+public record Total(Decimal Value);
+
+public record TaxRate(decimal Value);
+
+public record Tax(TaxRate TaxRate, Total Total);
 

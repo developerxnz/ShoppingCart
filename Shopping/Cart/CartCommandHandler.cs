@@ -1,6 +1,5 @@
 using Shopping.Core;
 using ErrorOr;
-using Shopping.Cart;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;
 using Shopping.Product;
@@ -26,12 +25,9 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
     protected override ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
         (command switch
         {
-            AddItemToCartCommand addItemToCartCommand =>
-                GenerateEventsForItemAdded(addItemToCartCommand, aggregate),
-            RemoveItemFromCartCommand removeItemFromCartCommand =>
-                GenerateEventsForItemRemoved(removeItemFromCartCommand, aggregate),
-            UpdateItemInCartCommand updateItemInCartCommand =>
-                GenerateEventsForItemUpdated(updateItemInCartCommand, aggregate),
+            AddItemToCartCommand addItemToCartCommand => GenerateEventsForItemAdded(addItemToCartCommand, aggregate),
+            RemoveItemFromCartCommand removeItemFromCartCommand => GenerateEventsForItemRemoved(removeItemFromCartCommand, aggregate),
+            UpdateItemInCartCommand updateItemInCartCommand => GenerateEventsForItemUpdated(updateItemInCartCommand, aggregate),
             _ => throw new ArgumentOutOfRangeException(nameof(command))
         })
         .Match(
@@ -40,7 +36,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
 
     private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemAdded(AddItemToCartCommand command)
     {
-        CartAggregate aggregate = new(command.AddedOnUtc, command.CustomerId);
+        CartAggregate aggregate = new CartAggregate(command.AddedOnUtc, command.CustomerId);
         return ExecuteCommand(command, aggregate);
     }
 
