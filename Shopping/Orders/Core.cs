@@ -47,3 +47,9 @@ public record CancelOrderCommand(DateTime CancelledOnUtc, CustomerId CustomerId,
         CorrelationId, 
         new CancelOrderData(CancelledOnUtc, CustomerId, OrderId)
     );
+
+public record CancelOrderResponse(OrderId OrderId, CorrelationId CorrelationId);
+
+public record CompleteOrderResponse(OrderId OrderId, CorrelationId CorrelationId);
+
+public record CreateOrderResponse(OrderId OrderId, CorrelationId CorrelationId);

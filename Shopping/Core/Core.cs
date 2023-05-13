@@ -61,3 +61,7 @@ public record TaxRate(decimal Value);
 
 public record Tax(TaxRate TaxRate, Total Total);
 
+public sealed record PartitionKey(string Value);
+
+public sealed record Id(string Value);
+

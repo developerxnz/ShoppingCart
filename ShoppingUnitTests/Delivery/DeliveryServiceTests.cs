@@ -41,7 +41,7 @@ public class DeliveryServiceTests
 
         var response =
             await _service
-                .Create(createdOnUtc, customerId, orderId, correlationId, cancellationToken);
+                .CreateAsync(createdOnUtc, customerId, orderId, correlationId, cancellationToken);
 
         response
             .Switch(
@@ -86,7 +86,7 @@ public class DeliveryServiceTests
         
         var response =
             await _service
-                .Complete(completedOnUtc, customerId, orderId, deliveryId, correlationId, cancellationToken);
+                .CompleteAsync(completedOnUtc, customerId, orderId, deliveryId, correlationId, cancellationToken);
 
         response
             .Switch(

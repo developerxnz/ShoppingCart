@@ -1,4 +1,6 @@
 using Microsoft.Azure.Cosmos;
+using Shopping.Core;
+using PartitionKey = Microsoft.Azure.Cosmos.PartitionKey;
 
 namespace Shopping.Persistence;
 
@@ -39,9 +41,9 @@ public abstract class Repository<T>
         return documents;
     }
 
-    protected async Task BatchUpdateAsync(string partitionKey, object aggregate, IEnumerable<object> events)
+    protected async Task BatchUpdateAsync(IPersistenceIdentifier aggregate, IEnumerable<object> events)
     {
-        PartitionKey key = new PartitionKey(partitionKey);
+        PartitionKey key = new PartitionKey(aggregate.PartitionKey);
         TransactionalBatch batch = _container.CreateTransactionalBatch(key);
 
         batch.UpsertItem(aggregate);

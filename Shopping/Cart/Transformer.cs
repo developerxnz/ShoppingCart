@@ -1,6 +1,7 @@
 using Shopping.Core;
 using Shopping.Product;
 using ErrorOr;
+using Shopping.Cart.Core;
 using Version = Shopping.Core.Version;
 
 namespace Shopping.Cart;
@@ -23,7 +24,7 @@ public sealed class CartTransformer : Transformer<CartAggregate, Persistence.Car
             CreatedOnUtc = domain.CreatedOnUtc,
             ETag = domain.Etag,
             Items = FromDomain(domain.Items),
-            MetaData = new Core.Persistence.MetaData(
+            MetaData = new Shopping.Core.Persistence.MetaData(
                 domain.MetaData.StreamId.Value.ToString(),
                 domain.MetaData.Version.Value,
                 domain.MetaData.TimeStamp

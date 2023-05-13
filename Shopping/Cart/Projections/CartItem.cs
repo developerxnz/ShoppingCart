@@ -1,3 +1,4 @@
+using Shopping.Cart.Core;
 using Shopping.Product;
 
 namespace Shopping.Cart.Projections;

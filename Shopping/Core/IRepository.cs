@@ -1,6 +1,13 @@
 namespace Shopping.Core;
 
-public interface IRepository<T>
+public interface IPersistenceIdentifier
+{
+    string PartitionKey { get; }
+    
+    string Id { get; }
+}
+
+public interface IRepository<T> where T:IPersistenceIdentifier
 {
     /// <summary>
     /// Returns a document for the specified PartitionKeys and Id
@@ -22,9 +29,9 @@ public interface IRepository<T>
     /// <summary>
     /// Batch update aggregate with events
     /// </summary>
-    /// <param name="partitionKey"></param>
     /// <param name="aggregate"></param>
     /// <param name="events"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task BatchUpdateAsync(string partitionKey, T aggregate, IEnumerable<IEvent> events);
+    Task BatchUpdateAsync(T aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken);
 }

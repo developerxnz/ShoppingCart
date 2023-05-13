@@ -6,7 +6,7 @@
     &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1d21e3b0_002Dc0f9_002D4b0b_002D97b9_002Daf02ce057a47/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1d21e3b0_002Dc0f9_002D4b0b_002D97b9_002Daf02ce057a47/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=241907b2_002D3ef8_002D4f64_002Dacea_002D02823e7d4719/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
@@ -23,7 +23,7 @@
     &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b534a390_002Dbe6e_002D4b6d_002D9487_002Dc3db55ff1294/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AddToCart_ForNew_Should_Return_Error_When_CommandHandler_Returns_Error" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b534a390_002Dbe6e_002D4b6d_002D9487_002Dc3db55ff1294/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddToCart_ForNew_Should_Return_Error_When_CommandHandler_Returns_Error" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.CartTests.AddToCart_ForNew_Should_Return_Error_When_CommandHandler_Returns_Error&lt;/TestId&gt;
   &lt;/TestAncestor&gt;

@@ -1,3 +1,4 @@
+using Shopping.Cart.Core;
 using Shopping.Core;
 
 namespace Shopping.Cart;

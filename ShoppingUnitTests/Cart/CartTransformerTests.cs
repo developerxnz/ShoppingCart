@@ -1,8 +1,7 @@
 using Shopping.Cart;
+using Shopping.Cart.Core;
 using Shopping.Core;
 using Shopping.Product;
-using Cart = Shopping.Cart.Cart;
-using CartItem = Shopping.Cart.CartItem;
 
 namespace ShoppingUnitTests;
 

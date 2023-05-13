@@ -1,5 +1,8 @@
 using Shopping.Core;
 using ErrorOr;
+using Shopping.Cart.Commands;
+using Shopping.Cart.Core;
+using Shopping.Cart.Events;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;
 using Shopping.Product;

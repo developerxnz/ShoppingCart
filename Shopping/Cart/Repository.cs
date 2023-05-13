@@ -1,21 +1,20 @@
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Shopping.Core;
-using MetaData = Shopping.Core.Persistence.MetaData;
 
 namespace Shopping.Cart.Persistence;
 
-
-
-public record Cart
+public record Cart : IPersistenceIdentifier
 {
+    public string PartitionKey => CustomerId;
+    
     public string Id { get; init; }
 
     public string CustomerId { get; init; }
     
     public DateTime CreatedOnUtc { get; init; }
 
-    public MetaData MetaData { get; init; }
+    public Shopping.Core.Persistence.MetaData MetaData { get; init; }
     
     public IEnumerable<CartItem> Items { get; init; }
     
@@ -36,6 +35,11 @@ public sealed class CartRepository: Shopping.Persistence.Repository<Cart>, IRepo
 
     public async Task BatchUpdateAsync(string partitionKey, Cart aggregate, IEnumerable<IEvent> events)
     {
-        await base.BatchUpdateAsync(partitionKey, aggregate, events);
+        await base.BatchUpdateAsync(aggregate, events);
+    }
+
+    public async Task BatchUpdateAsync(Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
+    {
+        await base.BatchUpdateAsync(aggregate, events);
     }
 }

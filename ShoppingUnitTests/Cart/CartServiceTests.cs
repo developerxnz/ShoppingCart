@@ -1,6 +1,9 @@
 using ErrorOr;
 using Moq;
 using Shopping.Cart;
+using Shopping.Cart.Commands;
+using Shopping.Cart.Core;
+using Shopping.Cart.Requests;
 using Shopping.Core;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Product;
@@ -13,7 +16,7 @@ namespace ShoppingUnitTests;
 
 public class CartTests
 {
-    private readonly Shopping.Cart.Cart _cart;
+    private readonly Shopping.Cart.Services.Cart _cart;
     private readonly Mock<IRepository<Cart>> _repository;
     private readonly Mock<ICartCommandHandler> _cartHandler;
 
@@ -23,7 +26,7 @@ public class CartTests
         
         _cartHandler = new Mock<ICartCommandHandler>();
         _repository = new Mock<IRepository<Cart>>();
-        _cart = new Shopping.Cart.Cart(_cartHandler.Object, _repository.Object, transformer);
+        _cart = new Shopping.Cart.Services.Cart(_cartHandler.Object, _repository.Object, transformer);
     }
     
     [Fact]
