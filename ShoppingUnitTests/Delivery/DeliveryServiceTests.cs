@@ -4,6 +4,7 @@ using Shopping.Delivery.Core;
 using Moq;
 using Shopping.Orders.Core;
 using ErrorOr;
+using Shopping.Delivery.Requests;
 using Shopping.Domain.Core.Handlers;
 
 namespace ShoppingUnitTests.Delivery;

@@ -1,5 +1,7 @@
 using Shopping.Core;
 using ErrorOr;
+using Shopping.Delivery.Command;
+using Shopping.Delivery.Events;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;
 using Version = Shopping.Core.Version;
