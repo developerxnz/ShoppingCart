@@ -5,6 +5,7 @@ using Shopping.Product;
 namespace Shopping.Cart.Requests;
 
 public record UpdateCartItemRequest(CustomerId CustomerId, CartId CartId, Sku Sku, uint Quantity);
+
 public record UpdateCartItemResponse(CartId CartId, CorrelationId CorrelationId);
 
 public record RemoveItemFromCartRequest(CustomerId CustomerId, CartId CartId, Sku Sku);

@@ -66,16 +66,21 @@ public sealed class Cart : Service<CartAggregate, Persistence.Cart>, ICart
     public async Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, uint quantity,
         CorrelationId correlationId, CancellationToken cancellationToken)
     {
-        AddItemToCartCommand command = new AddItemToCartCommand(DateTime.UtcNow, customerId, null, sku, quantity, correlationId);
+        AddItemToCartCommand command =
+            new AddItemToCartCommand(DateTime.UtcNow, customerId, null, sku, quantity, correlationId);
         var commandResult = _commandHandler.HandlerForNew(command);
-        if (commandResult.IsError)
-        {
-            return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
-        }
+        return await commandResult
+            .MatchAsync<ErrorOr<AddToCartResponse>>(async result =>
+                {
+                    await SaveAsync(result.Aggregate, result.Events, cancellationToken);
 
-        await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
-
-        return new AddToCartResponse(commandResult.Value.Aggregate.Id, correlationId);
+                    return new AddToCartResponse(result.Aggregate.Id, correlationId);
+                },
+                errors =>
+                {
+                    ErrorOr<AddToCartResponse> errorResult = ErrorOr.ErrorOr.From(errors).Value;
+                    return Task.FromResult(errorResult);
+                });
     }
 
     public async Task<ErrorOr<AddToCartResponse>> AddToCartAsync(AddToCartRequest request, CorrelationId correlationId,
@@ -89,17 +94,22 @@ public sealed class Cart : Service<CartAggregate, Persistence.Cart>, ICart
             return ErrorOr.ErrorOr.From(aggregateResult.Errors).Value;
         }
 
-        AddItemToCartCommand command = 
-            new AddItemToCartCommand(DateTime.UtcNow, request.CustomerId, request.CartId, request.Sku, request.Quantity, correlationId);
+        AddItemToCartCommand command =
+            new AddItemToCartCommand(DateTime.UtcNow, request.CustomerId, request.CartId, request.Sku, request.Quantity,
+                correlationId);
         var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
-        if (commandResult.IsError)
-        {
-            return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
-        }
+        return await commandResult
+            .MatchAsync<ErrorOr<AddToCartResponse>>(async result =>
+                {
+                    await SaveAsync(result.Aggregate, result.Events, cancellationToken);
 
-        await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
-
-        return new AddToCartResponse(commandResult.Value.Aggregate.Id, correlationId);
+                    return new AddToCartResponse(result.Aggregate.Id, correlationId);
+                },
+                errors =>
+                {
+                    ErrorOr<AddToCartResponse> errorResult = ErrorOr.ErrorOr.From(errors).Value;
+                    return Task.FromResult(errorResult);
+                });
     }
 
     public async Task<ErrorOr<RemoveItemFromCartResponse>> RemoveFromCartAsync(RemoveItemFromCartRequest request,
@@ -116,14 +126,18 @@ public sealed class Cart : Service<CartAggregate, Persistence.Cart>, ICart
         RemoveItemFromCartCommand command = new RemoveItemFromCartCommand(DateTime.UtcNow, request.CustomerId,
             aggregateResult.Value.Id, request.Sku, correlationId);
         var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
-        if (commandResult.IsError)
-        {
-            return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
-        }
+        return await commandResult
+            .MatchAsync<ErrorOr<RemoveItemFromCartResponse>>(async result =>
+                {
+                    await SaveAsync(result.Aggregate, result.Events, cancellationToken);
 
-        await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
-
-        return new RemoveItemFromCartResponse(commandResult.Value.Aggregate.Id, correlationId);
+                    return new RemoveItemFromCartResponse(result.Aggregate.Id, correlationId);
+                },
+                errors =>
+                {
+                    ErrorOr<RemoveItemFromCartResponse> errorResult = ErrorOr.ErrorOr.From(errors).Value;
+                    return Task.FromResult(errorResult);
+                });
     }
 
     public async Task<ErrorOr<UpdateCartItemResponse>> UpdateCartAsync(UpdateCartItemRequest request,
@@ -140,14 +154,19 @@ public sealed class Cart : Service<CartAggregate, Persistence.Cart>, ICart
         UpdateItemInCartCommand command = new UpdateItemInCartCommand(DateTime.UtcNow, request.CustomerId,
             aggregateResult.Value.Id, request.Sku, request.Quantity, correlationId);
         var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
-        if (commandResult.IsError)
-        {
-            return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
-        }
 
-        await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
+        return await commandResult
+            .MatchAsync<ErrorOr<UpdateCartItemResponse>>(async result =>
+                {
+                    await SaveAsync(result.Aggregate, result.Events, cancellationToken);
 
-        return new UpdateCartItemResponse(commandResult.Value.Aggregate.Id, correlationId);
+                    return new UpdateCartItemResponse(result.Aggregate.Id, correlationId);
+                },
+                errors =>
+                {
+                    ErrorOr<UpdateCartItemResponse> errorResult = ErrorOr.ErrorOr.From(errors).Value;
+                    return Task.FromResult(errorResult);
+                });
     }
 
     protected override ErrorOr<CartAggregate> ToDomain(Persistence.Cart persistenceAggregate)
