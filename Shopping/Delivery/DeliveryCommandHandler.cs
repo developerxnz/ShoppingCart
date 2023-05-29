@@ -1,6 +1,6 @@
 using Shopping.Core;
 using ErrorOr;
-using Shopping.Delivery.Command;
+using Shopping.Delivery.Commands;
 using Shopping.Delivery.Events;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;

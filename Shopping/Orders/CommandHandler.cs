@@ -3,18 +3,20 @@ using Shopping.Core;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Orders.Core;
 using Shopping.Extensions;
+using Shopping.Orders.Commands;
+using Shopping.Orders.Events;
 using Version = Shopping.Core.Version;
 
-namespace Shopping.Orders;
+namespace Shopping.Orders.Handlers;
 
-public interface IOrderCommandHandler
+public interface ICommandHandler
 {
     ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command);
 
     ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(IOrderCommand command, OrderAggregate aggregate);
 }
 
-public sealed class OrderCommandHandler : Handler<OrderAggregate, IOrderCommand>, IOrderCommandHandler
+public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICommandHandler
 {
     public override ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command)
     {

@@ -1,0 +1,107 @@
+using ErrorOr;
+using Shopping.Core;
+using Shopping.Domain.Core.Handlers;
+using Shopping.Product.Handlers;
+
+namespace Shopping.Product.Services;
+
+public interface IProduct
+{
+    /// <summary>
+    /// Creates a new Product
+    /// </summary>
+    /// <param name="correlationId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<ErrorOr<CreateProductResponse>> Create(
+        CorrelationId correlationId, 
+        CancellationToken cancellationToken,
+        CreateProductRequest request);
+    
+    /// <summary>
+    /// Update a Product
+    /// </summary>
+    /// <param name="correlationId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<ErrorOr<UpdateProductResponse>> Update(
+        CorrelationId correlationId, 
+        CancellationToken cancellationToken,
+        UpdateProductRequest request);
+}
+
+public sealed class Product : Service<ProductAggregate, Shopping.Product.Persistence.Product>, IProduct
+{
+    private readonly IProductCommandHandler _commandHandler;
+    private readonly ITransformer<ProductAggregate, Persistence.Product> _transformer;
+
+    public Product(IRepository<Shopping.Product.Persistence.Product> repository, 
+        ITransformer<ProductAggregate, Persistence.Product> transformer, IProductCommandHandler commandHandler) : base(repository)
+    {
+        _transformer = transformer;
+        _commandHandler = commandHandler;
+    }
+
+    protected override ErrorOr<ProductAggregate> ToDomain(Shopping.Product.Persistence.Product aggregate)
+    {
+        return _transformer.ToDomain(aggregate);
+    }
+
+    protected override Shopping.Product.Persistence.Product FromDomain(ProductAggregate aggregate)
+    {
+        return _transformer.FromDomain(aggregate);
+    }
+
+    public async Task<ErrorOr<CreateProductResponse>> Create(
+        CorrelationId correlationId, CancellationToken cancellationToken, CreateProductRequest request)
+    {
+        CreateProductCommand command = new CreateProductCommand(
+            correlationId, 
+            DateTime.UtcNow,
+            request.Sku,
+            request.Description,
+            request.Price);
+
+        ErrorOr<CommandResult<ProductAggregate>> commandResult = _commandHandler.HandlerForNew(command);
+        if (commandResult.IsError)
+        {
+            return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
+        }
+
+        await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
+
+        return new CreateProductResponse(commandResult.Value.Aggregate.Id, correlationId);
+    }
+
+    public async Task<ErrorOr<UpdateProductResponse>> Update(CorrelationId correlationId, CancellationToken cancellationToken, UpdateProductRequest request)
+    {
+        PartitionKey partitionKey = new PartitionKey(request.ProductId.Value.ToString());
+        Id id = new Id(request.ProductId.Value.ToString());
+        
+        var aggregateResult = await LoadAsync(partitionKey, id, cancellationToken);
+        if (aggregateResult.IsError)
+        {
+            return ErrorOr.ErrorOr.From(aggregateResult.Errors).Value;
+        }
+
+        var command = new UpdateProductCommand(
+            correlationId, 
+            DateTime.UtcNow, 
+            request.ProductId, 
+            request.Sku, 
+            request.Description,
+            request.Price);
+        
+        var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
+        if (commandResult.IsError)
+        {
+            return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
+        }
+
+        await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
+
+        return new UpdateProductResponse(commandResult.Value.Aggregate.Id, correlationId);
+    }
+}

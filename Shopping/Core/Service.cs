@@ -10,7 +10,7 @@ public abstract class Service<TAggregate, TPersistenceAggregate> where TPersiste
         Repository = repository;
     }
 
-    protected abstract ErrorOr<TAggregate> ToDomain(TPersistenceAggregate persistenceAggregate);
+    protected abstract ErrorOr<TAggregate> ToDomain(TPersistenceAggregate aggregate);
     
     protected abstract TPersistenceAggregate FromDomain(TAggregate aggregate);
     

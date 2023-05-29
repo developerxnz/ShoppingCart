@@ -1,7 +1,4 @@
-using Shopping.Core;
-using Shopping.Delivery.Command;
 using Shopping.Domain.Core.Handlers;
-using Shopping.Orders.Core;
 
 namespace Shopping.Delivery.Core;
 

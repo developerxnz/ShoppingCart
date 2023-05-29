@@ -3,7 +3,7 @@ using Shopping.Delivery.Core;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Orders.Core;
 
-namespace Shopping.Delivery.Command;
+namespace Shopping.Delivery.Commands;
 
 public record DeliveryCommand<T>(CorrelationId CorrelationId, T Data) : Command<T>(CorrelationId, Data), IDeliveryCommand;
 

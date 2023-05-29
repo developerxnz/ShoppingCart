@@ -169,9 +169,9 @@ public sealed class Cart : Service<CartAggregate, Persistence.Cart>, ICart
                 });
     }
 
-    protected override ErrorOr<CartAggregate> ToDomain(Persistence.Cart persistenceAggregate)
+    protected override ErrorOr<CartAggregate> ToDomain(Persistence.Cart aggregate)
     {
-        return _transformer.ToDomain(persistenceAggregate);
+        return _transformer.ToDomain(aggregate);
     }
 
     protected override Persistence.Cart FromDomain(CartAggregate aggregate)

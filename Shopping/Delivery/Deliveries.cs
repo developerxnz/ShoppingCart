@@ -2,7 +2,7 @@ using Shopping.Core;
 using Shopping.Delivery.Core;
 using Shopping.Orders.Core;
 using ErrorOr;
-using Shopping.Delivery.Command;
+using Shopping.Delivery.Commands;
 using Shopping.Delivery.Requests;
 
 namespace Shopping.Delivery;
@@ -123,9 +123,9 @@ public sealed class Deliveries : Service<DeliveryAggregate, Persistence.Delivery
                 });
     }
 
-    protected override ErrorOr<DeliveryAggregate> ToDomain(Persistence.Delivery persistenceAggregate)
+    protected override ErrorOr<DeliveryAggregate> ToDomain(Persistence.Delivery aggregate)
     {
-        return _transformer.ToDomain(persistenceAggregate);
+        return _transformer.ToDomain(aggregate);
     }
 
     protected override Persistence.Delivery FromDomain(DeliveryAggregate aggregate)

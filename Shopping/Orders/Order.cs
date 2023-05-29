@@ -1,7 +1,11 @@
 using ErrorOr;
 using Shopping.Core;
 using Shopping.Orders;
+using Shopping.Orders.Commands;
 using Shopping.Orders.Core;
+using Shopping.Orders.Events;
+using Shopping.Orders.Requests;
+using Shopping.Orders.Handlers;
 
 namespace Shopping.Delivery.Services;
 
@@ -42,10 +46,10 @@ public interface IOrder
 
 public sealed class Order : Service<OrderAggregate, Shopping.Orders.Persistence.Order>, IOrder
 {
-    private readonly IOrderCommandHandler _commandHandler;
+    private readonly ICommandHandler _commandHandler;
     private readonly ITransformer<OrderAggregate, Shopping.Orders.Persistence.Order> _transformer;
 
-    public Order(IOrderCommandHandler orderCommandHandler, IRepository<Shopping.Orders.Persistence.Order> repository,
+    public Order(ICommandHandler orderCommandHandler, IRepository<Shopping.Orders.Persistence.Order> repository,
         ITransformer<OrderAggregate, Orders.Persistence.Order> transformer) :
         base(repository)
     {
@@ -117,9 +121,9 @@ public sealed class Order : Service<OrderAggregate, Shopping.Orders.Persistence.
         return new CancelOrderResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
-    protected override ErrorOr<OrderAggregate> ToDomain(Orders.Persistence.Order persistenceAggregate)
+    protected override ErrorOr<OrderAggregate> ToDomain(Orders.Persistence.Order aggregate)
     {
-        return _transformer.ToDomain(persistenceAggregate);
+        return _transformer.ToDomain(aggregate);
     }
 
     protected override Orders.Persistence.Order FromDomain(OrderAggregate aggregate)

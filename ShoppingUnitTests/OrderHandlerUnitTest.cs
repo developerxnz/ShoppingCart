@@ -2,7 +2,9 @@ using ErrorOr;
 using Shopping.Core;
 using Shopping.Extensions;
 using Shopping.Orders;
+using Shopping.Orders.Commands;
 using Shopping.Orders.Core;
+using Shopping.Orders.Events;
 
 namespace ShoppingUnitTests;
 
