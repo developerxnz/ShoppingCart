@@ -6,6 +6,7 @@ using Shopping.Cart.Events;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;
 using Shopping.Product;
+using Shopping.Product.Core;
 
 namespace Shopping.Cart;
 
@@ -22,7 +23,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
         command switch
         {
             AddItemToCartCommand addItemToCartCommand => GenerateEventsForItemAdded(addItemToCartCommand),
-            _ => throw new ArgumentOutOfRangeException(nameof(command))
+            _ => Error.Unexpected(Constants.InvalidCommandForNewCode, string.Format(Constants.InvalidCommandForNewDescription, command.GetType()))
         };
 
     protected override ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>

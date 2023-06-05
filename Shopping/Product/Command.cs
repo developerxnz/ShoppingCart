@@ -1,8 +1,9 @@
 using Shopping.Cart.Projections;
 using Shopping.Core;
+using Shopping.Product.Core;
 using Shopping.Domain.Core.Handlers;
 
-namespace Shopping.Product;
+namespace Shopping.Product.Commands;
 
 public interface IProductCommand : ICommand {}
 

@@ -5,6 +5,7 @@ using Shopping.Orders;
 using Shopping.Orders.Commands;
 using Shopping.Orders.Core;
 using Shopping.Orders.Events;
+using Shopping.Orders.Handlers;
 
 namespace ShoppingUnitTests;
 
@@ -12,11 +13,11 @@ using Shopping;
 
 public class OrderHandlerUnitTest
 {
-    private readonly IOrderCommandHandler _commandHandler;
+    private readonly ICommandHandler _commandHandler;
 
     public OrderHandlerUnitTest()
     {
-        _commandHandler = new OrderCommandHandler();
+        _commandHandler = new CommandHandler();
     }
 
     [Fact]

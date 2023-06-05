@@ -6,7 +6,6 @@ using Shopping.Cart.Core;
 using Shopping.Cart.Requests;
 using Shopping.Core;
 using Shopping.Domain.Core.Handlers;
-using Shopping.Product;
 using Shopping.Product.Core;
 using Cart = Shopping.Cart.Persistence.Cart;
 using CartItem = Shopping.Cart.Persistence.CartItem;
@@ -15,13 +14,13 @@ using Version = Shopping.Core.Version;
 
 namespace ShoppingUnitTests;
 
-public class CartTests
+public class ProductTests
 {
     private readonly Shopping.Cart.Services.Cart _cart;
     private readonly Mock<IRepository<Cart>> _repository;
     private readonly Mock<ICartCommandHandler> _cartHandler;
 
-    public CartTests()
+    public ProductTests()
     {
         var transformer = new CartTransformer(new CartItemTransformer());
         

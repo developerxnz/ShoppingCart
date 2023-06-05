@@ -7,6 +7,7 @@ using Shopping.Domain.Core.Handlers;
 using Shopping.Orders.Core;
 using Shopping.Orders.Persistence;
 using Shopping.Product;
+using Shopping.Product.Core;
 using MetaData = Shopping.Core.MetaData;
 
 namespace ShoppingUnitTests;
@@ -28,7 +29,7 @@ public class CartHandlerTests
         _customerId = new CustomerId(Guid.NewGuid());
         _cartId = new CartId(Guid.NewGuid());
         _mismatchedCartId = new(Guid.NewGuid());
-        _sku = new Sku(Guid.NewGuid());
+        _sku = new Sku(Guid.NewGuid().ToString());
         _commandHandler = new CartCommandHandler();
     }
 
@@ -194,7 +195,7 @@ public class CartHandlerTests
     [Fact]
     public void RemoveItemFromCart_Should_Throw_Exception_Whe_Sku_Doesnt_Exist()
     {
-        Sku invalidSku = new(Guid.NewGuid());
+        Sku invalidSku = new(Guid.NewGuid().ToString());
         RemoveItemFromCartCommand command = new(_now, _customerId, _cartId, invalidSku, _correlationId);
         var items = new List<CartItem> {new(_sku, 5)};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
@@ -222,7 +223,7 @@ public class CartHandlerTests
     [Fact]
     public void RemoveItemFromCart_Should_Throw_Exception_When_Aggregate_Check_Fails()
     {
-        Sku invalidSku = new(Guid.NewGuid());
+        Sku invalidSku = new(Guid.NewGuid().ToString());
         RemoveItemFromCartCommand command = new(_now, _customerId, _cartId, invalidSku, _correlationId);
         var items = new List<CartItem> {new(_sku, 5)};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
@@ -299,7 +300,7 @@ public class CartHandlerTests
     [Fact]
     public void UpdateItemInCart_Should_Throw_Exception_When_Sku_Doesnt_Exist()
     {
-        Sku invalidSku = new(Guid.NewGuid());
+        Sku invalidSku = new(Guid.NewGuid().ToString());
         UpdateItemInCartCommand command = new(_now, _customerId, _cartId, invalidSku, 10, _correlationId);
         var items = new List<CartItem> {new(_sku, 5)};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
@@ -382,7 +383,7 @@ public class CartHandlerTests
     [Fact]
     public void UpdateItemInCart_Should_Throw_Exception_When_Invalid_Command_For_New()
     {
-        Sku sku = new(Guid.NewGuid());
+        Sku sku = new(Guid.NewGuid().ToString());
         UpdateItemInCartCommand command = new(_now, _customerId, _cartId, sku, 1, _correlationId);
 
         Assert.Throws<ArgumentOutOfRangeException>(() => _commandHandler.HandlerForNew(command));

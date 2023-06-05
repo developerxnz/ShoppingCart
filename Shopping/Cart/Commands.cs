@@ -2,6 +2,7 @@ using Shopping.Cart.Core;
 using Shopping.Core;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Product;
+using Shopping.Product.Core;
 
 namespace Shopping.Cart.Commands;
 

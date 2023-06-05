@@ -35,19 +35,18 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
             command.OrderId
         );
 
-        return new CommandResult<DeliveryAggregate>(
-            aggregate,
-            new[]
-            {
-                new DeliveryCreatedEvent(
-                    command.CreatedOnUtc, 
-                    command.CustomerId, 
-                    command.OrderId, 
-                    new Version(1), 
-                    command.CorrelationId,
-                    new CausationId(command.Id.Value))
-            }
-        );
+        DeliveryCreatedEvent[] events =
+        {
+            new(
+                command.CreatedOnUtc,
+                command.CustomerId,
+                command.OrderId,
+                new Version(1),
+                command.CorrelationId,
+                new CausationId(command.Id.Value))
+        };
+
+        return ApplyEvents(aggregate, events);
     }
 
     protected override ErrorOr<bool> AggregateCheck(IDeliveryCommand command, DeliveryAggregate aggregate)
@@ -72,7 +71,8 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
         DeliveryAggregate aggregate) =>
         (command switch
         {
-            CompleteDeliveryCommand completeDeliveryCommand => GenerateEventsForDeliveryCompleted(completeDeliveryCommand, aggregate),
+            CompleteDeliveryCommand completeDeliveryCommand => GenerateEventsForDeliveryCompleted(
+                completeDeliveryCommand, aggregate),
             _ => throw new ArgumentOutOfRangeException(nameof(command))
         })
         .Match(

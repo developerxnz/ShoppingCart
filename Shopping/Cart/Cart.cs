@@ -2,7 +2,7 @@ using ErrorOr;
 using Shopping.Cart.Commands;
 using Shopping.Cart.Requests;
 using Shopping.Core;
-using Shopping.Product;
+using Shopping.Product.Core;
 
 namespace Shopping.Cart.Services;
 

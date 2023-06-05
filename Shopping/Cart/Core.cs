@@ -1,4 +1,4 @@
-using Shopping.Product;
+using Shopping.Product.Core;
 
 namespace Shopping.Cart.Core;
 

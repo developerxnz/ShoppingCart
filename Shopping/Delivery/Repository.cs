@@ -1,6 +1,5 @@
 using Microsoft.Azure.Cosmos;
 using Shopping.Core;
-using PartitionKey = Shopping.Core.PartitionKey;
 
 namespace Shopping.Delivery.Persistence;
 

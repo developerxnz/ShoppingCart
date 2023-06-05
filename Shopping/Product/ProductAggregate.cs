@@ -1,5 +1,6 @@
 using Shopping.Cart.Projections;
 using Shopping.Core;
+using Shopping.Product.Core;
 
 namespace Shopping.Product;
 
@@ -15,12 +16,15 @@ public sealed record ProductAggregate : Aggregate<ProductAggregate>, IAggregate
     
     public DateTime CreatedOnUtc { get; init; }
     
-    public MetaData MetaData { get; }
+    public DateTime UpdatedOnUtc { get; init; }
+    
+    public MetaData MetaData { get; init; }
     
     public ProductAggregate(DateTime createdOnUtc)
     {
         Id = new ProductId(Guid.NewGuid());
         CreatedOnUtc = createdOnUtc;
-        MetaData = new MetaData(new StreamId(Id.Value), new Core.Version(0), createdOnUtc);
+        UpdatedOnUtc = createdOnUtc;
+        MetaData = new MetaData(new StreamId(Id.Value), new Shopping.Core.Version(0), createdOnUtc);
     }
 }

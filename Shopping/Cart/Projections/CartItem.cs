@@ -1,5 +1,6 @@
 using Shopping.Cart.Core;
 using Shopping.Product;
+using Shopping.Product.Core;
 
 namespace Shopping.Cart.Projections;
 

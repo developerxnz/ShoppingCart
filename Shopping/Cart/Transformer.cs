@@ -1,7 +1,7 @@
 using Shopping.Core;
-using Shopping.Product;
 using ErrorOr;
 using Shopping.Cart.Core;
+using Shopping.Product.Core;
 using Version = Shopping.Core.Version;
 
 namespace Shopping.Cart;
@@ -69,12 +69,7 @@ public sealed class CartTransformer : Transformer<CartAggregate, Persistence.Car
 
     private ErrorOr<CartItem> ToDomain(Persistence.CartItem dto)
     {
-        if (!Guid.TryParse(dto.Sku, out Guid skuGuid))
-        {
-            return Error.Validation("Invalid Sku");
-        }
-
-        Sku sku = new Sku(skuGuid);
+        Sku sku = new Sku(dto.Sku);
         return new CartItem(sku, dto.Quantity);
     }
 }
@@ -88,12 +83,7 @@ public sealed class CartItemTransformer : Transformer<CartItem, Persistence.Cart
 
     public override ErrorOr<CartItem> ToDomain(Persistence.CartItem dto)
     {
-        if (!Guid.TryParse(dto.Sku, out Guid skuGuid))
-        {
-            return Error.Validation($"Invalid {nameof(dto.Sku)}");
-        }
-
-        Sku sku = new Sku(skuGuid);
+        Sku sku = new Sku(dto.Sku);
         
         return new CartItem(sku, dto.Quantity);
     }

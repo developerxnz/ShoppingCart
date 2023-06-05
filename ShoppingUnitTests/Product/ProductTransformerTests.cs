@@ -1,16 +1,15 @@
 using Shopping.Cart;
 using Shopping.Cart.Core;
 using Shopping.Core;
-using Shopping.Product;
 using Shopping.Product.Core;
 
 namespace ShoppingUnitTests;
 
-public class CartTransformerTests
+public class ProductTransformerTests
 {
     private readonly ITransformer<CartAggregate, Shopping.Cart.Persistence.Cart> _transformer;
 
-    public CartTransformerTests()
+    public ProductTransformerTests()
     {
         _transformer = new CartTransformer(new CartItemTransformer());
     }

@@ -25,7 +25,8 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
             case CreateOrderCommand createOrderCommand:
                 return GenerateEventsForOrderCreated(createOrderCommand);
             default:
-                throw new ArgumentOutOfRangeException(nameof(command));
+                return Error.Unexpected(Constants.InvalidCommandForNewCode,
+                    string.Format(Constants.InvalidCommandForNewDescription, command.GetType()));
         }
     }
 
@@ -34,11 +35,11 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
         OrderId orderId =
             (command switch
             {
-                CompleteOrderCommand addItemToCartCommand => addItemToCartCommand.OrderId ?? aggregate.Id,
+                CompleteOrderCommand addItemToCartCommand => addItemToCartCommand.OrderId,
                 CancelOrderCommand removeItemFromCartCommand => removeItemFromCartCommand.OrderId,
                 _ => throw new ArgumentOutOfRangeException(nameof(command))
             });
-            
+
         if (aggregate.Id != orderId)
         {
             return Error.Validation(Constants.InvalidAggregateForIdCode, Constants.InvalidAggregateForIdDescription);
@@ -47,7 +48,8 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
         return true;
     }
 
-    protected override ErrorOr<CommandResult<OrderAggregate>> ExecuteCommand(IOrderCommand command, OrderAggregate aggregate) =>
+    protected override ErrorOr<CommandResult<OrderAggregate>> ExecuteCommand(IOrderCommand command,
+        OrderAggregate aggregate) =>
         (command switch
         {
             CompleteOrderCommand completeOrderCommand =>
@@ -62,23 +64,18 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
 
     private ErrorOr<CommandResult<OrderAggregate>> GenerateEventsForOrderCreated(CreateOrderCommand command)
     {
-        OrderAggregate aggregate = new(command.CreatedOnUtc, command.CustomerId)
+        OrderAggregate aggregate = new(command.CreatedOnUtc, command.CustomerId);
+        OrderCreatedEvent[] events =
         {
-            MetaData = new MetaData(new StreamId(command.CustomerId.Value), new Version(1), command.CreatedOnUtc)
+            new(
+                command.CreatedOnUtc,
+                command.CustomerId,
+                new Version(1),
+                command.CorrelationId,
+                new CausationId(command.Id.Value))
         };
-
-        return new CommandResult<OrderAggregate>(
-            aggregate,
-            new[]
-            {
-                new OrderCreatedEvent(
-                    command.CreatedOnUtc, 
-                    command.CustomerId, 
-                    new Version(1), 
-                    command.CorrelationId,
-                    new CausationId(command.Id.Value))
-            }
-        );
+        
+        return ApplyEvents(aggregate, events);
     }
 
     private ErrorOr<CommandResult<OrderAggregate>> GenerateEventsForOrderCompleted(CompleteOrderCommand command,

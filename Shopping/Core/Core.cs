@@ -23,8 +23,17 @@ public static class Constants
     public const string InvalidAggregateForIdCode = "O.6";
     public const string InvalidAggregateForIdDescription = "Aggregate Id doesn't match Command Aggregate Id.";
     
-    public const string InvalidQuantityCode = "O.6";
+    public const string InvalidQuantityCode = "O.7";
     public const string InvalidQuantityDescription = "Invalid Quantity, expected Quantity > 0.";
+    
+    public const string ProductUpdatedOnBeforeCreatedOnCode = "O.8";
+    public const string ProductUpdatedOnBeforeCreatedOnDescription = "Order has been completed.";
+    
+    public const string InvalidCommandForNewCode = "O.9";
+    public const string InvalidCommandForNewDescription = "Invalid Command for New: {0}";
+    
+    public const string InvalidCommandForAggregateCheck = "1.0";
+    public const string InvalidCommandForAggregateCheckDescription = "Invalid Command for Aggregate Check: {0}";
 }
 
 public record CausationId(Guid Value);
