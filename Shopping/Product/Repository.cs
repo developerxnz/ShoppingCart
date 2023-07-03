@@ -1,26 +1,51 @@
 using Microsoft.Azure.Cosmos;
 using Shopping.Core;
+using Shopping.Core.Persistence;
 
 namespace Shopping.Product.Persistence;
 
 public record Product(
     string Id,
+    
     string Sku,
+    
     string Description,
+    
     decimal Amount,
+    
     DateTime CreatedOnUtc,
-    MetaData MetaData): IPersistenceIdentifier
+    
+    Metadata Metadata): IPersistenceIdentifier
 {
     public string PartitionKey => Id;
 }
 
+public record ProductCreatedData(string Id, string Sku, string Description, decimal Amount, DateTime CreatedOnUtc)
+{
+    public string Type => "ProductCreated";
+};
+
+public record ProductUpdatedData(string Id, string Sku, string Description, decimal Amount, DateTime CreatedOnUtc)
+{
+    public string Type => "ProductUpdated";
+};
+
+public record EventMetadata(string Id, string CorrelationId, string CausationId);
+
+public record ProductCreatedEventDto(ProductCreatedData Data, EventMetadata Event, Metadata Metadata);
+
+
 public class Repository : Shopping.Persistence.Repository<Product>, IRepository<Product>
 {
-    public Repository(CosmosClient client, string database, string containerName) 
-        : base(client, database, containerName) { }
+    private const string Database = "Shopping";
+    private const string ContainerName = "Products";
+    
+    public Repository(CosmosClient client) 
+        : base(client, Database, ContainerName) { }
 
     public async Task BatchUpdateAsync(Product aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
     {
-        await base.BatchUpdateAsync(aggregate, events);
+        Shopping.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+        await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

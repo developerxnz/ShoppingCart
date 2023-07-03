@@ -4,7 +4,7 @@ namespace Shopping.Core;
 
 public interface ITransformer<TDomain, TDto>
 {
-    TDto FromDomain(TDomain domain);
+    TDto FromDomain(TDomain aggregate);
 
     ErrorOr<TDomain> ToDomain(TDto dto);
 

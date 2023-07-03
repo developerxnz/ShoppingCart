@@ -14,7 +14,7 @@ public record Cart : IPersistenceIdentifier
     
     public DateTime CreatedOnUtc { get; init; }
 
-    public Shopping.Core.Persistence.MetaData MetaData { get; init; }
+    public Shopping.Core.Persistence.Metadata Metadata { get; init; }
     
     public IEnumerable<CartItem> Items { get; init; }
     
@@ -33,13 +33,19 @@ public sealed class CartRepository: Shopping.Persistence.Repository<Cart>, IRepo
 
     public CartRepository(CosmosClient client) : base(client, DatabaseName, ContainerName) { }
 
-    public async Task BatchUpdateAsync(string partitionKey, Cart aggregate, IEnumerable<IEvent> events)
-    {
-        await base.BatchUpdateAsync(aggregate, events);
-    }
+    // public async Task BatchUpdateAsync(string partitionKey, Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
+    // {
+    //     Shopping.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+    //     await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
+    // }
 
+    // public async Task BatchUpdateAsync(Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
+    // {
+    //     await base.BatchUpdateAsync(aggregate, events, cancellationToken);
+    // }
     public async Task BatchUpdateAsync(Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
     {
-        await base.BatchUpdateAsync(aggregate, events);
+        Shopping.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+        await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

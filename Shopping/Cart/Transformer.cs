@@ -15,19 +15,19 @@ public sealed class CartTransformer : Transformer<CartAggregate, Persistence.Car
         _cartItemTransformer = cartItemTransformer;
     }
 
-    public override Persistence.Cart FromDomain(CartAggregate domain)
+    public override Persistence.Cart FromDomain(CartAggregate aggregate)
     {
         return new Persistence.Cart
         {
-            Id = domain.Id.Value.ToString(),
-            CustomerId = domain.CustomerId.Value.ToString(),
-            CreatedOnUtc = domain.CreatedOnUtc,
-            ETag = domain.Etag,
-            Items = FromDomain(domain.Items),
-            MetaData = new Shopping.Core.Persistence.MetaData(
-                domain.MetaData.StreamId.Value.ToString(),
-                domain.MetaData.Version.Value,
-                domain.MetaData.TimeStamp
+            Id = aggregate.Id.Value.ToString(),
+            CustomerId = aggregate.CustomerId.Value.ToString(),
+            CreatedOnUtc = aggregate.CreatedOnUtc,
+            ETag = aggregate.Etag,
+            Items = FromDomain(aggregate.Items),
+            Metadata = new Shopping.Core.Persistence.Metadata(
+                aggregate.MetaData.StreamId.Value.ToString(),
+                aggregate.MetaData.Version.Value,
+                aggregate.MetaData.TimeStamp
             )
         };
     }
@@ -56,7 +56,7 @@ public sealed class CartTransformer : Transformer<CartAggregate, Persistence.Car
             Id = new CartId(cartId),
             Etag = dto.ETag,
             Items = transformedItemsResult.Value,
-            MetaData = new MetaData(new StreamId(cartId), new Version(dto.MetaData.Version), dto.MetaData.TimeStamp) 
+            MetaData = new MetaData(new StreamId(cartId), new Version(dto.Metadata.Version), dto.Metadata.Timestamp) 
         };
     }
 
@@ -76,9 +76,9 @@ public sealed class CartTransformer : Transformer<CartAggregate, Persistence.Car
 
 public sealed class CartItemTransformer : Transformer<CartItem, Persistence.CartItem>
 {
-    public override Persistence.CartItem FromDomain(CartItem domain)
+    public override Persistence.CartItem FromDomain(CartItem aggregate)
     {
-        return new Persistence.CartItem(domain.Sku.Value.ToString(), domain.Quantity);
+        return new Persistence.CartItem(aggregate.Sku.Value.ToString(), aggregate.Quantity);
     }
 
     public override ErrorOr<CartItem> ToDomain(Persistence.CartItem dto)

@@ -2,24 +2,24 @@ using ErrorOr;
 using Shopping.Core;
 using Shopping.Delivery.Core;
 using Shopping.Orders.Core;
-using MetaData = Shopping.Core.Persistence.MetaData;
+using Metadata = Shopping.Core.Persistence.Metadata;
 using Version = Shopping.Core.Version;
 
 namespace Shopping.Delivery;
 
 public class Transformer : Transformer<DeliveryAggregate, Persistence.Delivery>
 {
-    public override Persistence.Delivery FromDomain(DeliveryAggregate domain)
+    public override Persistence.Delivery FromDomain(DeliveryAggregate aggregate)
     {
         return new Persistence.Delivery(
-            domain.Id.Value.ToString(),
-            domain.CreatedOnUtc,
-            domain.DeliveredOnUtc,
-            new MetaData(
-                domain.MetaData.StreamId.Value.ToString(),
-                domain.MetaData.Version.Value,
-                domain.MetaData.TimeStamp),
-            domain.OrderId.Value.ToString()
+            aggregate.Id.Value.ToString(),
+            aggregate.CreatedOnUtc,
+            aggregate.DeliveredOnUtc,
+            new Metadata(
+                aggregate.MetaData.StreamId.Value.ToString(),
+                aggregate.MetaData.Version.Value,
+                aggregate.MetaData.TimeStamp),
+            aggregate.OrderId.Value.ToString()
         );
     }
 
@@ -35,21 +35,21 @@ public class Transformer : Transformer<DeliveryAggregate, Persistence.Delivery>
             return Error.Validation($"Invalid {nameof(dto.Id)}");
         }
 
-        if (!Guid.TryParse(dto.MetaData.StreamId, out Guid streamIdGuid))
+        if (!Guid.TryParse(dto.Metadata.StreamId, out Guid streamIdGuid))
         {
-            return Error.Validation($"Invalid {nameof(dto.MetaData.StreamId)}");
+            return Error.Validation($"Invalid {nameof(dto.Metadata.StreamId)}");
         }
 
         DeliveryId deliveryId = new(id);
         OrderId orderId = new(orderIdGuid);
         StreamId streamId = new(streamIdGuid);
-        Version version = new Version(dto.MetaData.Version);
+        Version version = new Version(dto.Metadata.Version);
 
         return new DeliveryAggregate(dto.CreatedOnUtc, orderId)
         {
             Id = deliveryId,
             DeliveredOnUtc = dto.DeliveredOnUtc,
-            MetaData = new Shopping.Core.MetaData(streamId, version, dto.MetaData.TimeStamp)
+            MetaData = new Shopping.Core.MetaData(streamId, version, dto.Metadata.Timestamp)
         };
     }
 }

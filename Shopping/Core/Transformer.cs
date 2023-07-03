@@ -3,7 +3,7 @@ using ErrorOr;
 
 public abstract class Transformer<TDomain, TDto> : ITransformer<TDomain, TDto>
 {
-    public abstract TDto FromDomain(TDomain domain);
+    public abstract TDto FromDomain(TDomain aggregate);
     
     public abstract ErrorOr<TDomain> ToDomain(TDto dto);
     

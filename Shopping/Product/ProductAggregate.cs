@@ -16,7 +16,7 @@ public sealed record ProductAggregate : Aggregate<ProductAggregate>, IAggregate
     
     public DateTime CreatedOnUtc { get; init; }
     
-    public DateTime UpdatedOnUtc { get; init; }
+    //public DateTime UpdatedOnUtc { get; init; }
     
     public MetaData MetaData { get; init; }
     
@@ -24,7 +24,7 @@ public sealed record ProductAggregate : Aggregate<ProductAggregate>, IAggregate
     {
         Id = new ProductId(Guid.NewGuid());
         CreatedOnUtc = createdOnUtc;
-        UpdatedOnUtc = createdOnUtc;
+        //UpdatedOnUtc = createdOnUtc;
         MetaData = new MetaData(new StreamId(Id.Value), new Shopping.Core.Version(0), createdOnUtc);
     }
 }

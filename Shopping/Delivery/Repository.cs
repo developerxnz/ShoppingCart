@@ -7,7 +7,7 @@ public sealed record Delivery(
     string Id,
     DateTime CreatedOnUtc,
     DateTime? DeliveredOnUtc,
-    Shopping.Core.Persistence.MetaData MetaData,
+    Shopping.Core.Persistence.Metadata Metadata,
     string OrderId
 ): IPersistenceIdentifier
 {
@@ -20,6 +20,7 @@ public class Repository : Shopping.Persistence.Repository<Delivery>, IRepository
 
     public async Task BatchUpdateAsync(Delivery aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
     {
-        await base.BatchUpdateAsync(aggregate, events);
+        Shopping.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+        await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

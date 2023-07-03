@@ -40,9 +40,9 @@ public class CartTransformerTests
         
         Assert.Equal(customerId.Value.ToString(), cartDto.CustomerId);
         Assert.Equal(createdOnUtc, cartDto.CreatedOnUtc);
-        Assert.Equal(aggregate.MetaData.StreamId.Value.ToString(), cartDto.MetaData.StreamId);
-        Assert.Equal(aggregate.MetaData.Version.Value, cartDto.MetaData.Version);
-        Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.MetaData.TimeStamp);
+        Assert.Equal(aggregate.MetaData.StreamId.Value.ToString(), cartDto.Metadata.StreamId);
+        Assert.Equal(aggregate.MetaData.Version.Value, cartDto.Metadata.Version);
+        Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.Metadata.TimeStamp);
         Assert.Equal(2, aggregate.Items.Count());
         Assert.Equal(firstSku.Value.ToString(), cartDto.Items.First().Sku);
         Assert.Equal(firstQuantity, cartDto.Items.First().Quantity);
@@ -77,9 +77,9 @@ public class CartTransformerTests
         {
             Assert.Equal(customerId.Value.ToString(), cartDto.CustomerId);
             Assert.Equal(createdOnUtc, cartDto.CreatedOnUtc);
-            Assert.Equal(aggregate.MetaData.StreamId.Value.ToString(), cartDto.MetaData.StreamId);
-            Assert.Equal(aggregate.MetaData.Version.Value, cartDto.MetaData.Version);
-            Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.MetaData.TimeStamp);
+            Assert.Equal(aggregate.MetaData.StreamId.Value.ToString(), cartDto.Metadata.StreamId);
+            Assert.Equal(aggregate.MetaData.Version.Value, cartDto.Metadata.Version);
+            Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.Metadata.TimeStamp);
             Assert.Equal(2, aggregate.Items.Count());
             Assert.Equal(firstSku.Value.ToString(), cartDto.Items.First().Sku);
             Assert.Equal(firstQuantity, cartDto.Items.First().Quantity);
@@ -123,7 +123,7 @@ public class CartTransformerTests
             Items = items,
             ETag = eTag,
             Id = cartId.Value.ToString(),
-            MetaData = metaData
+            Metadata = metaData
         };
 
         var domain = _transformer.ToDomain(dto);
@@ -175,7 +175,7 @@ public class CartTransformerTests
             Items = items,
             ETag = eTag,
             Id = cartId.Value.ToString(),
-            MetaData = metaData
+            Metadata = metaData
         };
 
         var domains = _transformer.ToDomain(new [] { dto });

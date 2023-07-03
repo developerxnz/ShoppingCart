@@ -6,17 +6,17 @@ namespace Shopping.Persistence;
 
 public abstract class Repository<T>
 {
-    private readonly Container _container;
+    protected readonly Container Container;
 
     protected Repository(CosmosClient client,string database, string containerName)
     {
-        _container = client.GetContainer(database, containerName);
+        Container = client.GetContainer(database, containerName);
     }
     
     public async Task<T> GetByIdAsync(string partitionKey, string id, CancellationToken cancellationToken)
     {
         ItemRequestOptions requestOptions = new ItemRequestOptions();
-        ItemResponse<T> response = await _container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions, cancellationToken);
+        ItemResponse<T> response = await Container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions, cancellationToken);
 
         return response.Resource;
     }
@@ -31,7 +31,7 @@ public abstract class Repository<T>
 
         List<T> documents = new();
         QueryDefinition queryDefinition = new QueryDefinition("select * from c");
-        using FeedIterator<T>? feedIterator = _container.GetItemQueryIterator<T>(queryDefinition, "", requestOptions);
+        using FeedIterator<T>? feedIterator = Container.GetItemQueryIterator<T>(queryDefinition, "", requestOptions);
         while (feedIterator.HasMoreResults)
         {
             FeedResponse<T> items = await feedIterator.ReadNextAsync(cancellationToken);
@@ -41,21 +41,30 @@ public abstract class Repository<T>
         return documents;
     }
 
-    protected async Task BatchUpdateAsync(IPersistenceIdentifier aggregate, IEnumerable<object> events)
+    protected async Task BatchUpdateAsync(Shopping.Core.PartitionKey partitionKey, object aggregate, IEnumerable<object> events, CancellationToken cancellationToken)
     {
-        PartitionKey key = new PartitionKey(aggregate.PartitionKey);
-        TransactionalBatch batch = _container.CreateTransactionalBatch(key);
-
-        batch.UpsertItem(aggregate);
-        foreach (var @event in events)
+        try
         {
-            batch.UpsertItem(@event);
-        }
+            TransactionalBatch batch = Container.CreateTransactionalBatch(new PartitionKey(partitionKey.Value));
+            batch.ReadItem("");
+            
+            batch.UpsertItem(aggregate);
+            
+            foreach (var @event in events)
+            {
+                batch.UpsertItem(@event);
+            }
         
-        using TransactionalBatchResponse response = await batch.ExecuteAsync();
-        if (!response.IsSuccessStatusCode)
+            using TransactionalBatchResponse response = await batch.ExecuteAsync(cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("failed");
+            }
+        }
+        catch (Exception e)
         {
-            throw new Exception(response.ErrorMessage);
+            Console.WriteLine(e);
+            throw;
         }
     }
 }

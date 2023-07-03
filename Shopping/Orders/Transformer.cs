@@ -7,18 +7,18 @@ namespace Shopping.Orders;
 
 public class Transformer : Transformer<OrderAggregate, Persistence.Order>
 {
-    public override Order FromDomain(OrderAggregate domain)
+    public override Order FromDomain(OrderAggregate aggregate)
     {
         return new Order(
-            domain.Id.ToString(),
-            domain.CancelledOnUtc,
-            domain.CompletedOnUtc,
-            domain.CreatedOnUtc,
-            domain.CustomerId.Value.ToString(),
-            new Shopping.Core.Persistence.MetaData(
-                domain.MetaData.StreamId.Value.ToString(),
-                domain.MetaData.Version.Value,
-                domain.MetaData.TimeStamp)
+            aggregate.Id.ToString(),
+            aggregate.CancelledOnUtc,
+            aggregate.CompletedOnUtc,
+            aggregate.CreatedOnUtc,
+            aggregate.CustomerId.Value.ToString(),
+            new Shopping.Core.Persistence.Metadata(
+                aggregate.MetaData.StreamId.Value.ToString(),
+                aggregate.MetaData.Version.Value,
+                aggregate.MetaData.TimeStamp)
         );
     }
 
@@ -50,7 +50,7 @@ public class Transformer : Transformer<OrderAggregate, Persistence.Order>
             CancelledOnUtc = dto.CancelledOnUtc,
             CompletedOnUtc = dto.CompletedOnUtc,
             CreatedOnUtc = dto.CreatedOnUtc,
-            MetaData = new MetaData(streamId, version, dto.MetaData.TimeStamp)
+            MetaData = new MetaData(streamId, version, dto.MetaData.Timestamp)
         };
     }
 }

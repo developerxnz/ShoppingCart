@@ -1,6 +1,7 @@
 using Microsoft.Azure.Cosmos;
 using Shopping.Core;
-using MetaData = Shopping.Core.Persistence.MetaData;
+using Metadata = Shopping.Core.Persistence.Metadata;
+using PartitionKey = Shopping.Core.PartitionKey;
 
 namespace Shopping.Orders.Persistence;
 
@@ -10,17 +11,20 @@ public record Order(
     DateTime? CompletedOnUtc,
     DateTime CreatedOnUtc,
     string CustomerId,
-    MetaData MetaData): IPersistenceIdentifier
+    Metadata MetaData) : IPersistenceIdentifier
 {
     public string PartitionKey => CustomerId;
 }
 
 public class Repository : Shopping.Persistence.Repository<Order>, IRepository<Order>
 {
-    public Repository(CosmosClient client, string database, string container) : base(client, database, container) { }
+    public Repository(CosmosClient client, string database, string container) : base(client, database, container)
+    {
+    }
 
     public async Task BatchUpdateAsync(Order aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
     {
-        await base.BatchUpdateAsync(aggregate, events);
+        PartitionKey partitionKey = new PartitionKey(aggregate.PartitionKey);
+        await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

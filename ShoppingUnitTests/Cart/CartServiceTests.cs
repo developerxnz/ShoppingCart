@@ -10,7 +10,7 @@ using Shopping.Product;
 using Shopping.Product.Core;
 using Cart = Shopping.Cart.Persistence.Cart;
 using CartItem = Shopping.Cart.Persistence.CartItem;
-using MetaData = Shopping.Core.Persistence.MetaData;
+using MetaData = Shopping.Core.Persistence.Metadata;
 using Version = Shopping.Core.Version;
 
 namespace ShoppingUnitTests;
@@ -112,7 +112,7 @@ public class CartTests
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
-            MetaData = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
+            Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
             ETag = Guid.NewGuid().ToString()
         };
@@ -163,7 +163,7 @@ public class CartTests
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
-            MetaData = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
+            Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
             ETag = Guid.NewGuid().ToString()
         };
@@ -213,7 +213,7 @@ public class CartTests
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
-            MetaData = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
+            Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
             ETag = Guid.NewGuid().ToString()
         };
@@ -264,7 +264,7 @@ public class CartTests
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
-            MetaData = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
+            Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
             ETag = Guid.NewGuid().ToString()
         };
@@ -316,7 +316,7 @@ public class CartTests
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
-            MetaData = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
+            Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
             ETag = Guid.NewGuid().ToString()
         };
@@ -367,7 +367,7 @@ public class CartTests
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
-            MetaData = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
+            Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
             ETag = Guid.NewGuid().ToString()
         };

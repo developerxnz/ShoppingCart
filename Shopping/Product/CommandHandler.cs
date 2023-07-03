@@ -34,7 +34,7 @@ public sealed class ProductCommandHandler : Handler<ProductAggregate, IProductCo
         MetaData metaData = aggregate.MetaData with {Version = @event.Version, TimeStamp = @event.TimeStamp};
         return @event switch
         {
-            ProductCreatedEvent x => aggregate with {CreatedOnUtc = x.CreatedOnUtc, MetaData = metaData},
+            ProductCreatedEvent x => aggregate with {CreatedOnUtc = x.CreatedOnUtc, Sku = x.Sku, Price = x.Price, Description = x.Description, MetaData = metaData},
             ProductUpdatedEvent x => aggregate with
             {
                 Description = x.Description, Sku = x.Sku, Price = x.Price, MetaData = metaData
