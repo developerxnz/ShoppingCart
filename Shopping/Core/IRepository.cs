@@ -1,13 +1,14 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Shopping.Core;
 
 public interface IPersistenceIdentifier
 {
-    [JsonProperty("PartitionKey")]
+    [JsonPropertyName("PartitionKey")]
     string PartitionKey { get; }
     
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     string Id { get; }
 }
 

@@ -1,0 +1,51 @@
+using Microsoft.Azure.Cosmos;
+using System.Text.Json.Serialization;
+using Shopping.Core;
+
+namespace Shopping.Infrastructure.Persistence.Cart;
+
+public record Cart : IPersistenceIdentifier
+{
+    public string PartitionKey => CustomerId;
+    
+    public string Id { get; init; }
+
+    public string CustomerId { get; init; }
+    
+    public DateTime CreatedOnUtc { get; init; }
+
+    public Shopping.Core.Persistence.Metadata Metadata { get; init; }
+    
+    public IEnumerable<CartItem> Items { get; init; }
+    
+    [JsonPropertyName("_etag")]
+    public string ETag { get; init; }
+    
+}
+
+public record CartItem(string Sku, uint Quantity);
+
+
+public sealed class CartRepository: Repository<Cart>, IRepository<Cart>
+{
+    private const string ContainerName = "";
+    private const string DatabaseName = "";
+
+    public CartRepository(CosmosClient client) : base(client, DatabaseName, ContainerName) { }
+
+    // public async Task BatchUpdateAsync(string partitionKey, Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
+    // {
+    //     Shopping.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+    //     await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
+    // }
+
+    // public async Task BatchUpdateAsync(Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
+    // {
+    //     await base.BatchUpdateAsync(aggregate, events, cancellationToken);
+    // }
+    public async Task BatchUpdateAsync(Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
+    {
+        Shopping.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+        await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
+    }
+}

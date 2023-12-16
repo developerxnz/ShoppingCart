@@ -1,15 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="ClrHeapAllocationAnalyzer" Version="3.0.0" />
-      <PackageReference Include="ErrorOr" Version="1.3.0" />
+      <ProjectReference Include="..\Shopping.Infrastructure\Shopping.Infrastructure.csproj" />
+      <ProjectReference Include="..\Shopping\Shopping.csproj" />
     </ItemGroup>
 
 </Project>

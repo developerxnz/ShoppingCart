@@ -5,7 +5,6 @@ using Shopping.Cart.Core;
 using Shopping.Cart.Events;
 using Shopping.Domain.Core.Handlers;
 using Shopping.Extensions;
-using Shopping.Product;
 using Shopping.Product.Core;
 
 namespace Shopping.Cart;
@@ -35,7 +34,11 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             _ => throw new ArgumentOutOfRangeException(nameof(command))
         })
         .Match(
-            commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
+            commandResult =>
+            {
+                var x = commandResult;
+                return ApplyEvents(x.Aggregate, x.Events);
+            },
             error => ErrorOr.ErrorOr.From(error).Value);
 
     private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemAdded(AddItemToCartCommand command)
@@ -160,17 +163,17 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
 
     private CartAggregate UpdateItem(CartAggregate aggregate, CartItemUpdatedEvent @event)
     {
+        CartItemUpdatedEvent ev = @event;
         List<CartItem> items = aggregate.Items.ToList();
 
         var updatedItem =
             items
-                .Where(x => x.Sku == @event.Sku)
-                .Select(x => x with {Quantity = @event.Quantity})
+                .Select(x => x with { Quantity = ev.Quantity })
                 .ToList();
 
-        var x = items.Where(x => x.Sku != @event.Sku).ToList();
+        var x = items.Where(x => x.Sku != ev.Sku).ToList();
 
-        return aggregate with {Items = x.Concat(updatedItem).Distinct(new CartItemComparer())};
+        return aggregate with { Items = x.Concat(updatedItem).Distinct(new CartItemComparer()) };
     }
 
     private class CartItemComparer : IEqualityComparer<CartItem>

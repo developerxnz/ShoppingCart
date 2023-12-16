@@ -1,7 +1,7 @@
 namespace Shopping.Core;
 using ErrorOr;
 
-public abstract class Transformer<TDomain, TDto> : ITransformer<TDomain, TDto>
+public abstract class Transformer<TDomain, TDto>
 {
     public abstract TDto FromDomain(TDomain aggregate);
     

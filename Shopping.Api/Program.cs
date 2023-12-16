@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Newtonsoft.Json.Serialization;
+using Microsoft.Extensions.Options;
 using Shopping.Core;
 using Shopping.Product;
 using Shopping.Product.Handlers;
@@ -17,39 +17,34 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.Configure<ICosmosDbConfiguration>(builder.Configuration.GetSection("CosmosDbSettings"));
+builder.Services
+    .AddOptions<CosmosDbConfiguration>()
+    .BindConfiguration("CosmosDbSettings")
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 
 builder.Services.AddTransient<ICommandHandler, ProductCommandHandler>();
 builder.Services.AddTransient<IRepository<Shopping.Product.Persistence.Product>, Repository>();
 builder.Services.AddTransient<IProduct, Product>();
-builder.Services.AddTransient<ITransformer<ProductAggregate, Shopping.Product.Persistence.Product>, Transformer>();
-builder.Services.TryAddSingleton(async x =>
+builder.Services
+    .AddTransient<ITransformer<ProductAggregate, Shopping.Product.Persistence.Product>, ProductTransformer>();
+builder.Services.AddSingleton(x =>
 {
-    CosmosClientOptions clientOptions = new CosmosClientOptions()
+    CosmosClientOptions clientOptions = new CosmosClientOptions
     {
         ConnectionMode = ConnectionMode.Gateway,
-        SerializerOptions = new CosmosSerializationOptions()
+        SerializerOptions = new CosmosSerializationOptions
         {
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
         }
     };
-
-    CosmosDbConfiguration cosmosDbConfiguration = new();
-    builder.Configuration
-        .GetSection("CosmosDbSettings")
-        .Bind(cosmosDbConfiguration);
-
-    CosmosClient cosmosClient = new CosmosClient(cosmosDbConfiguration.ConnectionString, clientOptions);
-    var db = cosmosClient.GetDatabase("Shopping");
-
-    ContainerProperties properties = new ContainerProperties();
-    properties.PartitionKeyPaths = new[] { "/partnerId", "/accountId", "/profileId"};
-    properties.Id = "Profiles";
-    
-    await db.CreateContainerIfNotExistsAsync(properties);
+    var configuration = x.GetRequiredService<IOptions<CosmosDbConfiguration>>().Value;
+    CosmosClient cosmosClient = new CosmosClient(configuration.ConnectionString, clientOptions);
 
     return cosmosClient;
 });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,5 +64,5 @@ app.Run();
 
 public class CosmosDbConfiguration
 {
-    public string ConnectionString { get; set; }
+    [Required] public string ConnectionString { get; set; }
 }

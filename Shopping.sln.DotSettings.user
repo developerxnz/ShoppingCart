@@ -1,5 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">/Users/DevX/Library/Caches/JetBrains/Rider2023.1/resharper-host/temp/Rider/vAny/CoverageData/_Shopping.1486813903/Snapshot/snapshot.utdcvr</s:String>
+	
 	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=084e3b26_002Daeb5_002D4e02_002D85bc_002Dac926df5e657/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
@@ -23,7 +23,7 @@
     &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b534a390_002Dbe6e_002D4b6d_002D9487_002Dc3db55ff1294/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddToCart_ForNew_Should_Return_Error_When_CommandHandler_Returns_Error" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b534a390_002Dbe6e_002D4b6d_002D9487_002Dc3db55ff1294/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AddToCart_ForNew_Should_Return_Error_When_CommandHandler_Returns_Error" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2d653a7_002Dc2c7_002D4bce_002Dbdc0_002Dfea1d17342f2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
@@ -31,6 +31,6 @@
     &lt;TestId&gt;xUnit::A115000C-388F-4B30-8FFD-4E18C8F85304::net7.0::ShoppingUnitTests.OrderHandlerUnitTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f51729ff_002D823d_002D4d43_002D979c_002Df42b19df4634/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f51729ff_002D823d_002D4d43_002D979c_002Df42b19df4634/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="OrderHandlerUnitTest #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
