@@ -1,7 +1,7 @@
 using Bogus;
-using Shopping.Cart;
-using Shopping.Cart.Core;
-using Shopping.Core;
+using Shopping.Domain.Cart;
+using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Core;
 
 namespace ShoppingUnitTests;
 

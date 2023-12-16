@@ -1,6 +1,6 @@
 using Microsoft.Azure.Cosmos;
 using System.Text.Json.Serialization;
-using Shopping.Core;
+using Shopping.Domain.Core;
 
 namespace Shopping.Infrastructure.Persistence.Cart;
 
@@ -14,7 +14,7 @@ public record Cart : IPersistenceIdentifier
     
     public DateTime CreatedOnUtc { get; init; }
 
-    public Shopping.Core.Persistence.Metadata Metadata { get; init; }
+    public Domain.Core.Persistence.Metadata Metadata { get; init; }
     
     public IEnumerable<CartItem> Items { get; init; }
     
@@ -45,7 +45,7 @@ public sealed class CartRepository: Repository<Cart>, IRepository<Cart>
     // }
     public async Task BatchUpdateAsync(Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
     {
-        Shopping.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+        Domain.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
         await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

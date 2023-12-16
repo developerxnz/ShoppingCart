@@ -1,18 +1,17 @@
 using ErrorOr;
 using Moq;
-using Shopping.Cart;
-using Shopping.Cart.Commands;
-using Shopping.Cart.Core;
-using Shopping.Cart.Requests;
-using Shopping.Core;
-using Shopping.Domain.Core.Handlers;
-using Shopping.Product;
-using Shopping.Product.Core;
+using Shopping.Domain.Cart;
+using Shopping.Domain.Cart.Commands;
+using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Cart.Requests;
+using Shopping.Domain.Core;
+using Shopping.Domain.Domain.Core.Handlers;
+using Shopping.Domain.Product.Core;
 using Shopping.Services.Cart;
 using Cart = Shopping.Infrastructure.Persistence.Cart.Cart;
 using CartItem = Shopping.Infrastructure.Persistence.Cart.CartItem;
-using MetaData = Shopping.Core.Persistence.Metadata;
-using Version = Shopping.Core.Version;
+using MetaData = Shopping.Domain.Core.Persistence.Metadata;
+using Version = Shopping.Domain.Core.Version;
 
 namespace ShoppingUnitTests;
 
@@ -75,7 +74,7 @@ public class CartTests
         CartAggregate aggregate = new CartAggregate(DateTime.UtcNow, customerId)
         {
             Id = cartId,
-            MetaData = new Shopping.Core.MetaData(streamId, version, timeStamp)
+            MetaData = new Shopping.Domain.Core.MetaData(streamId, version, timeStamp)
         };
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
@@ -172,7 +171,7 @@ public class CartTests
         CartAggregate aggregate = new CartAggregate(DateTime.UtcNow, customerId)
         {
             Id = cartId,
-            MetaData = new Shopping.Core.MetaData(streamId, version, timeStamp)
+            MetaData = new Shopping.Domain.Core.MetaData(streamId, version, timeStamp)
         };
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
@@ -273,7 +272,7 @@ public class CartTests
         CartAggregate aggregate = new CartAggregate(DateTime.UtcNow, customerId)
         {
             Id = cartId,
-            MetaData = new Shopping.Core.MetaData(streamId, version, timeStamp)
+            MetaData = new Shopping.Domain.Core.MetaData(streamId, version, timeStamp)
         };
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
@@ -325,7 +324,7 @@ public class CartTests
         CartAggregate aggregate = new CartAggregate(DateTime.UtcNow, customerId)
         {
             Id = cartId,
-            MetaData = new Shopping.Core.MetaData(streamId, version, timeStamp)
+            MetaData = new Shopping.Domain.Core.MetaData(streamId, version, timeStamp)
         };
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());

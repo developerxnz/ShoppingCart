@@ -1,10 +1,6 @@
-using Shopping.Cart;
-using Shopping.Core;
-using Shopping.Core.Persistence;
-using Shopping.Delivery;
-using Shopping.Delivery.Core;
-using Shopping.Orders.Core;
-using Shopping.Product;
+using Shopping.Domain.Core;
+using Shopping.Domain.Delivery.Core;
+using Shopping.Domain.Orders.Core;
 
 namespace ShoppingUnitTests.Delivery;
 
@@ -48,7 +44,7 @@ public class DeliveryTransformerTests
                 deliveryId.Value.ToString(),
                 createdOnUtc,
                 deliveredOnUtc,
-                new Shopping.Core.Persistence.Metadata(streamId.ToString(), version, createdOnUtc), orderId.ToString());
+                new Shopping.Domain.Core.Persistence.Metadata(streamId.ToString(), version, createdOnUtc), orderId.ToString());
 
         _transformer.ToDomain(dto)
             .Switch(

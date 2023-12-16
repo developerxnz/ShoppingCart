@@ -1,9 +1,9 @@
 using ErrorOr;
-using Shopping.Core;
-using Shopping.Delivery.Core;
-using Shopping.Orders.Core;
-using Metadata = Shopping.Core.Persistence.Metadata;
-using Version = Shopping.Core.Version;
+using Shopping.Domain.Core;
+using Shopping.Domain.Delivery.Core;
+using Shopping.Domain.Orders.Core;
+using Metadata = Shopping.Domain.Core.Persistence.Metadata;
+using Version = Shopping.Domain.Core.Version;
 
 namespace Shopping.Services.Delivery;
 
@@ -49,7 +49,7 @@ public class DeliveryTransformer : Transformer<DeliveryAggregate, Infrastructure
         {
             Id = deliveryId,
             DeliveredOnUtc = dto.DeliveredOnUtc,
-            MetaData = new Shopping.Core.MetaData(streamId, version, dto.Metadata.Timestamp)
+            MetaData = new Domain.Core.MetaData(streamId, version, dto.Metadata.Timestamp)
         };
     }
 }

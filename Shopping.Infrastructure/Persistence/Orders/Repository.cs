@@ -1,7 +1,7 @@
 using Microsoft.Azure.Cosmos;
-using Shopping.Core;
-using Metadata = Shopping.Core.Persistence.Metadata;
-using PartitionKey = Shopping.Core.PartitionKey;
+using Shopping.Domain.Core;
+using Metadata = Shopping.Domain.Core.Persistence.Metadata;
+using PartitionKey = Shopping.Domain.Core.PartitionKey;
 
 namespace Shopping.Infrastructure.Persistence.Orders;
 

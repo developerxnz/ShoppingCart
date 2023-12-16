@@ -1,9 +1,9 @@
 using ErrorOr;
-using Shopping.Core;
+using Shopping.Domain.Core;
+using Shopping.Domain.Product;
+using Shopping.Domain.Product.Core;
+using Shopping.Domain.Product.Events;
 using Shopping.Infrastructure.Persistence.Products;
-using Shopping.Product;
-using Shopping.Product.Core;
-using Shopping.Product.Events;
 
 namespace Shopping.Services.Products;
 
@@ -32,7 +32,7 @@ public class ProductTransformer : Transformer<ProductAggregate, Infrastructure.P
                         productCreatedEvent.CorrelationId.ToString(),
                         productCreatedEvent.CausationId.ToString());
 
-                    var metadata = new Shopping.Core.Persistence.Metadata(
+                    var metadata = new Domain.Core.Persistence.Metadata(
                         productCreatedEvent.ProductId.Value.ToString(),
                         productCreatedEvent.Version.Value,
                         productCreatedEvent.TimeStamp);
@@ -42,7 +42,7 @@ public class ProductTransformer : Transformer<ProductAggregate, Infrastructure.P
             }
         }
 
-        Shopping.Core.Persistence.Metadata metaData = new(
+        Domain.Core.Persistence.Metadata metaData = new(
             aggregate.MetaData.StreamId.Value.ToString(),
             aggregate.MetaData.Version.Value,
             aggregate.MetaData.TimeStamp);
@@ -58,7 +58,7 @@ public class ProductTransformer : Transformer<ProductAggregate, Infrastructure.P
 
     public override Infrastructure.Persistence.Products.Product FromDomain(ProductAggregate aggregate)
     {
-        Shopping.Core.Persistence.Metadata metaData = new(
+        Domain.Core.Persistence.Metadata metaData = new(
             aggregate.MetaData.StreamId.Value.ToString(),
             aggregate.MetaData.Version.Value,
             aggregate.MetaData.TimeStamp);
@@ -88,7 +88,7 @@ public class ProductTransformer : Transformer<ProductAggregate, Infrastructure.P
         ProductPrice price = new ProductPrice(dto.Amount);
         StreamId streamId = new StreamId(streamIdGuid);
         Sku sku = new Sku(dto.Sku);
-        Shopping.Core.Version version = new(dto.Metadata.Version);
+        Domain.Core.Version version = new(dto.Metadata.Version);
         
         MetaData metaData =
             new MetaData(

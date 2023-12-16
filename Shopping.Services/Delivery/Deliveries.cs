@@ -1,9 +1,9 @@
 using ErrorOr;
-using Shopping.Core;
-using Shopping.Delivery.Commands;
-using Shopping.Delivery.Core;
-using Shopping.Delivery.Requests;
-using Shopping.Orders.Core;
+using Shopping.Domain.Core;
+using Shopping.Domain.Delivery.Commands;
+using Shopping.Domain.Delivery.Core;
+using Shopping.Domain.Delivery.Requests;
+using Shopping.Domain.Orders.Core;
 
 namespace Shopping.Services.Delivery;
 

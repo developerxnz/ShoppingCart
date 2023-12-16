@@ -1,9 +1,9 @@
 using ErrorOr;
-using Shopping.Cart;
-using Shopping.Cart.Commands;
-using Shopping.Cart.Requests;
-using Shopping.Core;
-using Shopping.Product.Core;
+using Shopping.Domain.Cart;
+using Shopping.Domain.Cart.Commands;
+using Shopping.Domain.Cart.Requests;
+using Shopping.Domain.Core;
+using Shopping.Domain.Product.Core;
 
 namespace Shopping.Services.Cart;
 

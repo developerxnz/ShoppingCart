@@ -1,7 +1,7 @@
 using ErrorOr;
-using Shopping.Core;
-using Shopping.Orders;
-using Shopping.Orders.Core;
+using Shopping.Domain.Core;
+using Shopping.Domain.Orders;
+using Shopping.Domain.Orders.Core;
 
 namespace Shopping.Services.Orders;
 
@@ -15,7 +15,7 @@ public class OrderTransformer : Transformer<OrderAggregate, Infrastructure.Persi
             aggregate.CompletedOnUtc,
             aggregate.CreatedOnUtc,
             aggregate.CustomerId.Value.ToString(),
-            new Shopping.Core.Persistence.Metadata(
+            new Domain.Core.Persistence.Metadata(
                 aggregate.MetaData.StreamId.Value.ToString(),
                 aggregate.MetaData.Version.Value,
                 aggregate.MetaData.TimeStamp)
@@ -42,7 +42,7 @@ public class OrderTransformer : Transformer<OrderAggregate, Infrastructure.Persi
         CustomerId customerId = new CustomerId(customerIdGuid);
         OrderId orderId = new OrderId(orderIdGuid);
         StreamId streamId = new StreamId(streamIdGuid);
-        Shopping.Core.Version version = new Shopping.Core.Version(dto.MetaData.Version);
+        Domain.Core.Version version = new Domain.Core.Version(dto.MetaData.Version);
 
         return new OrderAggregate(dto.CreatedOnUtc, customerId )
         {

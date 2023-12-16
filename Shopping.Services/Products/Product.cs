@@ -1,9 +1,9 @@
 using ErrorOr;
-using Shopping.Core;
-using Shopping.Domain.Core.Handlers;
-using Shopping.Product;
-using Shopping.Product.Commands;
-using Shopping.Product.Handlers;
+using Shopping.Domain.Core;
+using Shopping.Domain.Domain.Core.Handlers;
+using Shopping.Domain.Product;
+using Shopping.Domain.Product.Commands;
+using Shopping.Domain.Product.Handlers;
 
 namespace Shopping.Services.Products;
 
@@ -44,25 +44,25 @@ public interface IProduct
         CancellationToken cancellationToken);
 }
 
-public sealed class Product : Service<ProductAggregate, Shopping.Infrastructure.Persistence.Products.Product>, IProduct
+public sealed class Product : Service<ProductAggregate, Infrastructure.Persistence.Products.Product>, IProduct
 {
     private readonly ICommandHandler _commandHandler;
-    private readonly ITransformer<ProductAggregate, Shopping.Infrastructure.Persistence.Products.Product> _transformer;
+    private readonly ITransformer<ProductAggregate, Infrastructure.Persistence.Products.Product> _transformer;
 
-    public Product(IRepository<Shopping.Infrastructure.Persistence.Products.Product> repository,
-        ITransformer<ProductAggregate, Shopping.Infrastructure.Persistence.Products.Product> transformer,
+    public Product(IRepository<Infrastructure.Persistence.Products.Product> repository,
+        ITransformer<ProductAggregate, Infrastructure.Persistence.Products.Product> transformer,
         ICommandHandler commandHandler) : base(repository)
     {
         _transformer = transformer;
         _commandHandler = commandHandler;
     }
 
-    protected override ErrorOr<ProductAggregate> ToDomain(Shopping.Infrastructure.Persistence.Products.Product aggregate)
+    protected override ErrorOr<ProductAggregate> ToDomain(Infrastructure.Persistence.Products.Product aggregate)
     {
         return _transformer.ToDomain(aggregate);
     }
 
-    protected override (Shopping.Infrastructure.Persistence.Products.Product, IEnumerable<IEvent>) FromDomain(ProductAggregate aggregate, IEnumerable<Event> events)
+    protected override (Infrastructure.Persistence.Products.Product, IEnumerable<IEvent>) FromDomain(ProductAggregate aggregate, IEnumerable<Event> events)
     {
         throw new NotImplementedException();
     }

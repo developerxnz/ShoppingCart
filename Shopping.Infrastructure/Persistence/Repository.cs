@@ -40,7 +40,7 @@ public abstract class Repository<T>
         return documents;
     }
 
-    protected async Task BatchUpdateAsync(Shopping.Core.PartitionKey partitionKey, object aggregate, IEnumerable<object> events, CancellationToken cancellationToken)
+    protected async Task BatchUpdateAsync(Domain.Core.PartitionKey partitionKey, object aggregate, IEnumerable<object> events, CancellationToken cancellationToken)
     {
         try
         {

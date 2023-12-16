@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping", "Shopping\Shopping.csproj", "{A3B57342-484F-4444-B2B1-170F09F2524C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Domain", "Shopping.Domain\Shopping.Domain.csproj", "{A3B57342-484F-4444-B2B1-170F09F2524C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Domain.Tests", "Shopping.Domain.Tests\Shopping.Domain.Tests.csproj", "{A115000C-388F-4B30-8FFD-4E18C8F85304}"
 EndProject

@@ -1,11 +1,11 @@
 using ErrorOr;
-using Shopping.Core;
-using Shopping.Orders;
-using Shopping.Orders.Commands;
-using Shopping.Orders.Core;
-using Shopping.Orders.Events;
-using Shopping.Orders.Handlers;
-using Shopping.Orders.Requests;
+using Shopping.Domain.Core;
+using Shopping.Domain.Orders;
+using Shopping.Domain.Orders.Commands;
+using Shopping.Domain.Orders.Core;
+using Shopping.Domain.Orders.Events;
+using Shopping.Domain.Orders.Handlers;
+using Shopping.Domain.Orders.Requests;
 
 namespace Shopping.Services.Orders;
 

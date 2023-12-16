@@ -1,7 +1,7 @@
 using ErrorOr;
-using Shopping.Cart.Core;
-using Shopping.Core;
-using Shopping.Product.Core;
+using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Core;
+using Shopping.Domain.Product.Core;
 
 namespace Shopping.Services.Cart;
 

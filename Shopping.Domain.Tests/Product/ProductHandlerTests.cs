@@ -1,10 +1,10 @@
 using ErrorOr;
-using Shopping.Cart.Projections;
-using Shopping.Product;
-using Shopping.Product.Commands;
-using Shopping.Product.Handlers;
-using Shopping.Product.Core;
-using Shopping.Core;
+using Shopping.Domain.Cart.Projections;
+using Shopping.Domain.Product;
+using Shopping.Domain.Product.Commands;
+using Shopping.Domain.Product.Handlers;
+using Shopping.Domain.Product.Core;
+using Shopping.Domain.Core;
 
 namespace ShoppingUnitTests;
 
@@ -40,7 +40,7 @@ public class ProductHandlerTests
             .Switch(
                 result =>
                 {
-                    Assert.Equal(new Shopping.Core.Version(1), result.Aggregate.MetaData.Version);
+                    Assert.Equal(new Shopping.Domain.Core.Version(1), result.Aggregate.MetaData.Version);
                     Assert.Equal(new(result.Aggregate.Id.Value), result.Aggregate.MetaData.StreamId);
                     Assert.Equal(_now, result.Aggregate.MetaData.TimeStamp);
                     Assert.Equal(_now, result.Aggregate.CreatedOnUtc);

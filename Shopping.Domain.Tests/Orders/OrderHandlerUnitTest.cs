@@ -1,15 +1,15 @@
 using ErrorOr;
-using Shopping.Core;
-using Shopping.Extensions;
-using Shopping.Orders;
-using Shopping.Orders.Commands;
-using Shopping.Orders.Core;
-using Shopping.Orders.Events;
-using Shopping.Orders.Handlers;
+using Shopping.Domain.Core;
+using Shopping.Domain.Extensions;
+using Shopping.Domain.Orders;
+using Shopping.Domain.Orders.Commands;
+using Shopping.Domain.Orders.Core;
+using Shopping.Domain.Orders.Events;
+using Shopping.Domain.Orders.Handlers;
 
 namespace ShoppingUnitTests;
 
-using Shopping;
+using Shopping.Domain;
 
 public class OrderHandlerUnitTest
 {
@@ -32,7 +32,7 @@ public class OrderHandlerUnitTest
             .Switch(
                 result =>
                 {
-                    Assert.Equal(new Shopping.Core.Version(1), result.Aggregate.MetaData.Version);
+                    Assert.Equal(new Shopping.Domain.Core.Version(1), result.Aggregate.MetaData.Version);
                     Assert.Equal(new(customerId.Value), result.Aggregate.MetaData.StreamId);
                     Assert.Equal(createdOnUtc, result.Aggregate.MetaData.TimeStamp);
                 },
@@ -46,7 +46,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(1);
+        Shopping.Domain.Core.Version version = new(1);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId) {Id = orderId, MetaData = metaData};
         DateTime completedOnUtc = DateTime.UtcNow;
@@ -72,7 +72,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(1);
+        Shopping.Domain.Core.Version version = new(1);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId)
             {Id = orderId, CompletedOnUtc = DateTime.UtcNow, MetaData = metaData};
@@ -103,7 +103,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(1);
+        Shopping.Domain.Core.Version version = new(1);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId)
             {Id = orderId, CancelledOnUtc = DateTime.UtcNow, MetaData = metaData};
@@ -134,7 +134,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(0);
+        Shopping.Domain.Core.Version version = new(0);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId) {Id = orderId};
         DateTime completedOnUtc = DateTime.UtcNow;
@@ -164,7 +164,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(1);
+        Shopping.Domain.Core.Version version = new(1);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId) {Id = orderId, MetaData = metaData};
         DateTime cancelledOnUtc = DateTime.UtcNow;
@@ -190,7 +190,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(1);
+        Shopping.Domain.Core.Version version = new(1);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId)
             {Id = orderId, CancelledOnUtc = DateTime.UtcNow, MetaData = metaData};
@@ -221,7 +221,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(1);
+        Shopping.Domain.Core.Version version = new(1);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId)
             {Id = orderId, CompletedOnUtc = DateTime.UtcNow, MetaData = metaData};
@@ -252,7 +252,7 @@ public class OrderHandlerUnitTest
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         OrderId orderId = new OrderId(Guid.NewGuid());
         CorrelationId correlationId = new(Guid.NewGuid());
-        Shopping.Core.Version version = new(0);
+        Shopping.Domain.Core.Version version = new(0);
         MetaData metaData = new(new(orderId.Value), version, DateTime.UtcNow);
         OrderAggregate order = new OrderAggregate(DateTime.UtcNow, customerId) {Id = orderId};
         DateTime cancelledOnUtc = DateTime.UtcNow;

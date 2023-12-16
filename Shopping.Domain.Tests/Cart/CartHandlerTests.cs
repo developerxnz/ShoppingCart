@@ -1,11 +1,11 @@
 using ErrorOr;
-using Shopping.Cart;
-using Shopping.Cart.Commands;
-using Shopping.Cart.Core;
-using Shopping.Core;
-using Shopping.Domain.Core.Handlers;
-using Shopping.Product.Core;
-using MetaData = Shopping.Core.MetaData;
+using Shopping.Domain.Cart;
+using Shopping.Domain.Cart.Commands;
+using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Core;
+using Shopping.Domain.Domain.Core.Handlers;
+using Shopping.Domain.Product.Core;
+using MetaData = Shopping.Domain.Core.MetaData;
 
 namespace ShoppingUnitTests;
 
@@ -39,7 +39,7 @@ public class CartHandlerTests
             .Switch(
                 result =>
                 {
-                    Assert.Equal(new Shopping.Core.Version(1), result.Aggregate.MetaData.Version);
+                    Assert.Equal(new Shopping.Domain.Core.Version(1), result.Aggregate.MetaData.Version);
                     Assert.Equal(new(result.Aggregate.Id.Value), result.Aggregate.MetaData.StreamId);
                     Assert.Equal(_now, result.Aggregate.MetaData.TimeStamp);
                     Assert.Single(result.Aggregate.Items);
@@ -77,7 +77,7 @@ public class CartHandlerTests
     {
         AddItemToCartCommand command = new AddItemToCartCommand(_now, _customerId, _mismatchedCartId, _sku, 1, _correlationId);
         CartAggregate aggregate = new CartAggregate(_now, _customerId);
-        var versionedAggregate = aggregate with { MetaData = aggregate.MetaData with { Version = new Shopping.Core.Version(2) } };
+        var versionedAggregate = aggregate with { MetaData = aggregate.MetaData with { Version = new Shopping.Domain.Core.Version(2) } };
 
         _commandHandler.HandlerForExisting(command, versionedAggregate)
             .Switch(
@@ -108,7 +108,7 @@ public class CartHandlerTests
             .Switch(
                 result =>
                 {
-                    Assert.Equal(new Shopping.Core.Version(7), result.Aggregate.MetaData.Version);
+                    Assert.Equal(new Shopping.Domain.Core.Version(7), result.Aggregate.MetaData.Version);
                     Assert.Equal(new(result.Aggregate.Id.Value), result.Aggregate.MetaData.StreamId);
                     Assert.Equal(_now, result.Aggregate.MetaData.TimeStamp);
                     Assert.True(result.Aggregate.Items.Count() == 2);
@@ -155,7 +155,7 @@ public class CartHandlerTests
             .Switch(
                 result =>
                 {
-                    Assert.Equal(new Shopping.Core.Version(7), result.Aggregate.MetaData.Version);
+                    Assert.Equal(new Shopping.Domain.Core.Version(7), result.Aggregate.MetaData.Version);
                     Assert.Equal(new(result.Aggregate.Id.Value), result.Aggregate.MetaData.StreamId);
                     Assert.Equal(_now, result.Aggregate.MetaData.TimeStamp);
                     Assert.True(!result.Aggregate.Items.Any());
@@ -283,7 +283,7 @@ public class CartHandlerTests
             .Switch(
                 result =>
                 {
-                    Assert.Equal(new Shopping.Core.Version(7), result.Aggregate.MetaData.Version);
+                    Assert.Equal(new Shopping.Domain.Core.Version(7), result.Aggregate.MetaData.Version);
                     Assert.Equal(new(result.Aggregate.Id.Value), result.Aggregate.MetaData.StreamId);
                     Assert.Equal(_now, result.Aggregate.MetaData.TimeStamp);
                     Assert.Single(result.Aggregate.Items);

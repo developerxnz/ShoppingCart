@@ -1,13 +1,13 @@
 using ErrorOr;
-using Shopping.Cart.Core;
-using Shopping.Core;
-using Shopping.Product.Core;
-using Shopping.Services.Cart;
-using Version = Shopping.Core.Version;
+using Shopping.Domain.Cart;
+using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Core;
+using Shopping.Domain.Product.Core;
+using Version = Shopping.Domain.Core.Version;
 
-namespace Shopping.Cart;
+namespace Shopping.Services.Cart;
 
-public sealed class CartTransformer : Transformer<CartAggregate, Shopping.Infrastructure.Persistence.Cart.Cart>, ITransformer<CartAggregate, Shopping.Infrastructure.Persistence.Cart.Cart>
+public sealed class CartTransformer : Transformer<CartAggregate, Infrastructure.Persistence.Cart.Cart>, ITransformer<CartAggregate, Infrastructure.Persistence.Cart.Cart>
 {
     private readonly CartItemTransformer _cartItemTransformer;
 
@@ -16,16 +16,16 @@ public sealed class CartTransformer : Transformer<CartAggregate, Shopping.Infras
         _cartItemTransformer = cartItemTransformer;
     }
 
-    public override Shopping.Infrastructure.Persistence.Cart.Cart FromDomain(CartAggregate aggregate)
+    public override Infrastructure.Persistence.Cart.Cart FromDomain(CartAggregate aggregate)
     {
-        return new Shopping.Infrastructure.Persistence.Cart.Cart
+        return new Infrastructure.Persistence.Cart.Cart
         {
             Id = aggregate.Id.Value.ToString(),
             CustomerId = aggregate.CustomerId.Value.ToString(),
             CreatedOnUtc = aggregate.CreatedOnUtc,
             ETag = aggregate.Etag,
             Items = FromDomain(aggregate.Items),
-            Metadata = new Shopping.Core.Persistence.Metadata(
+            Metadata = new Domain.Core.Persistence.Metadata(
                 aggregate.MetaData.StreamId.Value.ToString(),
                 aggregate.MetaData.Version.Value,
                 aggregate.MetaData.TimeStamp
@@ -33,7 +33,7 @@ public sealed class CartTransformer : Transformer<CartAggregate, Shopping.Infras
         };
     }
 
-    public override ErrorOr<CartAggregate> ToDomain(Shopping.Infrastructure.Persistence.Cart.Cart dto)
+    public override ErrorOr<CartAggregate> ToDomain(Infrastructure.Persistence.Cart.Cart dto)
     {
         if (!Guid.TryParse(dto.CustomerId, out Guid customerId))
         {
@@ -61,14 +61,14 @@ public sealed class CartTransformer : Transformer<CartAggregate, Shopping.Infras
         };
     }
 
-    private IEnumerable<Shopping.Infrastructure.Persistence.Cart.CartItem> FromDomain(IEnumerable<CartItem> items)
+    private IEnumerable<Infrastructure.Persistence.Cart.CartItem> FromDomain(IEnumerable<CartItem> items)
     {
         return items
             .Select(_cartItemTransformer.FromDomain)
             .ToList();
     }
 
-    private ErrorOr<CartItem> ToDomain(Shopping.Infrastructure.Persistence.Cart.CartItem dto)
+    private ErrorOr<CartItem> ToDomain(Infrastructure.Persistence.Cart.CartItem dto)
     {
         Sku sku = new Sku(dto.Sku);
         return new CartItem(sku, dto.Quantity);

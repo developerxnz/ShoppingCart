@@ -1,8 +1,7 @@
-using Shopping.Cart;
-using Shopping.Cart.Core;
-using Shopping.Core;
-using Shopping.Product;
-using Shopping.Product.Core;
+using Shopping.Domain.Cart;
+using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Core;
+using Shopping.Domain.Product.Core;
 using Shopping.Services.Cart;
 
 namespace ShoppingUnitTests;
@@ -99,7 +98,7 @@ public class CartTransformerTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         DateTime timestamp = DateTime.UtcNow;
         uint version = 25;
-        Shopping.Core.Persistence.Metadata metaData = 
+        Shopping.Domain.Core.Persistence.Metadata metaData = 
             new(
                 streamId.Value.ToString(),
                 version,
@@ -151,7 +150,7 @@ public class CartTransformerTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         DateTime timestamp = DateTime.UtcNow;
         uint version = 25;
-        Shopping.Core.Persistence.Metadata metaData = 
+        Shopping.Domain.Core.Persistence.Metadata metaData = 
             new(
                 streamId.Value.ToString(),
                 version,

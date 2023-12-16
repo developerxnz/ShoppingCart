@@ -1,11 +1,10 @@
-using Shopping.Core;
-using Shopping.Delivery;
-using Shopping.Delivery.Core;
+using Shopping.Domain.Core;
 using Moq;
-using Shopping.Orders.Core;
 using ErrorOr;
-using Shopping.Delivery.Requests;
-using Shopping.Domain.Core.Handlers;
+using Shopping.Domain.Delivery.Core;
+using Shopping.Domain.Delivery.Requests;
+using Shopping.Domain.Domain.Core.Handlers;
+using Shopping.Domain.Orders.Core;
 using Shopping.Services.Delivery;
 
 namespace ShoppingUnitTests.Delivery;
@@ -69,7 +68,7 @@ public class DeliveryServiceTests
                 deliveryId.Value.ToString(),
                 createdOnUtc,
                 completedOnUtc,
-                new Shopping.Core.Persistence.Metadata(streamId.Value.ToString(), 1, createdOnUtc ),
+                new Shopping.Domain.Core.Persistence.Metadata(streamId.Value.ToString(), 1, createdOnUtc ),
                 orderId.Value.ToString());
         
         ErrorOr<CommandResult<DeliveryAggregate>> commandResult = ErrorOr<CommandResult<DeliveryAggregate>>
