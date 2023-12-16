@@ -1,0 +1,120 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"}]}}
+
+#!markdown
+
+# Question
+
+Given a list of numbers and a number k, return whether any two numbers from the list add up to k.
+
+For example, given [10, 15, 3, 7] and k of 17, return true since 10 + 7 is 17.
+
+Bonus: Can you do this in one pass?
+
+#!csharp
+
+int[] numbers = { 11, 15, 8, 7, 16, 8, 7, 4, 12 };
+int k = 16;
+
+int index = 0;
+bool isFound = false;
+HashSet<int> items = new ();
+
+for(int index = 0; index < numbers.Length; index ++)
+{
+    var currentValue = numbers[index];
+    var check = k - currentValue;
+    if(items.Contains(check))
+    {
+        Console.WriteLine($"Found: {currentValue} + {check}");
+        break;
+    }
+
+    items.Add(currentValue);
+}
+
+#!markdown
+
+Flood fill
+
+What is and why use hash map
+
+#!csharp
+
+public class Node
+{
+
+    public string Value { get; }
+
+    public Node Left {get; set;}
+
+    public Node Right {get; set;}
+
+    public Node(string val, Node left, Node right)
+    {
+        Value = val;
+        Left = left;
+        Right = right;
+    }
+}
+
+public class Serializer
+{
+
+    public string Serialize(Node root)
+    {
+        
+
+        return root.Value;
+    }
+
+}
+
+
+var root = new Node("root", null, null);
+
+root.Left = new Node("Left", null, null);
+root.Left.Left = new Node("Left", null, null);
+
+root.Right = new Node("Right", null, null);
+root.Right.Right = new Node("Right", null, null);
+
+#!markdown
+
+node = Node('root', Node('left', Node('left.left')), Node('right'))
+
+assert deserialize(serialize(node)).left.left.val == 'left.left'
+
+Constant Time vs Linear Time
+
+#!csharp
+
+public class Product {
+
+    public static void Calculate(int[] arr) {
+    int total_product = 1;
+    for (int i = 0; i < arr.Length; ++i) {
+        total_product *= arr[i];
+        Console.WriteLine(total_product);
+    }
+
+    Console.WriteLine();
+
+    // create output
+    var output = new int[arr.Length];
+    for (int i = 0; i < arr.Length; ++i) {
+        output[i] = total_product / arr[i];
+    }
+    
+    foreach (var x in output)
+    {
+        Console.WriteLine(x);
+    }
+}
+
+}
+
+Product.Calculate(new [] { 1, 4, 3, 23, 12 });
+
+//120
