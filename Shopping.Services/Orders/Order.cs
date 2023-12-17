@@ -6,6 +6,7 @@ using Shopping.Domain.Orders.Core;
 using Shopping.Domain.Orders.Events;
 using Shopping.Domain.Orders.Handlers;
 using Shopping.Domain.Orders.Requests;
+using Shopping.Services.Interfaces;
 
 namespace Shopping.Services.Orders;
 

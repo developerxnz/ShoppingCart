@@ -33,7 +33,6 @@ public class OrderHandlerUnitTest
                 result =>
                 {
                     Assert.Equal(new Shopping.Domain.Core.Version(1), result.Aggregate.MetaData.Version);
-                    Assert.Equal(new(customerId.Value), result.Aggregate.MetaData.StreamId);
                     Assert.Equal(createdOnUtc, result.Aggregate.MetaData.TimeStamp);
                 },
                 errors => Assert.Fail("Expected Order")

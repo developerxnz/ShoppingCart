@@ -90,11 +90,6 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
     private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemUpdated(UpdateItemInCartCommand command,
         CartAggregate aggregate)
     {
-        if (command.Quantity == 0)
-        {
-            return Error.Validation(Constants.InvalidQuantityCode, Constants.InvalidQuantityDescription);
-        }
-        
         if (aggregate.Items.All(x => x.Sku != command.Sku))
         {
             return Error.Validation(Constants.InvalidCartItemSkuCode, Constants.InvalidCartItemSkuDescription);

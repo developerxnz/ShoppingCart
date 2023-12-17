@@ -4,6 +4,7 @@ using Shopping.Domain.Product;
 using Shopping.Domain.Product.Core;
 using Shopping.Domain.Product.Events;
 using Shopping.Infrastructure.Persistence.Products;
+using Shopping.Services.Interfaces;
 
 namespace Shopping.Services.Products;
 

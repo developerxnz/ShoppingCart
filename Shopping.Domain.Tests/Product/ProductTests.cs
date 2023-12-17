@@ -16,8 +16,8 @@ namespace ShoppingUnitTests;
 
 public class ProductTests
 {
-    private readonly Shopping.Services.Cart.Cart _cart;
-    private readonly Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.Cart>> _repository;
+    private readonly Shopping.Services.Cart.CartService _cartService;
+    private readonly Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.CartService>> _repository;
     private readonly Mock<ICartCommandHandler> _cartHandler;
 
     public ProductTests()
@@ -25,8 +25,8 @@ public class ProductTests
         var transformer = new CartTransformer(new Shopping.Services.Cart.CartItemTransformer());
         
         _cartHandler = new Mock<ICartCommandHandler>();
-        _repository = new Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.Cart>>();
-        _cart = new Shopping.Services.Cart.Cart(_cartHandler.Object, _repository.Object, transformer);
+        _repository = new Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.CartService>>();
+        _cartService = new Shopping.Services.Cart.CartService(_cartHandler.Object, _repository.Object, transformer);
     }
     
     [Fact]
@@ -45,7 +45,7 @@ public class ProductTests
             .Setup(x => x.HandlerForNew(It.IsAny<ICartCommand>()))
             .Returns(commandResult);
 
-        var response = await _cart.AddToCartAsync(customerId, sku, 10, correlationId, cancellationToken);
+        var response = await _cartService.AddToCartAsync(customerId, sku, CartQuantity.Create(10).Value, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse => Assert.Fail($"Expected {nameof(AddToCartResponse)}"),
             errors =>
@@ -87,7 +87,7 @@ public class ProductTests
             .Setup(x => x.HandlerForNew(It.IsAny<ICartCommand>()))
             .Returns(commandResult);
 
-        var response = await _cart.AddToCartAsync(customerId, sku, 10, correlationId, cancellationToken);
+        var response = await _cartService.AddToCartAsync(customerId, sku, CartQuantity.Create(10).Value, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse =>
             {
@@ -106,7 +106,7 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new Shopping.Infrastructure.Persistence.Cart.Cart
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
@@ -118,7 +118,7 @@ public class ProductTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, 10);
+        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, CartQuantity.Create(10).Value);
 
         ErrorOr<CommandResult<CartAggregate>> commandResult = ErrorOr<CommandResult<CartAggregate>>
             .From(new List<Error>
@@ -132,7 +132,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cart.AddToCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartService.AddToCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse => Assert.Fail($"Expected {Constants.InvalidQuantityDescription}"),
             errors =>
@@ -157,7 +157,7 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new Shopping.Infrastructure.Persistence.Cart.Cart
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
@@ -175,7 +175,7 @@ public class ProductTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, 10);
+        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, CartQuantity.Create(10).Value);
 
         IEnumerable<Event> events = Enumerable.Empty<Event>();
         var commandResult = new CommandResult<CartAggregate>(aggregate, events);
@@ -188,7 +188,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cart.AddToCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartService.AddToCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse =>
             {
@@ -207,7 +207,7 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new Shopping.Infrastructure.Persistence.Cart.Cart
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
@@ -219,7 +219,7 @@ public class ProductTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, 10);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, CartQuantity.Create(10).Value);
 
         ErrorOr<CommandResult<CartAggregate>> commandResult = ErrorOr<CommandResult<CartAggregate>>
             .From(new List<Error>
@@ -233,7 +233,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cart.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             updateCartItmResponse => Assert.Fail($"Expected {Constants.InvalidQuantityDescription}"),
             errors =>
@@ -258,7 +258,7 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new Shopping.Infrastructure.Persistence.Cart.Cart
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
@@ -276,7 +276,7 @@ public class ProductTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, 10);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, CartQuantity.Create(10).Value);
 
         IEnumerable<Event> events = Enumerable.Empty<Event>();
         var commandResult = new CommandResult<CartAggregate>(aggregate, events);
@@ -289,7 +289,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cart.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             updateCartItemResponse =>
             {
@@ -310,7 +310,7 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new Shopping.Infrastructure.Persistence.Cart.Cart
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
@@ -328,7 +328,7 @@ public class ProductTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, 30);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, CartQuantity.Create(30).Value);
 
         IEnumerable<Event> events = Enumerable.Empty<Event>();
         var commandResult = new CommandResult<CartAggregate>(aggregate, events);
@@ -341,7 +341,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cart.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             removeItemFromCartResponse =>
             {
@@ -361,7 +361,7 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new Shopping.Infrastructure.Persistence.Cart.Cart
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
@@ -373,7 +373,7 @@ public class ProductTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, 30);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, CartQuantity.Create(30).Value);
 
         ErrorOr<CommandResult<CartAggregate>> commandResult = ErrorOr<CommandResult<CartAggregate>>
             .From(new List<Error>
@@ -387,7 +387,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cart.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
                 updateCartItmResponse => Assert.Fail($"Expected {Constants.InvalidQuantityDescription}"),
                 errors =>

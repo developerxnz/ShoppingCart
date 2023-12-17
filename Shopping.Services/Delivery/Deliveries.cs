@@ -4,6 +4,7 @@ using Shopping.Domain.Delivery.Commands;
 using Shopping.Domain.Delivery.Core;
 using Shopping.Domain.Delivery.Requests;
 using Shopping.Domain.Orders.Core;
+using Shopping.Services.Interfaces;
 
 namespace Shopping.Services.Delivery;
 

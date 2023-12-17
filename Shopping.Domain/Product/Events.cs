@@ -1,4 +1,3 @@
-using Shopping.Domain.Cart.Projections;
 using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
 using Version = Shopping.Domain.Core.Version;

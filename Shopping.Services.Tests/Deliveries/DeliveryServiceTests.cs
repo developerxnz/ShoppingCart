@@ -6,6 +6,7 @@ using Shopping.Domain.Delivery.Requests;
 using Shopping.Domain.Domain.Core.Handlers;
 using Shopping.Domain.Orders.Core;
 using Shopping.Services.Delivery;
+using Shopping.Services.Interfaces;
 
 namespace ShoppingUnitTests.Delivery;
 

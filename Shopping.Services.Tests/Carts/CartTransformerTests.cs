@@ -1,14 +1,16 @@
+using Microsoft.Azure.Cosmos.Linq;
 using Shopping.Domain.Cart;
 using Shopping.Domain.Cart.Core;
 using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
 using Shopping.Services.Cart;
+using Shopping.Services.Interfaces;
 
 namespace ShoppingUnitTests;
 
 public class CartTransformerTests
 {
-    private readonly ITransformer<CartAggregate, Shopping.Infrastructure.Persistence.Cart.Cart> _transformer;
+    private readonly ITransformer<CartAggregate, Shopping.Infrastructure.Persistence.Cart.CartService> _transformer;
 
     public CartTransformerTests()
     {
@@ -21,15 +23,15 @@ public class CartTransformerTests
         DateTime createdOnUtc = DateTime.UtcNow;
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         Sku firstSku = new(Guid.NewGuid().ToString());
-        uint firstQuantity = 10;
+        var firstQuantity = CartQuantity.Create(10);
         
         Sku lastSku = new(Guid.NewGuid().ToString());
-        uint lastQuantity = 10;
+        var lastQuantity = CartQuantity.Create(10);
         
         IEnumerable<CartItem> items = new []
         {
-            new CartItem(firstSku, firstQuantity),
-            new CartItem(lastSku, lastQuantity)
+            new CartItem(firstSku, firstQuantity.Value),
+            new CartItem(lastSku, lastQuantity.Value)
         };
         CartAggregate aggregate = new CartAggregate(createdOnUtc, customerId)
         {
@@ -45,9 +47,9 @@ public class CartTransformerTests
         Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.Metadata.Timestamp);
         Assert.Equal(2, aggregate.Items.Count());
         Assert.Equal(firstSku.Value.ToString(), cartDto.Items.First().Sku);
-        Assert.Equal(firstQuantity, cartDto.Items.First().Quantity);
+        Assert.Equal(firstQuantity.Value.Value, cartDto.Items.First().Quantity);
         Assert.Equal(lastSku.Value.ToString(), cartDto.Items.Last().Sku);
-        Assert.Equal(lastQuantity, cartDto.Items.Last().Quantity);
+        Assert.Equal(lastQuantity.Value.Value, cartDto.Items.Last().Quantity);
     }
     
     [Fact]
@@ -56,15 +58,15 @@ public class CartTransformerTests
         DateTime createdOnUtc = DateTime.UtcNow;
         CustomerId customerId = new CustomerId(Guid.NewGuid());
         Sku firstSku = new(Guid.NewGuid().ToString());
-        uint firstQuantity = 10;
+        var firstQuantity = CartQuantity.Create(10);
         
         Sku lastSku = new(Guid.NewGuid().ToString());
-        uint lastQuantity = 10;
+        var lastQuantity = CartQuantity.Create(10);
         
         IEnumerable<CartItem> items = new []
         {
-            new CartItem(firstSku, firstQuantity),
-            new CartItem(lastSku, lastQuantity)
+            new CartItem(firstSku, firstQuantity.Value),
+            new CartItem(lastSku, lastQuantity.Value)
         };
         CartAggregate aggregate = new CartAggregate(createdOnUtc, customerId)
         {
@@ -81,10 +83,10 @@ public class CartTransformerTests
             Assert.Equal(aggregate.MetaData.Version.Value, cartDto.Metadata.Version);
             Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.Metadata.Timestamp);
             Assert.Equal(2, aggregate.Items.Count());
-            Assert.Equal(firstSku.Value.ToString(), cartDto.Items.First().Sku);
-            Assert.Equal(firstQuantity, cartDto.Items.First().Quantity);
-            Assert.Equal(lastSku.Value.ToString(), cartDto.Items.Last().Sku);
-            Assert.Equal(lastQuantity, cartDto.Items.Last().Quantity);
+            Assert.Equal(firstSku.Value, cartDto.Items.First().Sku);
+            Assert.Equal(firstQuantity.Value.Value, cartDto.Items.First().Quantity);
+            Assert.Equal(lastSku.Value, cartDto.Items.Last().Sku);
+            Assert.Equal(lastQuantity.Value.Value, cartDto.Items.Last().Quantity);
         }
     }
     
@@ -106,17 +108,17 @@ public class CartTransformerTests
             );
         
         Sku firstSku = new(Guid.NewGuid().ToString());
-        uint firstQuantity = 10;
+        var firstQuantity = CartQuantity.Create(10);
         
         Sku lastSku = new(Guid.NewGuid().ToString());
-        uint lastQuantity = 10;
+        var lastQuantity = CartQuantity.Create(10);
         
         IEnumerable<Shopping.Infrastructure.Persistence.Cart.CartItem> items = new []
         {
-            new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value.ToString(), firstQuantity),
-            new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value.ToString(), lastQuantity)
+            new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value, firstQuantity.Value.Value),
+            new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value, lastQuantity.Value.Value)
         };
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new()
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,
@@ -158,17 +160,17 @@ public class CartTransformerTests
             );
         
         Sku firstSku = new(Guid.NewGuid().ToString());
-        uint firstQuantity = 10;
+        var firstQuantity = CartQuantity.Create(10);
         
         Sku lastSku = new(Guid.NewGuid().ToString());
-        uint lastQuantity = 10;
+        var lastQuantity = CartQuantity.Create(10);
         
         IEnumerable<Shopping.Infrastructure.Persistence.Cart.CartItem> items = new []
         {
-            new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value, firstQuantity),
-            new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value, lastQuantity)
+            new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value, firstQuantity.Value.Value),
+            new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value, lastQuantity.Value.Value)
         };
-        Shopping.Infrastructure.Persistence.Cart.Cart dto = new()
+        Shopping.Infrastructure.Persistence.Cart.CartService dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,

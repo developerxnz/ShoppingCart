@@ -1,10 +1,10 @@
 using ErrorOr;
-using Shopping.Domain.Cart.Projections;
 using Shopping.Domain.Product;
 using Shopping.Domain.Product.Commands;
 using Shopping.Domain.Product.Handlers;
 using Shopping.Domain.Product.Core;
 using Shopping.Domain.Core;
+using Shopping.Services.Cart.Projections;
 
 namespace ShoppingUnitTests;
 

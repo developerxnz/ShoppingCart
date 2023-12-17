@@ -1,6 +1,7 @@
 using Shopping.Domain.Core;
 using Shopping.Domain.Delivery.Core;
 using Shopping.Domain.Orders.Core;
+using Shopping.Services.Interfaces;
 
 namespace ShoppingUnitTests.Delivery;
 

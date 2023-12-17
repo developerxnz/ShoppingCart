@@ -10,4 +10,4 @@ public record CartId(Guid Value)
     }
 };
 
-public record CartItem(Sku Sku, uint Quantity);
+public record CartItem(Sku Sku, CartQuantity Quantity);

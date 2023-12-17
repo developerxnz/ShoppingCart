@@ -3,11 +3,12 @@ using Shopping.Domain.Cart;
 using Shopping.Domain.Cart.Core;
 using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
+using Shopping.Services.Interfaces;
 using Version = Shopping.Domain.Core.Version;
 
 namespace Shopping.Services.Cart;
 
-public sealed class CartTransformer : Transformer<CartAggregate, Infrastructure.Persistence.Cart.Cart>, ITransformer<CartAggregate, Infrastructure.Persistence.Cart.Cart>
+public sealed class CartTransformer : Transformer<CartAggregate, Infrastructure.Persistence.Cart.CartService>, ITransformer<CartAggregate, Infrastructure.Persistence.Cart.CartService>
 {
     private readonly CartItemTransformer _cartItemTransformer;
 
@@ -16,9 +17,9 @@ public sealed class CartTransformer : Transformer<CartAggregate, Infrastructure.
         _cartItemTransformer = cartItemTransformer;
     }
 
-    public override Infrastructure.Persistence.Cart.Cart FromDomain(CartAggregate aggregate)
+    public override Infrastructure.Persistence.Cart.CartService FromDomain(CartAggregate aggregate)
     {
-        return new Infrastructure.Persistence.Cart.Cart
+        return new Infrastructure.Persistence.Cart.CartService
         {
             Id = aggregate.Id.Value.ToString(),
             CustomerId = aggregate.CustomerId.Value.ToString(),
@@ -33,7 +34,7 @@ public sealed class CartTransformer : Transformer<CartAggregate, Infrastructure.
         };
     }
 
-    public override ErrorOr<CartAggregate> ToDomain(Infrastructure.Persistence.Cart.Cart dto)
+    public override ErrorOr<CartAggregate> ToDomain(Infrastructure.Persistence.Cart.CartService dto)
     {
         if (!Guid.TryParse(dto.CustomerId, out Guid customerId))
         {
@@ -71,6 +72,14 @@ public sealed class CartTransformer : Transformer<CartAggregate, Infrastructure.
     private ErrorOr<CartItem> ToDomain(Infrastructure.Persistence.Cart.CartItem dto)
     {
         Sku sku = new Sku(dto.Sku);
-        return new CartItem(sku, dto.Quantity);
+        var quantityResult = CartQuantity.Create(dto.Quantity);
+        return
+            quantityResult.Match(
+                quantity => new CartItem(sku, quantity),
+                errors =>
+                {
+                    ErrorOr<CartItem> errorResult = ErrorOr.ErrorOr.From(errors).Value;
+                    return errorResult;
+                });
     }
 }

@@ -2,6 +2,7 @@ using ErrorOr;
 using Shopping.Domain.Core;
 using Shopping.Domain.Delivery.Core;
 using Shopping.Domain.Orders.Core;
+using Shopping.Services.Interfaces;
 using Metadata = Shopping.Domain.Core.Persistence.Metadata;
 using Version = Shopping.Domain.Core.Version;
 

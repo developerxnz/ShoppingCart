@@ -4,10 +4,11 @@ using Shopping.Domain.Cart.Commands;
 using Shopping.Domain.Cart.Requests;
 using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
+using Shopping.Services.Interfaces;
 
 namespace Shopping.Services.Cart;
 
-public interface ICart
+public interface ICartService
 {
     /// <summary>
     /// Adds an item to the Cart
@@ -18,7 +19,7 @@ public interface ICart
     /// <param name="correlationId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, uint quantity,
+    Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, CartQuantity quantity,
         CorrelationId correlationId, CancellationToken cancellationToken);
 
     /// <summary>
@@ -52,24 +53,18 @@ public interface ICart
         CancellationToken cancellationToken);
 }
 
-public sealed class Cart : Service<CartAggregate, Infrastructure.Persistence.Cart.Cart>, ICart
+public sealed class CartService(
+    ICartCommandHandler commandHandler,
+    IRepository<Infrastructure.Persistence.Cart.CartService> repository,
+    ITransformer<CartAggregate, Infrastructure.Persistence.Cart.CartService> transformer)
+    : Service<CartAggregate, Infrastructure.Persistence.Cart.CartService>(repository), ICartService
 {
-    private readonly ICartCommandHandler _commandHandler;
-    private readonly ITransformer<CartAggregate, Infrastructure.Persistence.Cart.Cart> _transformer;
-
-    public Cart(ICartCommandHandler commandHandler, IRepository<Infrastructure.Persistence.Cart.Cart> repository,
-        ITransformer<CartAggregate, Infrastructure.Persistence.Cart.Cart> transformer) : base(repository)
-    {
-        _commandHandler = commandHandler;
-        _transformer = transformer;
-    }
-
-    public async Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, uint quantity,
+    public async Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, CartQuantity quantity,
         CorrelationId correlationId, CancellationToken cancellationToken)
     {
         AddItemToCartCommand command =
             new AddItemToCartCommand(DateTime.UtcNow, customerId, null, sku, quantity, correlationId);
-        var commandResult = _commandHandler.HandlerForNew(command);
+        var commandResult = commandHandler.HandlerForNew(command);
         return await commandResult
             .MatchAsync<ErrorOr<AddToCartResponse>>(async result =>
                 {
@@ -98,7 +93,7 @@ public sealed class Cart : Service<CartAggregate, Infrastructure.Persistence.Car
         AddItemToCartCommand command =
             new AddItemToCartCommand(DateTime.UtcNow, request.CustomerId, request.CartId, request.Sku, request.Quantity,
                 correlationId);
-        var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
+        var commandResult = commandHandler.HandlerForExisting(command, aggregateResult.Value);
         return await commandResult
             .MatchAsync<ErrorOr<AddToCartResponse>>(async result =>
                 {
@@ -126,7 +121,7 @@ public sealed class Cart : Service<CartAggregate, Infrastructure.Persistence.Car
 
         RemoveItemFromCartCommand command = new RemoveItemFromCartCommand(DateTime.UtcNow, request.CustomerId,
             aggregateResult.Value.Id, request.Sku, correlationId);
-        var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
+        var commandResult = commandHandler.HandlerForExisting(command, aggregateResult.Value);
         return await commandResult
             .MatchAsync<ErrorOr<RemoveItemFromCartResponse>>(async result =>
                 {
@@ -154,7 +149,7 @@ public sealed class Cart : Service<CartAggregate, Infrastructure.Persistence.Car
 
         UpdateItemInCartCommand command = new UpdateItemInCartCommand(DateTime.UtcNow, request.CustomerId,
             aggregateResult.Value.Id, request.Sku, request.Quantity, correlationId);
-        var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
+        var commandResult = commandHandler.HandlerForExisting(command, aggregateResult.Value);
 
         return await commandResult
             .MatchAsync<ErrorOr<UpdateCartItemResponse>>(async result =>
@@ -170,12 +165,12 @@ public sealed class Cart : Service<CartAggregate, Infrastructure.Persistence.Car
                 });
     }
 
-    protected override ErrorOr<CartAggregate> ToDomain(Infrastructure.Persistence.Cart.Cart aggregate)
+    protected override ErrorOr<CartAggregate> ToDomain(Infrastructure.Persistence.Cart.CartService aggregate)
     {
-        return _transformer.ToDomain(aggregate);
+        return transformer.ToDomain(aggregate);
     }
 
-    protected override (Infrastructure.Persistence.Cart.Cart, IEnumerable<IEvent>) FromDomain(CartAggregate aggregate, IEnumerable<Event> events)
+    protected override (Infrastructure.Persistence.Cart.CartService, IEnumerable<IEvent>) FromDomain(CartAggregate aggregate, IEnumerable<Event> events)
     {
         throw new NotImplementedException();
     }

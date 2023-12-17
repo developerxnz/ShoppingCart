@@ -14,6 +14,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Services.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Infrastructure.Tests", "Shopping.Infrastructure.Tests\Shopping.Infrastructure.Tests.csproj", "{5F93F4B0-73F5-47DF-8E0E-7D999BD4E3FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Api", "Shopping.Api\Shopping.Api.csproj", "{91776103-97EC-4F8B-8F7B-31F30326AC55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Orchestrator", "Shopping.Orchestrator\Shopping.Orchestrator.csproj", "{5C104EB3-98D3-41EC-8BB8-3CDF6F54F24F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +48,14 @@ Global
 		{5F93F4B0-73F5-47DF-8E0E-7D999BD4E3FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F93F4B0-73F5-47DF-8E0E-7D999BD4E3FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F93F4B0-73F5-47DF-8E0E-7D999BD4E3FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91776103-97EC-4F8B-8F7B-31F30326AC55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91776103-97EC-4F8B-8F7B-31F30326AC55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91776103-97EC-4F8B-8F7B-31F30326AC55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91776103-97EC-4F8B-8F7B-31F30326AC55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C104EB3-98D3-41EC-8BB8-3CDF6F54F24F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C104EB3-98D3-41EC-8BB8-3CDF6F54F24F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C104EB3-98D3-41EC-8BB8-3CDF6F54F24F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C104EB3-98D3-41EC-8BB8-3CDF6F54F24F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A115000C-388F-4B30-8FFD-4E18C8F85304} = {ED8368B9-6F6F-413B-BD35-79FD3630C809}

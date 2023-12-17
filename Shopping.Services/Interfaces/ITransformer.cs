@@ -1,6 +1,6 @@
 using ErrorOr;
 
-namespace Shopping.Domain.Core;
+namespace Shopping.Services.Interfaces;
 
 public interface ITransformer<TDomain, TDto>
 {

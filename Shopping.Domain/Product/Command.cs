@@ -1,4 +1,3 @@
-using Shopping.Domain.Cart.Projections;
 using Shopping.Domain.Core;
 using Shopping.Domain.Domain.Core.Handlers;
 using Shopping.Domain.Product.Core;

@@ -4,6 +4,7 @@ using Shopping.Domain.Domain.Core.Handlers;
 using Shopping.Domain.Product;
 using Shopping.Domain.Product.Commands;
 using Shopping.Domain.Product.Handlers;
+using Shopping.Services.Interfaces;
 
 namespace Shopping.Services.Products;
 

@@ -1,10 +1,7 @@
 using Shopping.Domain.Cart.Core;
 using Shopping.Domain.Product.Core;
-using Shopping.Domain.Product;
 
-namespace Shopping.Domain.Cart.Projections;
-
-public record ProductDescription(string Description);
+namespace Shopping.Services.Cart.Projections;
 
 public record CartItem(
     DateTime CreatedOnUtc, 

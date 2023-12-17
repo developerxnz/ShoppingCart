@@ -4,7 +4,7 @@ using Shopping.Domain.Core;
 
 namespace Shopping.Infrastructure.Persistence.Cart;
 
-public record Cart : IPersistenceIdentifier
+public record CartService : IPersistenceIdentifier
 {
     public string PartitionKey => CustomerId;
     
@@ -26,7 +26,7 @@ public record Cart : IPersistenceIdentifier
 public record CartItem(string Sku, uint Quantity);
 
 
-public sealed class CartRepository: Repository<Cart>, IRepository<Cart>
+public sealed class CartRepository: Repository<CartService>, IRepository<CartService>
 {
     private const string ContainerName = "";
     private const string DatabaseName = "";
@@ -43,7 +43,7 @@ public sealed class CartRepository: Repository<Cart>, IRepository<Cart>
     // {
     //     await base.BatchUpdateAsync(aggregate, events, cancellationToken);
     // }
-    public async Task BatchUpdateAsync(Cart aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
+    public async Task BatchUpdateAsync(CartService aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken)
     {
         Domain.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
         await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);

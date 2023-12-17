@@ -9,13 +9,20 @@ public sealed class CartItemTransformer : Transformer<CartItem, Infrastructure.P
 {
     public override Infrastructure.Persistence.Cart.CartItem FromDomain(CartItem aggregate)
     {
-        return new Infrastructure.Persistence.Cart.CartItem(aggregate.Sku.Value, aggregate.Quantity);
+        return new Infrastructure.Persistence.Cart.CartItem(aggregate.Sku.Value, aggregate.Quantity.Value);
     }
 
     public override ErrorOr<CartItem> ToDomain(Infrastructure.Persistence.Cart.CartItem dto)
     {
         Sku sku = new Sku(dto.Sku);
-        
-        return new CartItem(sku, dto.Quantity);
+        var quantityResult = CartQuantity.Create(dto.Quantity);
+        return
+            quantityResult.Match(
+                quantity => new CartItem(sku, quantity),
+                errors =>
+                {
+                    ErrorOr<CartItem> errorResult = ErrorOr.ErrorOr.From(errors).Value;
+                    return errorResult;
+                });
     }
 }
