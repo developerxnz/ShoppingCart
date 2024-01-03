@@ -9,11 +9,12 @@ public interface ICommand
     CorrelationId CorrelationId { get; }
 }
 
-public interface ICommandResult<out T1, out T2> where T2: IEvent
+public interface ICommandResult<out TAggregate, out TEvent> 
+    where TEvent: IEvent
 {
-    T1 Aggregate { get; }
+    TAggregate Aggregate { get; }
 
-    IEnumerable<T2> Events { get; }
+    IEnumerable<TEvent> Events { get; }
 }
 
 public record Command<T>(CorrelationId CorrelationId, T Data) : ICommand
@@ -21,4 +22,5 @@ public record Command<T>(CorrelationId CorrelationId, T Data) : ICommand
     public CommandId Id { get; } = new (Guid.NewGuid());
 }
 
-public record CommandResult<T>(T Aggregate, IEnumerable<Event> Events) : ICommandResult<T, Event>;
+public record CommandResult<TAggregate, TEvent>(TAggregate Aggregate, IEnumerable<TEvent> Events) : ICommandResult<TAggregate, TEvent>
+where TEvent: IEvent;

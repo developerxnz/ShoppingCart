@@ -1,6 +1,6 @@
 namespace ShoppingUnitTests.Orders;
 
-public class OrderTransformerTests
+public class OrderMapperTests
 {
     
 }

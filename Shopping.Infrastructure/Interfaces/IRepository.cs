@@ -1,13 +1,9 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Shopping.Domain.Core;
+namespace Shopping.Infrastructure.Interfaces;
 
 public interface IPersistenceIdentifier
 {
-    [JsonPropertyName("PartitionKey")]
-    string PartitionKey { get; }
-    
     [JsonPropertyName("id")]
     string Id { get; }
 }
@@ -38,5 +34,5 @@ public interface IRepository<T> where T:IPersistenceIdentifier
     /// <param name="events"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task BatchUpdateAsync(T aggregate, IEnumerable<IEvent> events, CancellationToken cancellationToken);
+    Task BatchUpdateAsync(T aggregate, IEnumerable<Infrastructure.Interfaces.IEvent> events, CancellationToken cancellationToken);
 }

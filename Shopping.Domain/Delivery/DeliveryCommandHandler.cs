@@ -11,14 +11,14 @@ namespace Shopping.Domain.Delivery.Core;
 
 public interface IDeliveryCommandHandler
 {
-    ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(IDeliveryCommand command);
+    ErrorOr<CommandResult<DeliveryAggregate, DeliveryEvent>> HandlerForNew(IDeliveryCommand command);
 
-    ErrorOr<CommandResult<DeliveryAggregate>> HandlerForExisting(IDeliveryCommand command, DeliveryAggregate aggregate);
+    ErrorOr<CommandResult<DeliveryAggregate, DeliveryEvent>> HandlerForExisting(IDeliveryCommand command, DeliveryAggregate aggregate);
 }
 
-public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliveryCommand>, IDeliveryCommandHandler
+public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, DeliveryEvent, IDeliveryCommand>, IDeliveryCommandHandler
 {
-    public override ErrorOr<CommandResult<DeliveryAggregate>> HandlerForNew(IDeliveryCommand command)
+    public override ErrorOr<CommandResult<DeliveryAggregate, DeliveryEvent>> HandlerForNew(IDeliveryCommand command)
     {
         switch (command)
         {
@@ -29,7 +29,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
         }
     }
 
-    private ErrorOr<CommandResult<DeliveryAggregate>> GenerateEventsForCreateDelivery(CreateDeliveryCommand command)
+    private ErrorOr<CommandResult<DeliveryAggregate, DeliveryEvent>> GenerateEventsForCreateDelivery(CreateDeliveryCommand command)
     {
         DeliveryAggregate aggregate = new(
             command.CreatedOnUtc,
@@ -68,7 +68,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
         return true;
     }
 
-    protected override ErrorOr<CommandResult<DeliveryAggregate>> ExecuteCommand(IDeliveryCommand command,
+    protected override ErrorOr<CommandResult<DeliveryAggregate, DeliveryEvent>> ExecuteCommand(IDeliveryCommand command,
         DeliveryAggregate aggregate) =>
         (command switch
         {
@@ -81,7 +81,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
             error => ErrorOr.ErrorOr.From(error).Value
         );
 
-    private ErrorOr<CommandResult<DeliveryAggregate>> GenerateEventsForDeliveryCompleted(
+    private ErrorOr<CommandResult<DeliveryAggregate, DeliveryEvent>> GenerateEventsForDeliveryCompleted(
         CompleteDeliveryCommand command, DeliveryAggregate aggregate)
     {
         if (aggregate.DeliveredOnUtc.HasValue)
@@ -95,7 +95,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
             return Error.Validation(Constants.InvalidVersionCode, Constants.InvalidVersionDescription);
         }
 
-        return new CommandResult<DeliveryAggregate>(aggregate,
+        return new CommandResult<DeliveryAggregate, DeliveryEvent>(aggregate,
             new[]
             {
                 new DeliveryCompletedEvent(command.CompletedOnUtc, command.CustomerId, command.DeliveryId,
@@ -105,7 +105,7 @@ public sealed class DeliveryCommandHandler : Handler<DeliveryAggregate, IDeliver
             });
     }
 
-    protected override DeliveryAggregate Apply(DeliveryAggregate aggregate, IEvent @event)
+    protected override DeliveryAggregate Apply(DeliveryAggregate aggregate, DeliveryEvent @event)
     {
         MetaData metaData = aggregate.MetaData with {Version = @event.Version, TimeStamp = @event.TimeStamp};
         return @event switch

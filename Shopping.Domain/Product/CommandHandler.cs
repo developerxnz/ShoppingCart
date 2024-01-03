@@ -11,14 +11,14 @@ namespace Shopping.Domain.Product.Handlers;
 
 public interface ICommandHandler
 {
-    ErrorOr<CommandResult<ProductAggregate>> HandlerForNew(IProductCommand command);
+    ErrorOr<CommandResult<ProductAggregate, ProductEvent>> HandlerForNew(IProductCommand command);
 
-    ErrorOr<CommandResult<ProductAggregate>> HandlerForExisting(IProductCommand command, ProductAggregate aggregate);
+    ErrorOr<CommandResult<ProductAggregate, ProductEvent>> HandlerForExisting(IProductCommand command, ProductAggregate aggregate);
 }
 
-public sealed class ProductCommandHandler : Handler<ProductAggregate, IProductCommand>, ICommandHandler
+public sealed class ProductCommandHandler : Handler<ProductAggregate, ProductEvent, IProductCommand>, ICommandHandler
 {
-    public override ErrorOr<CommandResult<ProductAggregate>> HandlerForNew(IProductCommand command)
+    public override ErrorOr<CommandResult<ProductAggregate, ProductEvent>> HandlerForNew(IProductCommand command)
     {
         switch (command)
         {
@@ -30,7 +30,7 @@ public sealed class ProductCommandHandler : Handler<ProductAggregate, IProductCo
         }
     }
 
-    protected override ProductAggregate Apply(ProductAggregate aggregate, IEvent @event)
+    protected override ProductAggregate Apply(ProductAggregate aggregate, ProductEvent @event)
     {
         MetaData metaData = aggregate.MetaData with {Version = @event.Version, TimeStamp = @event.TimeStamp};
         return @event switch
@@ -61,7 +61,7 @@ public sealed class ProductCommandHandler : Handler<ProductAggregate, IProductCo
         return true;
     }
 
-    protected override ErrorOr<CommandResult<ProductAggregate>> ExecuteCommand(IProductCommand command,
+    protected override ErrorOr<CommandResult<ProductAggregate, ProductEvent>> ExecuteCommand(IProductCommand command,
         ProductAggregate aggregate) =>
         (command switch
         {
@@ -73,7 +73,7 @@ public sealed class ProductCommandHandler : Handler<ProductAggregate, IProductCo
             commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
             error => ErrorOr.ErrorOr.From(error).Value);
 
-    private ErrorOr<CommandResult<ProductAggregate>> GenerateEventsForProductCreated(CreateProductCommand command)
+    private ErrorOr<CommandResult<ProductAggregate, ProductEvent>> GenerateEventsForProductCreated(CreateProductCommand command)
     {
         ProductAggregate aggregate = new(command.CreatedOnUtc);
         ProductCreatedEvent[] events =
@@ -92,7 +92,7 @@ public sealed class ProductCommandHandler : Handler<ProductAggregate, IProductCo
         return ApplyEvents(aggregate, events);
     }
 
-    private ErrorOr<CommandResult<ProductAggregate>> GenerateEventsForProductUpdated(UpdateProductCommand command,
+    private ErrorOr<CommandResult<ProductAggregate, ProductEvent>> GenerateEventsForProductUpdated(UpdateProductCommand command,
         ProductAggregate aggregate)
     {
         if (command.UpdatedOnUtc < aggregate.CreatedOnUtc)
@@ -101,7 +101,7 @@ public sealed class ProductCommandHandler : Handler<ProductAggregate, IProductCo
                 Constants.ProductUpdatedOnBeforeCreatedOnDescription);
         }
 
-        return new CommandResult<ProductAggregate>(aggregate,
+        return new CommandResult<ProductAggregate, ProductEvent>(aggregate,
             new[]
             {
                 new ProductUpdatedEvent(command.CorrelationId, new CausationId(command.Id.Value),

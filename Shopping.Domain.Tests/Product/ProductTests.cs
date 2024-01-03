@@ -7,7 +7,9 @@ using Shopping.Domain.Cart.Requests;
 using Shopping.Domain.Core;
 using Shopping.Domain.Domain.Core.Handlers;
 using Shopping.Domain.Product.Core;
+using Shopping.Infrastructure.Interfaces;
 using Shopping.Services.Cart;
+using CartAggregate = Shopping.Domain.Cart.CartAggregate;
 using CartItem = Shopping.Infrastructure.Persistence.Cart.CartItem;
 using MetaData = Shopping.Domain.Core.Persistence.Metadata;
 using Version = Shopping.Domain.Core.Version;
@@ -16,17 +18,17 @@ namespace ShoppingUnitTests;
 
 public class ProductTests
 {
-    private readonly Shopping.Services.Cart.CartService _cartService;
-    private readonly Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.CartService>> _repository;
+    private readonly Shopping.Services.Cart.CartAggregate _cartAggregate;
+    private readonly Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.CartAggregate>> _repository;
     private readonly Mock<ICartCommandHandler> _cartHandler;
 
     public ProductTests()
     {
-        var transformer = new CartTransformer(new Shopping.Services.Cart.CartItemTransformer());
+        var transformer = new CartMapper(new Shopping.Services.Cart.CartItemMapper());
         
         _cartHandler = new Mock<ICartCommandHandler>();
-        _repository = new Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.CartService>>();
-        _cartService = new Shopping.Services.Cart.CartService(_cartHandler.Object, _repository.Object, transformer);
+        _repository = new Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.CartAggregate>>();
+        _cartAggregate = new Shopping.Services.Cart.CartAggregate(_cartHandler.Object, _repository.Object, transformer);
     }
     
     [Fact]
@@ -45,7 +47,7 @@ public class ProductTests
             .Setup(x => x.HandlerForNew(It.IsAny<ICartCommand>()))
             .Returns(commandResult);
 
-        var response = await _cartService.AddToCartAsync(customerId, sku, CartQuantity.Create(10).Value, correlationId, cancellationToken);
+        var response = await _cartAggregate.AddToCartAsync(customerId, sku, CartQuantity.Create(10).Value, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse => Assert.Fail($"Expected {nameof(AddToCartResponse)}"),
             errors =>
@@ -87,7 +89,7 @@ public class ProductTests
             .Setup(x => x.HandlerForNew(It.IsAny<ICartCommand>()))
             .Returns(commandResult);
 
-        var response = await _cartService.AddToCartAsync(customerId, sku, CartQuantity.Create(10).Value, correlationId, cancellationToken);
+        var response = await _cartAggregate.AddToCartAsync(customerId, sku, CartQuantity.Create(10).Value, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse =>
             {
@@ -106,14 +108,14 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new Shopping.Infrastructure.Persistence.Cart.CartAggregate
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
             Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value, 10)},
-            ETag = Guid.NewGuid().ToString()
+            Etag = Guid.NewGuid().ToString()
         };
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
@@ -132,7 +134,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cartService.AddToCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartAggregate.AddToCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse => Assert.Fail($"Expected {Constants.InvalidQuantityDescription}"),
             errors =>
@@ -157,14 +159,14 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new Shopping.Infrastructure.Persistence.Cart.CartAggregate
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
             Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
-            ETag = Guid.NewGuid().ToString()
+            Etag = Guid.NewGuid().ToString()
         };
 
         CartAggregate aggregate = new CartAggregate(DateTime.UtcNow, customerId)
@@ -188,7 +190,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cartService.AddToCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartAggregate.AddToCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse =>
             {
@@ -207,14 +209,14 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new Shopping.Infrastructure.Persistence.Cart.CartAggregate
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
             Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
-            ETag = Guid.NewGuid().ToString()
+            Etag = Guid.NewGuid().ToString()
         };
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
@@ -233,7 +235,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartAggregate.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             updateCartItmResponse => Assert.Fail($"Expected {Constants.InvalidQuantityDescription}"),
             errors =>
@@ -258,14 +260,14 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new Shopping.Infrastructure.Persistence.Cart.CartAggregate
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
             Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
-            ETag = Guid.NewGuid().ToString()
+            Etag = Guid.NewGuid().ToString()
         };
 
         CartAggregate aggregate = new CartAggregate(DateTime.UtcNow, customerId)
@@ -289,7 +291,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartAggregate.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             updateCartItemResponse =>
             {
@@ -310,14 +312,14 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new Shopping.Infrastructure.Persistence.Cart.CartAggregate
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
             Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
-            ETag = Guid.NewGuid().ToString()
+            Etag = Guid.NewGuid().ToString()
         };
 
         CartAggregate aggregate = new CartAggregate(DateTime.UtcNow, customerId)
@@ -341,7 +343,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartAggregate.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
             removeItemFromCartResponse =>
             {
@@ -361,14 +363,14 @@ public class ProductTests
         StreamId streamId = new StreamId(Guid.NewGuid());
         Version version = new Version(10);
         Sku sku = new Sku(Guid.NewGuid().ToString());
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new Shopping.Infrastructure.Persistence.Cart.CartService
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new Shopping.Infrastructure.Persistence.Cart.CartAggregate
         {
             Id = cartId.Value.ToString(),
             CustomerId = Guid.NewGuid().ToString(),
             CreatedOnUtc = default,
             Metadata = new MetaData(streamId.Value.ToString(), version.Value, DateTime.UtcNow),
             Items = new[] {new CartItem(sku.Value.ToString(), 10)},
-            ETag = Guid.NewGuid().ToString()
+            Etag = Guid.NewGuid().ToString()
         };
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
@@ -387,7 +389,7 @@ public class ProductTests
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var response = await _cartService.UpdateCartAsync(request, correlationId, cancellationToken);
+        var response = await _cartAggregate.UpdateCartAsync(request, correlationId, cancellationToken);
         response.Switch(
                 updateCartItmResponse => Assert.Fail($"Expected {Constants.InvalidQuantityDescription}"),
                 errors =>

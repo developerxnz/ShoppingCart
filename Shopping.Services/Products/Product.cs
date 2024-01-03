@@ -3,75 +3,37 @@ using Shopping.Domain.Core;
 using Shopping.Domain.Domain.Core.Handlers;
 using Shopping.Domain.Product;
 using Shopping.Domain.Product.Commands;
+using Shopping.Domain.Product.Events;
 using Shopping.Domain.Product.Handlers;
+using Shopping.Infrastructure.Interfaces;
 using Shopping.Services.Interfaces;
+using IEvent = Shopping.Infrastructure.Interfaces.IEvent;
 
 namespace Shopping.Services.Products;
 
-public interface IProduct
-{
-    /// <summary>
-    /// Creates a new Product
-    /// </summary>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    Task<ErrorOr<CreateProductResponse>> Create(
-        CorrelationId correlationId,
-        CancellationToken cancellationToken,
-        CreateProductRequest request);
-
-    /// <summary>
-    /// Update a Product
-    /// </summary>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    Task<ErrorOr<UpdateProductResponse>> Update(
-        CorrelationId correlationId,
-        CancellationToken cancellationToken,
-        UpdateProductRequest request);
-
-    /// <summary>
-    /// Update a Product
-    /// </summary>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<UpdateProductResponse>> Get(
-        CorrelationId correlationId,
-        CancellationToken cancellationToken);
-}
-
-public sealed class Product : Service<ProductAggregate, Infrastructure.Persistence.Products.Product>, IProduct
+public sealed class Product : Service<ProductAggregate, Infrastructure.Persistence.Products.Product, ProductEvent>, IProduct
 {
     private readonly ICommandHandler _commandHandler;
-    private readonly ITransformer<ProductAggregate, Infrastructure.Persistence.Products.Product> _transformer;
+    private readonly IMapper<ProductAggregate, Infrastructure.Persistence.Products.Product, IProductEvent, Infrastructure.Persistence.Products.ProductEvent> _mapper;
 
     public Product(IRepository<Infrastructure.Persistence.Products.Product> repository,
-        ITransformer<ProductAggregate, Infrastructure.Persistence.Products.Product> transformer,
+        IMapper<ProductAggregate, Infrastructure.Persistence.Products.Product, IProductEvent, Infrastructure.Persistence.Products.ProductEvent> mapper,
         ICommandHandler commandHandler) : base(repository)
     {
-        _transformer = transformer;
+        _mapper = mapper;
         _commandHandler = commandHandler;
     }
 
     protected override ErrorOr<ProductAggregate> ToDomain(Infrastructure.Persistence.Products.Product aggregate)
     {
-        return _transformer.ToDomain(aggregate);
+        return _mapper.ToDomain(aggregate);
     }
 
-    protected override (Infrastructure.Persistence.Products.Product, IEnumerable<IEvent>) FromDomain(ProductAggregate aggregate, IEnumerable<Event> events)
+    protected override (Infrastructure.Persistence.Products.Product, IEnumerable<IEvent>) 
+        FromDomain(ProductAggregate aggregate, IEnumerable<ProductEvent> events)
     {
         throw new NotImplementedException();
     }
-
-    // protected override Shopping.Product.Persistence.Product FromDomain(ProductAggregate aggregate)
-    // {
-    //     return _transformer.FromDomain(aggregate);
-    // }
 
     public async Task<ErrorOr<CreateProductResponse>> Create(
         CorrelationId correlationId, CancellationToken cancellationToken, CreateProductRequest request)
@@ -83,7 +45,7 @@ public sealed class Product : Service<ProductAggregate, Infrastructure.Persisten
             request.Description,
             request.Price);
 
-        ErrorOr<CommandResult<ProductAggregate>> commandResult = _commandHandler.HandlerForNew(command);
+        ErrorOr<CommandResult<ProductAggregate, ProductEvent>> commandResult = _commandHandler.HandlerForNew(command);
         return await commandResult
             .MatchAsync<ErrorOr<CreateProductResponse>>(async onValue =>
                 {

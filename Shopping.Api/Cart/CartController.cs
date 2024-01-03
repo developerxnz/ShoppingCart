@@ -1,6 +1,6 @@
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Shopping.Domain.Cart.Core;
 using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
 
@@ -29,15 +29,34 @@ public class CartController : ControllerBase
         Sku sku = new Sku(request.Sku);
         CustomerId customerId = new CustomerId(request.CustomerId);
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
-        
+
         var addToCartRequest = new Shopping.Api.Cart.Handler.AddToCartRequest(customerId, sku, quantity, correlationId);
         var handlerResult = await _mediator.Send(addToCartRequest, cancellationToken);
+        
         return
             handlerResult
                 .Match<IActionResult>(
                     value => new OkObjectResult(value),
                     errors => new BadRequestObjectResult(errors));
-        }
+    }
+
+    [Route("{id}")]
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    {
+        Sku sku = new Sku(id);
+        CartId cartId = new CartId(Guid.NewGuid());
+        CustomerId customerId = new CustomerId(Guid.NewGuid());
+        CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
+        
+        var deleteFromCartRequest = new Shopping.Api.Cart.DeleteFromCartRequest(customerId, cartId, sku, correlationId);
+        var handlerResult = await _mediator.Send(deleteFromCartRequest, cancellationToken);
+        
+        return
+            handlerResult
+                .Match<IActionResult>(
+                    value => new OkObjectResult(value),
+                    errors => new BadRequestObjectResult(errors));
+    }
 }
 
 public record AddToCartRequest(Guid CustomerId, string Sku, uint Quantity);

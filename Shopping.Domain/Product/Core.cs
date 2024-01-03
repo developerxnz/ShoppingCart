@@ -5,7 +5,7 @@ public record ProductId(Guid Value);
 public record Sku
 {
     public string Value { get; private set; }
-    
+
     public Sku(string value)
     {
         Value = value;
@@ -23,13 +23,15 @@ public record ProductDescription(string Description);
 public record CartQuantity
 {
     public uint Value { get; init; }
-    public static ErrorOr.ErrorOr<CartQuantity> Create(uint quantity)
+
+    public CartQuantity(uint quantity)
     {
-        return quantity switch
+        switch (quantity)
         {
-            > 100 => ErrorOr.Error.Validation("", "Quantity cannot be greater than 100"),
-            0 => ErrorOr.Error.Validation("", "Quantity cannot be 0"),
-            _ => new CartQuantity() {Value = quantity}
-        };
+            case > 100: throw new Exception("Quantity cannot be greater than 100");
+            case 0: throw new Exception("Quantity cannot be 0");
+        }
+
+        Value = quantity;
     }
 }

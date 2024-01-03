@@ -5,13 +5,13 @@ using Shopping.Services.Interfaces;
 
 namespace ShoppingUnitTests.Delivery;
 
-public class DeliveryTransformerTests
+public class DeliveryMapperTests
 {
-    private readonly ITransformer<DeliveryAggregate, Shopping.Infrastructure.Persistence.Delivery.Delivery> _transformer;
+    private readonly IMapper<,,,> _mapper;
 
-    public DeliveryTransformerTests()
+    public DeliveryMapperTests()
     {
-        _transformer = new Shopping.Services.Delivery.DeliveryTransformer();
+        _mapper = new Shopping.Services.Delivery.DeliveryMapper();
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class DeliveryTransformerTests
 
         DeliveryAggregate aggregate = new DeliveryAggregate(createdOnUtc, orderId);
 
-        var deliveryDto = _transformer.FromDomain(aggregate);
+        var deliveryDto = _mapper.FromDomain(aggregate);
 
         Assert.Equal(orderId.Value.ToString(), deliveryDto.OrderId);
         Assert.Equal(createdOnUtc, deliveryDto.CreatedOnUtc);
@@ -47,7 +47,7 @@ public class DeliveryTransformerTests
                 deliveredOnUtc,
                 new Shopping.Domain.Core.Persistence.Metadata(streamId.ToString(), version, createdOnUtc), orderId.ToString());
 
-        _transformer.ToDomain(dto)
+        _mapper.ToDomain(dto)
             .Switch(
                 aggregate =>
                 {

@@ -1,71 +1,39 @@
 using ErrorOr;
 using Shopping.Domain.Cart;
 using Shopping.Domain.Cart.Commands;
+using Shopping.Domain.Cart.Events;
 using Shopping.Domain.Cart.Requests;
 using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
+using Shopping.Infrastructure.Interfaces;
 using Shopping.Services.Interfaces;
+using IEvent = Shopping.Infrastructure.Interfaces.IEvent;
 
 namespace Shopping.Services.Cart;
 
-public interface ICartService
+public sealed class CartAggregate : Service<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, ICartEvent>, ICartService
 {
-    /// <summary>
-    /// Adds an item to the Cart
-    /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="sku"></param>
-    /// <param name="quantity"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, CartQuantity quantity,
-        CorrelationId correlationId, CancellationToken cancellationToken);
+    private readonly ICartCommandHandler _commandHandler;
+    private readonly IMapper<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, 
+        Domain.Cart.Events.ICartEvent, Infrastructure.Persistence.Cart.CartEvent> _mapper;
 
-    /// <summary>
-    /// Adds an item to the Cart
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<AddToCartResponse>> AddToCartAsync(AddToCartRequest request, CorrelationId correlationId,
-        CancellationToken cancellationToken);
+    public CartAggregate(ICartCommandHandler commandHandler,
+        IRepository<Infrastructure.Persistence.Cart.CartAggregate> repository,
+        IMapper<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, 
+            Domain.Cart.Events.ICartEvent, Infrastructure.Persistence.Cart.CartEvent> mapper) : base(repository)
+    {
+        _mapper = mapper;
+        _commandHandler = commandHandler;
+    }
 
-    /// <summary>
-    /// Removes and item from the Cart
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<RemoveItemFromCartResponse>> RemoveFromCartAsync(RemoveItemFromCartRequest request,
-        CorrelationId correlationId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Updates an Item in the Cart
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<UpdateCartItemResponse>> UpdateCartAsync(UpdateCartItemRequest request, CorrelationId correlationId,
-        CancellationToken cancellationToken);
-}
-
-public sealed class CartService(
-    ICartCommandHandler commandHandler,
-    IRepository<Infrastructure.Persistence.Cart.CartService> repository,
-    ITransformer<CartAggregate, Infrastructure.Persistence.Cart.CartService> transformer)
-    : Service<CartAggregate, Infrastructure.Persistence.Cart.CartService>(repository), ICartService
-{
-    public async Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, CartQuantity quantity,
+    public Task<ErrorOr<AddToCartResponse>> AddToCartAsync(CustomerId customerId, Sku sku, CartQuantity quantity,
         CorrelationId correlationId, CancellationToken cancellationToken)
     {
         AddItemToCartCommand command =
             new AddItemToCartCommand(DateTime.UtcNow, customerId, null, sku, quantity, correlationId);
-        var commandResult = commandHandler.HandlerForNew(command);
-        return await commandResult
+
+        var commandResult = _commandHandler.HandlerForNew(command);
+        return commandResult
             .MatchAsync<ErrorOr<AddToCartResponse>>(async result =>
                 {
                     await SaveAsync(result.Aggregate, result.Events, cancellationToken);
@@ -75,6 +43,7 @@ public sealed class CartService(
                 errors =>
                 {
                     ErrorOr<AddToCartResponse> errorResult = ErrorOr.ErrorOr.From(errors).Value;
+                    
                     return Task.FromResult(errorResult);
                 });
     }
@@ -84,16 +53,16 @@ public sealed class CartService(
     {
         PartitionKey partitionKey = new PartitionKey(request.CustomerId.Value.ToString());
         Id id = new Id(request.CartId.Value.ToString());
+        
         var aggregateResult = await LoadAsync(partitionKey, id, cancellationToken);
         if (aggregateResult.IsError)
         {
             return ErrorOr.ErrorOr.From(aggregateResult.Errors).Value;
         }
 
-        AddItemToCartCommand command =
-            new AddItemToCartCommand(DateTime.UtcNow, request.CustomerId, request.CartId, request.Sku, request.Quantity,
-                correlationId);
-        var commandResult = commandHandler.HandlerForExisting(command, aggregateResult.Value);
+        AddItemToCartCommand command = new AddItemToCartCommand(DateTime.UtcNow, request.CustomerId, request.CartId, request.Sku, request.Quantity, correlationId);
+        
+        var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
         return await commandResult
             .MatchAsync<ErrorOr<AddToCartResponse>>(async result =>
                 {
@@ -113,6 +82,7 @@ public sealed class CartService(
     {
         PartitionKey partitionKey = new PartitionKey(request.CustomerId.Value.ToString());
         Id id = new Id(request.CartId.Value.ToString());
+        
         var aggregateResult = await LoadAsync(partitionKey, id, cancellationToken);
         if (aggregateResult.IsError)
         {
@@ -121,7 +91,7 @@ public sealed class CartService(
 
         RemoveItemFromCartCommand command = new RemoveItemFromCartCommand(DateTime.UtcNow, request.CustomerId,
             aggregateResult.Value.Id, request.Sku, correlationId);
-        var commandResult = commandHandler.HandlerForExisting(command, aggregateResult.Value);
+        var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
         return await commandResult
             .MatchAsync<ErrorOr<RemoveItemFromCartResponse>>(async result =>
                 {
@@ -141,6 +111,7 @@ public sealed class CartService(
     {
         PartitionKey partitionKey = new PartitionKey(request.CustomerId.Value.ToString());
         Id id = new Id(request.CartId.Value.ToString());
+        
         var aggregateResult = await LoadAsync(partitionKey, id, cancellationToken);
         if (aggregateResult.IsError)
         {
@@ -149,7 +120,7 @@ public sealed class CartService(
 
         UpdateItemInCartCommand command = new UpdateItemInCartCommand(DateTime.UtcNow, request.CustomerId,
             aggregateResult.Value.Id, request.Sku, request.Quantity, correlationId);
-        var commandResult = commandHandler.HandlerForExisting(command, aggregateResult.Value);
+        var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
 
         return await commandResult
             .MatchAsync<ErrorOr<UpdateCartItemResponse>>(async result =>
@@ -165,18 +136,12 @@ public sealed class CartService(
                 });
     }
 
-    protected override ErrorOr<CartAggregate> ToDomain(Infrastructure.Persistence.Cart.CartService aggregate)
-    {
-        return transformer.ToDomain(aggregate);
-    }
+    protected override ErrorOr<Domain.Cart.CartAggregate> ToDomain(Infrastructure.Persistence.Cart.CartAggregate aggregate) 
+        => _mapper.ToDomain(aggregate);
 
-    protected override (Infrastructure.Persistence.Cart.CartService, IEnumerable<IEvent>) FromDomain(CartAggregate aggregate, IEnumerable<Event> events)
+    protected override (Infrastructure.Persistence.Cart.CartAggregate, IEnumerable<IEvent>) 
+        FromDomain(Domain.Cart.CartAggregate aggregate, IEnumerable<ICartEvent> events)
     {
-        throw new NotImplementedException();
+        return _mapper.FromDomain(aggregate, events);
     }
-
-    // protected Persistence.Cart FromDomain(CartAggregate aggregate)
-    // {
-    //     return _transformer.FromDomain(aggregate);
-    // }
 }

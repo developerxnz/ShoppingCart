@@ -6,56 +6,26 @@ using Shopping.Domain.Orders.Core;
 using Shopping.Domain.Orders.Events;
 using Shopping.Domain.Orders.Handlers;
 using Shopping.Domain.Orders.Requests;
+using Shopping.Infrastructure.Interfaces;
 using Shopping.Services.Interfaces;
+using IEvent = Shopping.Infrastructure.Interfaces.IEvent;
 
 namespace Shopping.Services.Orders;
 
-public interface IOrder
-{
-    /// <summary>
-    /// Creates a new Order
-    /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<CreateOrderResponse>> CreateOrder(CustomerId customerId, CorrelationId correlationId,
-        CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Completes and Existing Order
-    /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="orderId"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<CompleteOrderResponse>> CompleteOrder(CustomerId customerId, OrderId orderId,
-        CorrelationId correlationId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Cancels an Existing Order
-    /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="orderId"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<ErrorOr<CancelOrderResponse>> CancelOrder(CustomerId customerId, OrderId orderId,
-        CorrelationId correlationId, CancellationToken cancellationToken);
-}
-
-public sealed class Order : Service<OrderAggregate, Infrastructure.Persistence.Orders.Order>, IOrder
+public sealed class OrderService : Service<OrderAggregate, Infrastructure.Persistence.Orders.Order, OrderEvent>, IOrder
 {
     private readonly ICommandHandler _commandHandler;
-    private readonly ITransformer<OrderAggregate, Infrastructure.Persistence.Orders.Order> _transformer;
 
-    public Order(ICommandHandler orderCommandHandler, IRepository<Infrastructure.Persistence.Orders.Order> repository,
-        ITransformer<OrderAggregate, Infrastructure.Persistence.Orders.Order> transformer) :
+    private readonly IMapper<OrderAggregate, Infrastructure.Persistence.Orders.Order, IOrderEvent,
+        Infrastructure.Persistence.Orders.OrderEvent> _mapper;
+
+    public OrderService(ICommandHandler orderCommandHandler, IRepository<Infrastructure.Persistence.Orders.Order> repository,
+        IMapper<OrderAggregate, Infrastructure.Persistence.Orders.Order, IOrderEvent,
+            Infrastructure.Persistence.Orders.OrderEvent> mapper) :
         base(repository)
     {
         _commandHandler = orderCommandHandler;
-        _transformer = transformer;
+        _mapper = mapper;
     }
 
     public async Task<ErrorOr<CreateOrderResponse>> CreateOrder(CustomerId customerId, CorrelationId correlationId,
@@ -79,7 +49,7 @@ public sealed class Order : Service<OrderAggregate, Infrastructure.Persistence.O
     {
         PartitionKey partitionKey = new PartitionKey(customerId.Value.ToString());
         Id id = new Id(orderId.Value.ToString());
-        
+
         var aggregateResult = await LoadAsync(partitionKey, id, cancellationToken);
         if (aggregateResult.IsError)
         {
@@ -98,42 +68,35 @@ public sealed class Order : Service<OrderAggregate, Infrastructure.Persistence.O
         return new CompleteOrderResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
-    public async Task<ErrorOr<CancelOrderResponse>> CancelOrder(CustomerId customerId, OrderId orderId, CorrelationId correlationId,
+    public async Task<ErrorOr<CancelOrderResponse>> CancelOrder(CustomerId customerId, OrderId orderId,
+        CorrelationId correlationId,
         CancellationToken cancellationToken)
     {
         PartitionKey partitionKey = new PartitionKey(customerId.Value.ToString());
         Id id = new Id(orderId.Value.ToString());
-        
+
         var aggregateResult = await LoadAsync(partitionKey, id, cancellationToken);
         if (aggregateResult.IsError)
         {
             return ErrorOr.ErrorOr.From(aggregateResult.Errors).Value;
         }
-        
+
         IOrderCommand command = new CancelOrderCommand(DateTime.UtcNow, customerId, orderId, correlationId);
         var commandResult = _commandHandler.HandlerForExisting(command, aggregateResult.Value);
         if (commandResult.IsError)
         {
             return ErrorOr.ErrorOr.From(commandResult.Errors).Value;
         }
-        
+
         await SaveAsync(commandResult.Value.Aggregate, commandResult.Value.Events, cancellationToken);
 
         return new CancelOrderResponse(commandResult.Value.Aggregate.Id, correlationId);
     }
 
     protected override ErrorOr<OrderAggregate> ToDomain(Infrastructure.Persistence.Orders.Order aggregate)
-    {
-        return _transformer.ToDomain(aggregate);
-    }
+        => _mapper.ToDomain(aggregate);
 
-    protected override (Infrastructure.Persistence.Orders.Order, IEnumerable<IEvent>) FromDomain(OrderAggregate aggregate, IEnumerable<Event> events)
-    {
-        throw new NotImplementedException();
-    }
-
-    // protected override Orders.Persistence.Order FromDomain(OrderAggregate aggregate)
-    // {
-    //     return _transformer.FromDomain(aggregate);
-    // }
+    protected override (Infrastructure.Persistence.Orders.Order, IEnumerable<IEvent>) 
+        FromDomain(OrderAggregate aggregate, IEnumerable<OrderEvent> events)
+        => _mapper.FromDomain(aggregate, events);
 }

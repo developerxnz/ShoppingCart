@@ -7,19 +7,20 @@ public abstract class Repository<T>
 {
     protected readonly Container Container;
 
-    protected Repository(CosmosClient client,string database, string containerName)
+    protected Repository(CosmosClient client, string database, string containerName)
     {
         Container = client.GetContainer(database, containerName);
     }
-    
+
     public async Task<T> GetByIdAsync(string partitionKey, string id, CancellationToken cancellationToken)
     {
         ItemRequestOptions requestOptions = new ItemRequestOptions();
-        ItemResponse<T> response = await Container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions, cancellationToken);
+        ItemResponse<T> response =
+            await Container.ReadItemAsync<T>(id, new PartitionKey(partitionKey), requestOptions, cancellationToken);
 
         return response.Resource;
     }
-    
+
     public async Task<IEnumerable<T>> GetByPartitionKeyAsync(string partitionKey, CancellationToken cancellationToken)
     {
         QueryRequestOptions requestOptions = new QueryRequestOptions
@@ -40,28 +41,21 @@ public abstract class Repository<T>
         return documents;
     }
 
-    protected async Task BatchUpdateAsync(Domain.Core.PartitionKey partitionKey, object aggregate, IEnumerable<object> events, CancellationToken cancellationToken)
+    protected async Task BatchUpdateAsync(Domain.Core.PartitionKey partitionKey, object aggregate,
+        IEnumerable<object> events, CancellationToken cancellationToken)
     {
-        try
+        TransactionalBatch batch = Container.CreateTransactionalBatch(new PartitionKey(partitionKey.Value));
+        batch.UpsertItem(aggregate);
+
+        foreach (object @event in events)
         {
-            TransactionalBatch batch = Container.CreateTransactionalBatch(new PartitionKey(partitionKey.Value));
-            batch.UpsertItem(aggregate);
-            
-            foreach (var @event in events)
-            {
-                batch.UpsertItem(@event);
-            }
-        
-            using TransactionalBatchResponse response = await batch.ExecuteAsync(cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception("failed");
-            }
+            batch.UpsertItem(@event);
         }
-        catch (Exception e)
+
+        using TransactionalBatchResponse response = await batch.ExecuteAsync(cancellationToken);
+        if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine(e);
-            throw;
+            throw new Exception("failed");
         }
     }
 }

@@ -5,6 +5,7 @@ using Shopping.Domain.Delivery.Core;
 using Shopping.Domain.Delivery.Requests;
 using Shopping.Domain.Domain.Core.Handlers;
 using Shopping.Domain.Orders.Core;
+using Shopping.Infrastructure.Interfaces;
 using Shopping.Services.Delivery;
 using Shopping.Services.Interfaces;
 
@@ -14,15 +15,15 @@ public class DeliveryServiceTests
 {
     private readonly Mock<IDeliveryCommandHandler> _deliveryCommandHandler;
     private readonly Mock<IRepository<Shopping.Infrastructure.Persistence.Delivery.Delivery>> _repository;
-    private readonly ITransformer<DeliveryAggregate, Shopping.Infrastructure.Persistence.Delivery.Delivery> _transformer;
+    private readonly IMapper<,,,> _mapper;
     private readonly IDeliveries _service;
 
     public DeliveryServiceTests()
     {
         _deliveryCommandHandler = new Mock<IDeliveryCommandHandler>();
         _repository = new Mock<IRepository<Shopping.Infrastructure.Persistence.Delivery.Delivery>>();
-        _transformer = new DeliveryTransformer();
-        _service = new Deliveries(_deliveryCommandHandler.Object, _repository.Object, _transformer);
+        _mapper = new DeliveryMapper();
+        _service = new Deliveries(_deliveryCommandHandler.Object, _repository.Object, _mapper);
     }
 
     [Fact]

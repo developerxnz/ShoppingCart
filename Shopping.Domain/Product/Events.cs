@@ -4,7 +4,10 @@ using Version = Shopping.Domain.Core.Version;
 
 namespace Shopping.Domain.Product.Events;
 
-public interface IProductEvent {}
+public interface IProductEvent : IEvent {}
+
+public abstract record ProductEvent(DateTime ModifiedDateUtc, Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+    : Event(CorrelationId, CausationId, Version, ModifiedDateUtc), IProductEvent;
 
 public record ProductCreatedEvent(
         CorrelationId CorrelationId,
@@ -15,7 +18,7 @@ public record ProductCreatedEvent(
         ProductPrice Price,
         Sku Sku,
         Version Version)
-    : Event(CorrelationId, CausationId, Version, CreatedOnUtc), IProductEvent;
+    : ProductEvent(CreatedOnUtc, Version, CorrelationId, CausationId), IProductEvent;
     
 public record ProductUpdatedEvent(
         CorrelationId CorrelationId,
@@ -26,4 +29,4 @@ public record ProductUpdatedEvent(
         ProductPrice Price,
         Sku Sku,
         Version Version)
-    : Event(CorrelationId, CausationId, Version, UpdatedOnUtc), IProductEvent;
+    : ProductEvent(UpdatedOnUtc, Version, CorrelationId, CausationId), IProductEvent;

@@ -5,16 +5,17 @@ using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
 using Shopping.Services.Cart;
 using Shopping.Services.Interfaces;
+using CartAggregate = Shopping.Domain.Cart.CartAggregate;
 
 namespace ShoppingUnitTests;
 
-public class CartTransformerTests
+public class CartMapperTests
 {
-    private readonly ITransformer<CartAggregate, Shopping.Infrastructure.Persistence.Cart.CartService> _transformer;
+    private readonly IMapper<,,,> _mapper;
 
-    public CartTransformerTests()
+    public CartMapperTests()
     {
-        _transformer = new CartTransformer(new CartItemTransformer());
+        _mapper = new CartMapper(new CartItemMapper());
     }
 
     [Fact]
@@ -38,7 +39,7 @@ public class CartTransformerTests
             Items = items
         };
 
-        var cartDto = _transformer.FromDomain(aggregate);
+        var cartDto = _mapper.FromDomain(aggregate);
         
         Assert.Equal(customerId.Value.ToString(), cartDto.CustomerId);
         Assert.Equal(createdOnUtc, cartDto.CreatedOnUtc);
@@ -73,7 +74,7 @@ public class CartTransformerTests
             Items = items
         };
 
-        var cartDtos = _transformer.FromDomain(new [] { aggregate });
+        var cartDtos = _mapper.FromDomain(new [] { aggregate });
 
         foreach (var cartDto in cartDtos)
         {
@@ -118,17 +119,17 @@ public class CartTransformerTests
             new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value, firstQuantity.Value.Value),
             new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value, lastQuantity.Value.Value)
         };
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new()
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,
             Items = items,
-            ETag = eTag,
+            Etag = eTag,
             Id = cartId.Value.ToString(),
             Metadata = metaData
         };
 
-        var domain = _transformer.ToDomain(dto);
+        var domain = _mapper.ToDomain(dto);
         
         Assert.Equal(customerId.Value, domain.Value.CustomerId.Value);
         Assert.Equal(createdOnUtc, domain.Value.CreatedOnUtc);
@@ -170,17 +171,17 @@ public class CartTransformerTests
             new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value, firstQuantity.Value.Value),
             new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value, lastQuantity.Value.Value)
         };
-        Shopping.Infrastructure.Persistence.Cart.CartService dto = new()
+        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,
             Items = items,
-            ETag = eTag,
+            Etag = eTag,
             Id = cartId.Value.ToString(),
             Metadata = metaData
         };
 
-        var domains = _transformer.ToDomain(new [] { dto });
+        var domains = _mapper.ToDomain(new [] { dto });
         foreach (var domain in domains.Value)
         {
 

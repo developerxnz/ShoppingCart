@@ -4,14 +4,19 @@ using Version = Shopping.Domain.Core.Version;
 
 namespace Shopping.Domain.Cart.Events;
 
+public abstract record CartEvent(DateTime ModifiedDateUtc, Version Version, CorrelationId CorrelationId, CausationId CausationId) 
+    : Event(CorrelationId, CausationId, Version, ModifiedDateUtc), ICartEvent;
+
 public record CartItemAddedEvent(
         DateTime AddedOnUtc, CustomerId CustomerId, Sku Sku, CartQuantity Quantity, Version Version, CorrelationId CorrelationId, CausationId CausationId) 
-    : Event(CorrelationId, CausationId, Version, AddedOnUtc) { }
+    : CartEvent (AddedOnUtc, Version, CorrelationId, CausationId) { }
     
 public record CartItemRemovedEvent(
         DateTime RemovedOnUtc, CustomerId CustomerId, Sku Sku, Version Version, CorrelationId CorrelationId, CausationId CausationId) 
-    : Event(CorrelationId, CausationId, Version, RemovedOnUtc) { }
+    : CartEvent (RemovedOnUtc, Version, CorrelationId, CausationId) { }
     
 public record CartItemUpdatedEvent(
         DateTime UpdatedOnUtc,CustomerId CustomerId, Sku Sku, CartQuantity Quantity, Version Version, CorrelationId CorrelationId, CausationId CausationId) 
-    : Event(CorrelationId, CausationId, Version, UpdatedOnUtc) { }
+    : CartEvent (UpdatedOnUtc, Version, CorrelationId, CausationId) { }
+
+public interface ICartEvent : IEvent { }

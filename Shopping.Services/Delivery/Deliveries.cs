@@ -2,56 +2,32 @@ using ErrorOr;
 using Shopping.Domain.Core;
 using Shopping.Domain.Delivery.Commands;
 using Shopping.Domain.Delivery.Core;
+using Shopping.Domain.Delivery.Events;
 using Shopping.Domain.Delivery.Requests;
 using Shopping.Domain.Orders.Core;
+using Shopping.Infrastructure.Interfaces;
 using Shopping.Services.Interfaces;
+using DeliveryEvent = Shopping.Infrastructure.Persistence.Delivery.DeliveryEvent;
 
 namespace Shopping.Services.Delivery;
 
-public interface IDeliveries
-{
-    /// <summary>
-    /// Creates a new delivery for the given Order
-    /// </summary>
-    /// <returns></returns>
-    Task<ErrorOr<DeliveryCreatedResponse>> CreateAsync(
-        DateTime createdOnUtc, CustomerId customerId, OrderId orderId, CorrelationId correlationId,
-        CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Cancels a delivery
-    /// </summary>
-    /// <returns></returns>
-    Task<ErrorOr<DeliveryCancelledResponse>> CancelAsync(
-        DateTime cancelledOnUtc, CustomerId customerId, OrderId orderId, DeliveryId deliveryId,
-        CorrelationId correlationId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Completes a delivery
-    /// </summary>
-    /// <returns></returns>
-    Task<ErrorOr<DeliveryCompletedResponse>> CompleteAsync(
-        DateTime completedOnUtc, CustomerId customerId, OrderId orderId, DeliveryId deliveryId,
-        CorrelationId correlationId, CancellationToken cancellationToken);
-}
-
-public sealed class Deliveries : Service<DeliveryAggregate, Infrastructure.Persistence.Delivery.Delivery>, IDeliveries
+public sealed class Deliveries : Service<DeliveryAggregate, Infrastructure.Persistence.Delivery.Delivery, Domain.Delivery.Events.DeliveryEvent>, IDeliveries
 {
     private readonly IDeliveryCommandHandler _deliveryCommandHandler;
-    private readonly ITransformer<DeliveryAggregate, Infrastructure.Persistence.Delivery.Delivery> _transformer;
+    private readonly IMapper<DeliveryAggregate, Infrastructure.Persistence.Delivery.Delivery, IDeliveryEvent, DeliveryEvent> _mapper;
 
     public Deliveries(
         IDeliveryCommandHandler deliveryCommandHandler,
         IRepository<Infrastructure.Persistence.Delivery.Delivery> repository,
-        ITransformer<DeliveryAggregate, Infrastructure.Persistence.Delivery.Delivery> transformer) : base(repository)
+        IMapper<DeliveryAggregate, Infrastructure.Persistence.Delivery.Delivery, IDeliveryEvent, DeliveryEvent> mapper) 
+        : base(repository)
     {
         _deliveryCommandHandler = deliveryCommandHandler;
-        _transformer = transformer;
+        _mapper = mapper;
     }
 
     public async Task<ErrorOr<DeliveryCreatedResponse>> CreateAsync(DateTime createdOnUtc, CustomerId customerId,
-        OrderId orderId,
-        CorrelationId correlationId, CancellationToken cancellationToken)
+        OrderId orderId, CorrelationId correlationId, CancellationToken cancellationToken)
     {
         CreateDeliveryCommand command = new CreateDeliveryCommand(createdOnUtc, customerId, orderId, correlationId);
         var commandResult = _deliveryCommandHandler.HandlerForNew(command);
@@ -74,7 +50,7 @@ public sealed class Deliveries : Service<DeliveryAggregate, Infrastructure.Persi
     {
         PartitionKey partitionKey = new PartitionKey(customerId.Value.ToString());
         Id id = new Id(deliveryId.Value.ToString());
-        
+
         var aggregateResult = await LoadAsync(partitionKey, id, cancellationToken);
         if (aggregateResult.IsError)
         {
@@ -83,6 +59,7 @@ public sealed class Deliveries : Service<DeliveryAggregate, Infrastructure.Persi
 
         CancelDeliveryCommand command = new CancelDeliveryCommand(cancelledOnUtc, customerId, orderId, deliveryId, correlationId);
         var commandResult = _deliveryCommandHandler.HandlerForExisting(command, aggregateResult.Value);
+        
         return await commandResult
             .MatchAsync<ErrorOr<DeliveryCancelledResponse>>(async result =>
                 {
@@ -110,7 +87,7 @@ public sealed class Deliveries : Service<DeliveryAggregate, Infrastructure.Persi
 
         CompleteDeliveryCommand command =
             new CompleteDeliveryCommand(completedOnUtc, customerId, deliveryId, orderId, correlationId);
-        
+
         var commandResult = _deliveryCommandHandler.HandlerForExisting(command, aggregateResult.Value);
         return await commandResult
             .MatchAsync<ErrorOr<DeliveryCompletedResponse>>(async result =>
@@ -128,16 +105,12 @@ public sealed class Deliveries : Service<DeliveryAggregate, Infrastructure.Persi
 
     protected override ErrorOr<DeliveryAggregate> ToDomain(Infrastructure.Persistence.Delivery.Delivery aggregate)
     {
-        return _transformer.ToDomain(aggregate);
+        return _mapper.ToDomain(aggregate);
     }
 
-    protected override (Infrastructure.Persistence.Delivery.Delivery, IEnumerable<IEvent>) FromDomain(DeliveryAggregate aggregate, IEnumerable<Event> events)
+    protected override (Infrastructure.Persistence.Delivery.Delivery, IEnumerable<Infrastructure.Interfaces.IEvent>) 
+        FromDomain(DeliveryAggregate aggregate, IEnumerable<Domain.Delivery.Events.DeliveryEvent> events)
     {
         throw new NotImplementedException();
     }
-
-    // protected override Persistence.Delivery FromDomain(DeliveryAggregate aggregate)
-    // {
-    //     return _transformer.FromDomain(aggregate);
-    // }
 }

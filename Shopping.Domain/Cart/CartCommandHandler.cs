@@ -11,21 +11,21 @@ namespace Shopping.Domain.Cart;
 
 public interface ICartCommandHandler
 {
-    ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command);
+    ErrorOr<CommandResult<CartAggregate, CartEvent>> HandlerForNew(ICartCommand command);
 
-    ErrorOr<CommandResult<CartAggregate>> HandlerForExisting(ICartCommand command, CartAggregate aggregate);
+    ErrorOr<CommandResult<CartAggregate, CartEvent>> HandlerForExisting(ICartCommand command, CartAggregate aggregate);
 }
 
-public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, ICartCommandHandler
+public sealed class CartCommandHandler : Handler<CartAggregate, CartEvent, ICartCommand>, ICartCommandHandler
 {
-    public override ErrorOr<CommandResult<CartAggregate>> HandlerForNew(ICartCommand command) =>
+    public override ErrorOr<CommandResult<CartAggregate, CartEvent>> HandlerForNew(ICartCommand command) =>
         command switch
         {
             AddItemToCartCommand addItemToCartCommand => GenerateEventsForItemAdded(addItemToCartCommand),
             _ => Error.Unexpected(Constants.InvalidCommandForNewCode, string.Format(Constants.InvalidCommandForNewDescription, command.GetType()))
         };
 
-    protected override ErrorOr<CommandResult<CartAggregate>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
+    protected override ErrorOr<CommandResult<CartAggregate, CartEvent>> ExecuteCommand(ICartCommand command, CartAggregate aggregate) =>
         (command switch
         {
             AddItemToCartCommand addItemToCartCommand => GenerateEventsForItemAdded(addItemToCartCommand, aggregate),
@@ -34,23 +34,19 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             _ => throw new ArgumentOutOfRangeException(nameof(command))
         })
         .Match(
-            commandResult =>
-            {
-                var x = commandResult;
-                return ApplyEvents(x.Aggregate, x.Events);
-            },
+            commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
             error => ErrorOr.ErrorOr.From(error).Value);
 
-    private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemAdded(AddItemToCartCommand command)
+    private ErrorOr<CommandResult<CartAggregate, CartEvent>> GenerateEventsForItemAdded(AddItemToCartCommand command)
     {
         CartAggregate aggregate = new CartAggregate(command.AddedOnUtc, command.CustomerId);
         return ExecuteCommand(command, aggregate);
     }
 
-    private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemAdded(AddItemToCartCommand command,
+    private ErrorOr<CommandResult<CartAggregate, CartEvent>> GenerateEventsForItemAdded(AddItemToCartCommand command,
         CartAggregate aggregate)
     {
-        return new CommandResult<CartAggregate>(
+        return new CommandResult<CartAggregate, CartEvent>(
             aggregate,
             new[]
             {
@@ -66,7 +62,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
         );
     }
 
-    private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemRemoved(RemoveItemFromCartCommand command,
+    private ErrorOr<CommandResult<CartAggregate, CartEvent>> GenerateEventsForItemRemoved(RemoveItemFromCartCommand command,
         CartAggregate aggregate)
     {
         if (aggregate.Items.All(x => x.Sku != command.Sku))
@@ -74,7 +70,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             return Error.Validation(Constants.InvalidCartItemSkuCode, Constants.InvalidCartItemSkuDescription);
         }
 
-        return new CommandResult<CartAggregate>(aggregate,
+        return new CommandResult<CartAggregate, CartEvent>(aggregate,
             new[]
             {
                 new CartItemRemovedEvent(
@@ -87,7 +83,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             });
     }
 
-    private ErrorOr<CommandResult<CartAggregate>> GenerateEventsForItemUpdated(UpdateItemInCartCommand command,
+    private ErrorOr<CommandResult<CartAggregate, CartEvent>> GenerateEventsForItemUpdated(UpdateItemInCartCommand command,
         CartAggregate aggregate)
     {
         if (aggregate.Items.All(x => x.Sku != command.Sku))
@@ -95,7 +91,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             return Error.Validation(Constants.InvalidCartItemSkuCode, Constants.InvalidCartItemSkuDescription);
         }
 
-        return new CommandResult<CartAggregate>(aggregate,
+        return new CommandResult<CartAggregate,CartEvent>(aggregate,
             new[]
             {
                 new CartItemUpdatedEvent(
@@ -109,7 +105,7 @@ public sealed class CartCommandHandler : Handler<CartAggregate, ICartCommand>, I
             });
     }
 
-    protected override CartAggregate Apply(CartAggregate aggregate, IEvent @event)
+    protected override CartAggregate Apply(CartAggregate aggregate, CartEvent @event)
     {
         MetaData metaData = aggregate.MetaData with {Version = @event.Version, TimeStamp = @event.TimeStamp};
 

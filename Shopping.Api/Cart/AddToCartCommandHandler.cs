@@ -12,7 +12,7 @@ public record AddToCartRequest(CustomerId CustomerId, Sku Sku, CartQuantity Quan
 
 public record AddToCartResponse(CartId CartId, CorrelationId CorrelationId);
 
-public class CartCommandHandler(ICartService cartService)
+public class AddToCartCommandHandler(ICartService cartService)
     : IRequestHandler<AddToCartRequest, ErrorOr<AddToCartResponse>>
 {
     public async Task<ErrorOr<AddToCartResponse>> Handle(AddToCartRequest request, CancellationToken cancellationToken)

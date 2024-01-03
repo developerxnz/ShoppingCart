@@ -12,14 +12,14 @@ namespace Shopping.Domain.Orders.Handlers;
 
 public interface ICommandHandler
 {
-    ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command);
+    ErrorOr<CommandResult<OrderAggregate, OrderEvent>> HandlerForNew(IOrderCommand command);
 
-    ErrorOr<CommandResult<OrderAggregate>> HandlerForExisting(IOrderCommand command, OrderAggregate aggregate);
+    ErrorOr<CommandResult<OrderAggregate, OrderEvent>> HandlerForExisting(IOrderCommand command, OrderAggregate aggregate);
 }
 
-public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICommandHandler
+public sealed class CommandHandler : Handler<OrderAggregate, OrderEvent, IOrderCommand>, ICommandHandler
 {
-    public override ErrorOr<CommandResult<OrderAggregate>> HandlerForNew(IOrderCommand command)
+    public override ErrorOr<CommandResult<OrderAggregate, OrderEvent>> HandlerForNew(IOrderCommand command)
     {
         switch (command)
         {
@@ -49,7 +49,7 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
         return true;
     }
 
-    protected override ErrorOr<CommandResult<OrderAggregate>> ExecuteCommand(IOrderCommand command,
+    protected override ErrorOr<CommandResult<OrderAggregate, OrderEvent>> ExecuteCommand(IOrderCommand command,
         OrderAggregate aggregate) =>
         (command switch
         {
@@ -63,7 +63,7 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
             commandResult => ApplyEvents(commandResult.Aggregate, commandResult.Events),
             error => ErrorOr.ErrorOr.From(error).Value);
 
-    private ErrorOr<CommandResult<OrderAggregate>> GenerateEventsForOrderCreated(CreateOrderCommand command)
+    private ErrorOr<CommandResult<OrderAggregate, OrderEvent>> GenerateEventsForOrderCreated(CreateOrderCommand command)
     {
         OrderAggregate aggregate = new(command.CreatedOnUtc, command.CustomerId);
         OrderCreatedEvent[] events =
@@ -79,7 +79,7 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
         return ApplyEvents(aggregate, events);
     }
 
-    private ErrorOr<CommandResult<OrderAggregate>> GenerateEventsForOrderCompleted(CompleteOrderCommand command,
+    private ErrorOr<CommandResult<OrderAggregate, OrderEvent>> GenerateEventsForOrderCompleted(CompleteOrderCommand command,
         OrderAggregate aggregate)
     {
         if (aggregate.CompletedOnUtc.HasValue)
@@ -97,7 +97,7 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
             return Error.Validation(Constants.InvalidVersionCode, Constants.InvalidVersionDescription);
         }
 
-        return new CommandResult<OrderAggregate>(aggregate,
+        return new CommandResult<OrderAggregate, OrderEvent>(aggregate,
             new[]
             {
                 new OrderCompletedEvent(command.CompletedOnUtc, command.CustomerId, command.OrderId,
@@ -106,7 +106,7 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
             });
     }
 
-    private ErrorOr<CommandResult<OrderAggregate>> GenerateEventsForOrderCancelled(CancelOrderCommand command,
+    private ErrorOr<CommandResult<OrderAggregate, OrderEvent>> GenerateEventsForOrderCancelled(CancelOrderCommand command,
         OrderAggregate aggregate)
     {
         if (aggregate.CancelledOnUtc.HasValue)
@@ -124,7 +124,7 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
             return Error.Validation(Constants.InvalidVersionCode, Constants.InvalidVersionDescription);
         }
 
-        return new CommandResult<OrderAggregate>(
+        return new CommandResult<OrderAggregate, OrderEvent>(
             aggregate,
             new[]
             {
@@ -134,7 +134,7 @@ public sealed class CommandHandler : Handler<OrderAggregate, IOrderCommand>, ICo
             });
     }
 
-    protected override OrderAggregate Apply(OrderAggregate aggregate, IEvent @event)
+    protected override OrderAggregate Apply(OrderAggregate aggregate, OrderEvent @event)
     {
         MetaData metaData = aggregate.MetaData with {Version = @event.Version, TimeStamp = @event.TimeStamp};
         return @event switch
