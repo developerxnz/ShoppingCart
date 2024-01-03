@@ -1,13 +1,16 @@
-using Shopping.Domain.Core;
-using Moq;
 using ErrorOr;
-using Shopping.Domain.Delivery.Core;
-using Shopping.Domain.Delivery.Requests;
+using Moq;
 using Shopping.Domain.Domain.Core.Handlers;
+using Shopping.Domain.Core;
+using Shopping.Domain.Core.Persistence;
+using Shopping.Domain.Delivery.Core;
+using Shopping.Domain.Delivery.Events;
+using Shopping.Domain.Delivery.Requests;
 using Shopping.Domain.Orders.Core;
 using Shopping.Infrastructure.Interfaces;
 using Shopping.Services.Delivery;
 using Shopping.Services.Interfaces;
+using DeliveryEvent = Shopping.Infrastructure.Persistence.Delivery.DeliveryEvent;
 
 namespace ShoppingUnitTests.Delivery;
 
@@ -15,15 +18,16 @@ public class DeliveryServiceTests
 {
     private readonly Mock<IDeliveryCommandHandler> _deliveryCommandHandler;
     private readonly Mock<IRepository<Shopping.Infrastructure.Persistence.Delivery.Delivery>> _repository;
-    private readonly IMapper<,,,> _mapper;
     private readonly IDeliveries _service;
 
     public DeliveryServiceTests()
     {
         _deliveryCommandHandler = new Mock<IDeliveryCommandHandler>();
         _repository = new Mock<IRepository<Shopping.Infrastructure.Persistence.Delivery.Delivery>>();
-        _mapper = new DeliveryMapper();
-        _service = new Deliveries(_deliveryCommandHandler.Object, _repository.Object, _mapper);
+
+        IMapper<DeliveryAggregate, Shopping.Infrastructure.Persistence.Delivery.Delivery, IDeliveryEvent, DeliveryEvent>
+            mapper = new DeliveryMapper();
+        _service = new Deliveries(_deliveryCommandHandler.Object, _repository.Object, mapper);
     }
 
     [Fact]
@@ -35,8 +39,9 @@ public class DeliveryServiceTests
         CorrelationId correlationId = CorrelationId.Create();
         CancellationToken cancellationToken = new CancellationToken();
         DeliveryAggregate aggregate = new DeliveryAggregate(createdOnUtc, orderId);
-        ErrorOr<CommandResult<DeliveryAggregate>> commandResult =
-            new CommandResult<DeliveryAggregate>(aggregate, Enumerable.Empty<Event>());
+        ErrorOr<CommandResult<DeliveryAggregate, Shopping.Domain.Delivery.Events.DeliveryEvent>> commandResult =
+            new CommandResult<DeliveryAggregate, Shopping.Domain.Delivery.Events.DeliveryEvent>(aggregate,
+                Enumerable.Empty<Shopping.Domain.Delivery.Events.DeliveryEvent>());
 
         _deliveryCommandHandler
             .Setup(x => x.HandlerForNew(It.IsAny<IDeliveryCommand>()))
@@ -65,15 +70,17 @@ public class DeliveryServiceTests
         CorrelationId correlationId = CorrelationId.Create();
         CancellationToken cancellationToken = new CancellationToken();
         StreamId streamId = new StreamId(Guid.NewGuid());
-        Shopping.Infrastructure.Persistence.Delivery.Delivery dto = 
-            new(
-                deliveryId.Value.ToString(),
-                createdOnUtc,
-                completedOnUtc,
-                new Shopping.Domain.Core.Persistence.Metadata(streamId.Value.ToString(), 1, createdOnUtc ),
-                orderId.Value.ToString());
-        
-        ErrorOr<CommandResult<DeliveryAggregate>> commandResult = ErrorOr<CommandResult<DeliveryAggregate>>
+        Shopping.Infrastructure.Persistence.Delivery.Delivery dto =
+            new Shopping.Infrastructure.Persistence.Delivery.Delivery
+            {
+                Id = deliveryId.Value.ToString(),
+                CreatedOnUtc = createdOnUtc,
+                DeliveredOnUtc = completedOnUtc,
+                Metadata = new Metadata(streamId.Value.ToString(), 1, createdOnUtc),
+                OrderId = orderId.Value.ToString()
+            };
+
+        ErrorOr<CommandResult<DeliveryAggregate,Shopping.Domain.Delivery.Events.DeliveryEvent>> commandResult = ErrorOr<CommandResult<DeliveryAggregate,Shopping.Domain.Delivery.Events.DeliveryEvent>>
             .From(new List<Error>
             {
                 Error.Validation(Constants.DeliveryAlreadyDeliveredCode, Constants.DeliveryAlreadyDeliveredDescription)
@@ -86,7 +93,7 @@ public class DeliveryServiceTests
         _repository
             .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
-        
+
         var response =
             await _service
                 .CompleteAsync(completedOnUtc, customerId, orderId, deliveryId, correlationId, cancellationToken);

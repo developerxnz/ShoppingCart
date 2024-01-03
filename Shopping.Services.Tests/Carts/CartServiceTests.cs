@@ -3,6 +3,7 @@ using Moq;
 using Shopping.Domain.Cart;
 using Shopping.Domain.Cart.Commands;
 using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Cart.Events;
 using Shopping.Domain.Cart.Requests;
 using Shopping.Domain.Core;
 using Shopping.Domain.Domain.Core.Handlers;
@@ -24,7 +25,7 @@ public class CartAggregateTests
 
     public CartAggregateTests()
     {
-        var transformer = new CartMapper(new CartItemMapper());
+        var transformer = new CartMapper();
         
         _cartHandler = new Mock<ICartCommandHandler>();
         _repository = new Mock<IRepository<Shopping.Infrastructure.Persistence.Cart.CartAggregate>>();
@@ -39,7 +40,7 @@ public class CartAggregateTests
         CancellationToken cancellationToken = new CancellationToken();
         Sku sku = new Sku(Guid.NewGuid().ToString());
 
-        ErrorOr<CommandResult<CartAggregate>> commandResult = ErrorOr<CommandResult<CartAggregate>>
+        ErrorOr<CommandResult<CartAggregate, CartEvent>> commandResult = ErrorOr<CommandResult<CartAggregate, CartEvent>>
             .From(new List<Error>
                 {Error.Validation(Constants.InvalidQuantityCode, Constants.InvalidQuantityDescription)});
         
@@ -47,8 +48,8 @@ public class CartAggregateTests
             .Setup(x => x.HandlerForNew(It.IsAny<ICartCommand>()))
             .Returns(commandResult);
 
-        var quantity = CartQuantity.Create(10);
-        var response = await _cartAggregate.AddToCartAsync(customerId, sku, quantity.Value, correlationId, cancellationToken);
+        var quantity = new CartQuantity(10);
+        var response = await _cartAggregate.AddToCartAsync(customerId, sku, quantity, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse => Assert.Fail($"Expected {nameof(AddToCartResponse)}"),
             errors =>
@@ -83,15 +84,15 @@ public class CartAggregateTests
         CancellationToken cancellationToken = new CancellationToken();
         Sku sku = new Sku(Guid.NewGuid().ToString());
 
-        IEnumerable<Event> events = Enumerable.Empty<Event>();
-        var commandResult = new CommandResult<CartAggregate>(aggregate, events);
+        IEnumerable<CartEvent> events = Enumerable.Empty<CartEvent>();
+        var commandResult = new CommandResult<CartAggregate, CartEvent>(aggregate, events);
         
         _cartHandler
             .Setup(x => x.HandlerForNew(It.IsAny<ICartCommand>()))
             .Returns(commandResult);
 
-        var quantity = CartQuantity.Create(10);
-        var response = await _cartAggregate.AddToCartAsync(customerId, sku, quantity.Value, correlationId, cancellationToken);
+        var quantity = new CartQuantity(10);
+        var response = await _cartAggregate.AddToCartAsync(customerId, sku, quantity, correlationId, cancellationToken);
         response.Switch(
             addToCartResponse =>
             {
@@ -122,10 +123,10 @@ public class CartAggregateTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        var quantity = CartQuantity.Create(10);
-        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, quantity.Value);
+        var quantity = new CartQuantity(10);
+        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, quantity);
 
-        ErrorOr<CommandResult<CartAggregate>> commandResult = ErrorOr<CommandResult<CartAggregate>>
+        ErrorOr<CommandResult<CartAggregate, CartEvent>> commandResult = ErrorOr<CommandResult<CartAggregate, CartEvent>>
             .From(new List<Error>
                 {Error.Validation(Constants.InvalidQuantityCode, Constants.InvalidQuantityDescription)});
         
@@ -180,11 +181,11 @@ public class CartAggregateTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        var quantity = CartQuantity.Create(10);
-        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, quantity.Value);
+        var quantity = new CartQuantity(10);
+        AddToCartRequest request = new AddToCartRequest(customerId, cartId, sku, quantity);
 
-        IEnumerable<Event> events = Enumerable.Empty<Event>();
-        var commandResult = new CommandResult<CartAggregate>(aggregate, events);
+        IEnumerable<CartEvent> events = Enumerable.Empty<CartEvent>();
+        var commandResult = new CommandResult<CartAggregate, CartEvent>(aggregate, events);
         
         _cartHandler
             .Setup(x => x.HandlerForExisting(It.IsAny<ICartCommand>(), It.IsAny<CartAggregate>()))
@@ -225,10 +226,10 @@ public class CartAggregateTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        var quantity = CartQuantity.Create(10);
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity.Value);
+        var quantity = new CartQuantity(10);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity);
 
-        ErrorOr<CommandResult<CartAggregate>> commandResult = ErrorOr<CommandResult<CartAggregate>>
+        ErrorOr<CommandResult<CartAggregate, CartEvent>> commandResult = ErrorOr<CommandResult<CartAggregate, CartEvent>>
             .From(new List<Error>
                 {Error.Validation(Constants.InvalidQuantityCode, Constants.InvalidQuantityDescription)});
         
@@ -283,11 +284,11 @@ public class CartAggregateTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        var quantity = CartQuantity.Create(10);
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity.Value);
+        var quantity = new CartQuantity(10);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity);
 
-        IEnumerable<Event> events = Enumerable.Empty<Event>();
-        var commandResult = new CommandResult<CartAggregate>(aggregate, events);
+        IEnumerable<CartEvent> events = Enumerable.Empty<CartEvent>();
+        var commandResult = new CommandResult<CartAggregate, CartEvent>(aggregate, events);
 
         _cartHandler
             .Setup(x => x.HandlerForExisting(It.IsAny<ICartCommand>(), It.IsAny<CartAggregate>()))
@@ -336,11 +337,11 @@ public class CartAggregateTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        var quantity = CartQuantity.Create(30);
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity.Value);
+        var quantity = new CartQuantity(30);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity);
 
-        IEnumerable<Event> events = Enumerable.Empty<Event>();
-        var commandResult = new CommandResult<CartAggregate>(aggregate, events);
+        IEnumerable<CartEvent> events = Enumerable.Empty<CartEvent>();
+        var commandResult = new CommandResult<CartAggregate, CartEvent>(aggregate, events);
         
         _cartHandler
             .Setup(x => x.HandlerForExisting(It.IsAny<ICartCommand>(), It.IsAny<CartAggregate>()))
@@ -382,10 +383,10 @@ public class CartAggregateTests
 
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         CancellationToken cancellationToken = new CancellationToken();
-        var quantity = CartQuantity.Create(30);
-        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity.Value);
+        var quantity = new CartQuantity(30);
+        UpdateCartItemRequest request = new UpdateCartItemRequest(customerId, cartId, sku, quantity);
 
-        ErrorOr<CommandResult<CartAggregate>> commandResult = ErrorOr<CommandResult<CartAggregate>>
+        ErrorOr<CommandResult<CartAggregate,CartEvent>> commandResult = ErrorOr<CommandResult<CartAggregate, CartEvent>>
             .From(new List<Error>
                 {Error.Validation(Constants.InvalidQuantityCode, Constants.InvalidQuantityDescription)});
         

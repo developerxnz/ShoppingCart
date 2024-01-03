@@ -19,13 +19,7 @@ public class CartController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] AddToCartRequest request, CancellationToken cancellationToken)
     {
-        var quantityResult = CartQuantity.Create(request.Quantity);
-        if (quantityResult.IsError)
-        {
-            return new BadRequestResult();
-        }
-
-        CartQuantity quantity = quantityResult.Value;
+        CartQuantity quantity = new CartQuantity(request.Quantity);
         Sku sku = new Sku(request.Sku);
         CustomerId customerId = new CustomerId(request.CustomerId);
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());

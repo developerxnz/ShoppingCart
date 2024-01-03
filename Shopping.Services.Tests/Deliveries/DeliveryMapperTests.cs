@@ -1,13 +1,16 @@
 using Shopping.Domain.Core;
 using Shopping.Domain.Delivery.Core;
+using Shopping.Domain.Delivery.Events;
 using Shopping.Domain.Orders.Core;
 using Shopping.Services.Interfaces;
+using DeliveryEvent = Shopping.Infrastructure.Persistence.Delivery.DeliveryEvent;
 
 namespace ShoppingUnitTests.Delivery;
 
 public class DeliveryMapperTests
 {
-    private readonly IMapper<,,,> _mapper;
+    private readonly IMapper<DeliveryAggregate, Shopping.Infrastructure.Persistence.Delivery.Delivery, IDeliveryEvent,
+        DeliveryEvent> _mapper;
 
     public DeliveryMapperTests()
     {
@@ -41,11 +44,14 @@ public class DeliveryMapperTests
         uint version = 11;
 
         Shopping.Infrastructure.Persistence.Delivery.Delivery dto =
-            new Shopping.Infrastructure.Persistence.Delivery.Delivery(
-                deliveryId.Value.ToString(),
-                createdOnUtc,
-                deliveredOnUtc,
-                new Shopping.Domain.Core.Persistence.Metadata(streamId.ToString(), version, createdOnUtc), orderId.ToString());
+            new Shopping.Infrastructure.Persistence.Delivery.Delivery
+            {
+                Id = deliveryId.Value.ToString(),
+                CreatedOnUtc = createdOnUtc,
+                DeliveredOnUtc = deliveredOnUtc,
+                Metadata = new Shopping.Domain.Core.Persistence.Metadata(streamId.ToString(), version, createdOnUtc),
+                OrderId = orderId.ToString()
+            };
 
         _mapper.ToDomain(dto)
             .Switch(
@@ -55,7 +61,7 @@ public class DeliveryMapperTests
                     Assert.Equal(deliveredOnUtc, aggregate.DeliveredOnUtc);
                     Assert.Equal(deliveryId, aggregate.Id);
                     Assert.Equal(orderId, aggregate.OrderId.Value);
-                    
+
                     Assert.Equal(streamId, aggregate.MetaData.StreamId.Value);
                     Assert.Equal(version, aggregate.MetaData.Version.Value);
                     Assert.Equal(createdOnUtc, aggregate.MetaData.TimeStamp);

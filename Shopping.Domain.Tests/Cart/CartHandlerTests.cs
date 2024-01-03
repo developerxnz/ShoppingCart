@@ -2,6 +2,7 @@ using ErrorOr;
 using Shopping.Domain.Cart;
 using Shopping.Domain.Cart.Commands;
 using Shopping.Domain.Cart.Core;
+using Shopping.Domain.Cart.Events;
 using Shopping.Domain.Core;
 using Shopping.Domain.Domain.Core.Handlers;
 using Shopping.Domain.Product.Core;
@@ -33,8 +34,8 @@ public class CartHandlerTests
     [Fact]
     public void AddItemToCart_New_Cart_Should_Return_Successful()
     {
-        var quantity = CartQuantity.Create(10);
-        AddItemToCartCommand command = new(_now, _customerId, null, _sku, quantity.Value, _correlationId);
+        var quantity = new CartQuantity(10);
+        AddItemToCartCommand command = new(_now, _customerId, null, _sku, quantity, _correlationId);
 
         _commandHandler.HandlerForNew(command)
             .Switch(
@@ -54,8 +55,8 @@ public class CartHandlerTests
     public void AddItemToCart_Existing_Cart_Should_Fail_When_Version_Is_0()
     {
         CartAggregate aggregate = new CartAggregate(_now, _customerId);
-        var quantity = CartQuantity.Create(10);
-        AddItemToCartCommand command = new(_now, _customerId, aggregate.Id, _sku, quantity.Value, _correlationId);
+        var quantity = new CartQuantity(10);
+        AddItemToCartCommand command = new(_now, _customerId, aggregate.Id, _sku, quantity, _correlationId);
         
         _commandHandler.HandlerForExisting(command, aggregate)
             .Switch(
@@ -77,8 +78,8 @@ public class CartHandlerTests
     [Fact]
     public void AddItemToCart_Existing_Cart_Should_Fail_When_AggregateCheck_Fails()
     {
-        var quantity = CartQuantity.Create(10);
-        AddItemToCartCommand command = new AddItemToCartCommand(_now, _customerId, _mismatchedCartId, _sku, quantity.Value, _correlationId);
+        var quantity = new CartQuantity(10);
+        AddItemToCartCommand command = new AddItemToCartCommand(_now, _customerId, _mismatchedCartId, _sku, quantity, _correlationId);
         CartAggregate aggregate = new CartAggregate(_now, _customerId);
         var versionedAggregate = aggregate with { MetaData = aggregate.MetaData with { Version = new Shopping.Domain.Core.Version(2) } };
 
@@ -101,9 +102,9 @@ public class CartHandlerTests
     [Fact]
     public void AddItemToCart_Existing_Cart_Should_Return_Successful_when_existing_aggregate()
     {
-        var quantity = CartQuantity.Create(10);
-        AddItemToCartCommand command = new(_now, _customerId, null, _sku, quantity.Value, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        var quantity = new CartQuantity(10);
+        AddItemToCartCommand command = new(_now, _customerId, null, _sku, quantity, _correlationId);
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _cartId, Items = items, MetaData = metaData};
@@ -124,10 +125,10 @@ public class CartHandlerTests
     [Fact]
     public void AddItemToCart_Existing_Cart_Should_Fail_when_aggregate_check_fails()
     {
-        var quantity = CartQuantity.Create(10);
-        AddItemToCartCommand command = new(_now, _customerId, _cartId, _sku, quantity.Value, _correlationId);
+        var quantity = new CartQuantity(10);
+        AddItemToCartCommand command = new(_now, _customerId, _cartId, _sku, quantity, _correlationId);
         
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _mismatchedCartId, Items = items, MetaData = metaData};
@@ -152,7 +153,7 @@ public class CartHandlerTests
     public void RemoveItemFromCart_Should_Return_Successful_When_Item_Exists()
     {
         RemoveItemFromCartCommand command = new(_now, _customerId, _cartId, _sku, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _cartId, Items = items, MetaData = metaData};
@@ -174,7 +175,7 @@ public class CartHandlerTests
     public void RemoveItemFromCart_Should_Fail_when_aggregate_check_fails()
     {
         RemoveItemFromCartCommand command = new(_now, _customerId, _mismatchedCartId, _sku, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _cartId, Items = items, MetaData = metaData};
@@ -200,11 +201,11 @@ public class CartHandlerTests
     {
         Sku invalidSku = new(Guid.NewGuid().ToString());
         RemoveItemFromCartCommand command = new(_now, _customerId, _cartId, invalidSku, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _cartId, Items = items, MetaData = metaData};
-        ErrorOr<CommandResult<CartAggregate>> result = _commandHandler.HandlerForExisting(command, aggregate);
+        ErrorOr<CommandResult<CartAggregate, CartEvent>> result = _commandHandler.HandlerForExisting(command, aggregate);
 
         result
             .Switch(
@@ -228,11 +229,11 @@ public class CartHandlerTests
     {
         Sku invalidSku = new(Guid.NewGuid().ToString());
         RemoveItemFromCartCommand command = new(_now, _customerId, _cartId, invalidSku, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _mismatchedCartId, Items = items, MetaData = metaData};
-        ErrorOr<CommandResult<CartAggregate>> result = _commandHandler.HandlerForExisting(command, aggregate);
+        ErrorOr<CommandResult<CartAggregate, CartEvent>> result = _commandHandler.HandlerForExisting(command, aggregate);
 
         result
             .Switch(
@@ -254,8 +255,8 @@ public class CartHandlerTests
     [Fact]
     public void UpdateItemInCart_ShouldThrow_Exception_When_Aggregate_Check_Fails()
     {
-        UpdateItemInCartCommand command = new(_now, _customerId, _mismatchedCartId, _sku, CartQuantity.Create(12).Value, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        UpdateItemInCartCommand command = new(_now, _customerId, _mismatchedCartId, _sku, new CartQuantity(12), _correlationId);
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _cartId, Items = items, MetaData = metaData};
@@ -279,10 +280,10 @@ public class CartHandlerTests
     [Fact]
     public void UpdateItemInCart_Should_Return_Successful_When_Item_Exists()
     {
-        var existingQuantity = CartQuantity.Create(12);
-        var quantity = CartQuantity.Create(12);
-        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, _sku, existingQuantity.Value, _correlationId);
-        var items = new List<CartItem> {new(_sku, quantity.Value)};
+        var existingQuantity = new CartQuantity(12);
+        var quantity = new CartQuantity(12);
+        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, _sku, existingQuantity, _correlationId);
+        var items = new List<CartItem> {new(_sku, quantity)};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _cartId, Items = items, MetaData = metaData};
@@ -306,12 +307,12 @@ public class CartHandlerTests
     public void UpdateItemInCart_Should_Throw_Exception_When_Sku_Doesnt_Exist()
     {
         Sku invalidSku = new(Guid.NewGuid().ToString());
-        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, invalidSku, CartQuantity.Create(10).Value, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, invalidSku, new CartQuantity(10), _correlationId);
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = _cartId, Items = items, MetaData = metaData};
-        ErrorOr<CommandResult<CartAggregate>> result = _commandHandler.HandlerForExisting(command, aggregate);
+        ErrorOr<CommandResult<CartAggregate, CartEvent>> result = _commandHandler.HandlerForExisting(command, aggregate);
 
         result
             .Switch(
@@ -334,12 +335,12 @@ public class CartHandlerTests
     public void UpdateItemInCart_Should_Throw_Exception_When_Aggregate_Check_Fails()
     {
         CartId mismatchedCartId = new(Guid.NewGuid());
-        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, _sku, CartQuantity.Create(1).Value, _correlationId);
-        var items = new List<CartItem> {new(_sku, CartQuantity.Create(5).Value)};
+        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, _sku, new CartQuantity(1), _correlationId);
+        var items = new List<CartItem> {new(_sku, new CartQuantity(5))};
         MetaData metaData = new(new(_cartId.Value), new(6), _now);
         CartAggregate aggregate = new CartAggregate(_now, _customerId)
             {Id = mismatchedCartId, Items = items, MetaData = metaData};
-        ErrorOr<CommandResult<CartAggregate>> result = _commandHandler.HandlerForExisting(command, aggregate);
+        ErrorOr<CommandResult<CartAggregate, CartEvent>> result = _commandHandler.HandlerForExisting(command, aggregate);
 
         result
             .Switch(
@@ -362,7 +363,7 @@ public class CartHandlerTests
     public void UpdateItemInCart_Should_Throw_Exception_When_Invalid_Command_For_New()
     {
         Sku sku = new(Guid.NewGuid().ToString());
-        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, sku, CartQuantity.Create(1).Value, _correlationId);
+        UpdateItemInCartCommand command = new(_now, _customerId, _cartId, sku, new CartQuantity(1), _correlationId);
 
         var handlerResponse = _commandHandler.HandlerForNew(command);
         
