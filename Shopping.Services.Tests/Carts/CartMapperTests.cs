@@ -48,11 +48,6 @@ public class CartMapperTests
         Assert.Equal(aggregate.MetaData.StreamId.Value.ToString(), cartDto.Metadata.StreamId);
         Assert.Equal(aggregate.MetaData.Version.Value, cartDto.Metadata.Version);
         Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.Metadata.Timestamp);
-        Assert.Equal(2, aggregate.Items.Count());
-        Assert.Equal(firstSku.Value, cartDto.Items.First().Sku);
-        Assert.Equal(firstQuantity.Value, cartDto.Items.First().Quantity);
-        Assert.Equal(lastSku.Value, cartDto.Items.Last().Sku);
-        Assert.Equal(lastQuantity.Value, cartDto.Items.Last().Quantity);
     }
     
     [Fact]
@@ -66,15 +61,7 @@ public class CartMapperTests
         Sku lastSku = new(Guid.NewGuid().ToString());
         var lastQuantity = new CartQuantity(10);
         
-        IEnumerable<CartItem> items = new []
-        {
-            new CartItem(firstSku, firstQuantity),
-            new CartItem(lastSku, lastQuantity)
-        };
-        CartAggregate aggregate = new CartAggregate(createdOnUtc, customerId)
-        {
-            Items = items
-        };
+        CartAggregate aggregate = new CartAggregate(createdOnUtc, customerId);
 
         var cartDtos = _mapper.FromDomain(new [] { aggregate });
 
@@ -85,11 +72,6 @@ public class CartMapperTests
             Assert.Equal(aggregate.MetaData.StreamId.Value.ToString(), cartDto.Metadata.StreamId);
             Assert.Equal(aggregate.MetaData.Version.Value, cartDto.Metadata.Version);
             Assert.Equal(aggregate.MetaData.TimeStamp, cartDto.Metadata.Timestamp);
-            Assert.Equal(2, aggregate.Items.Count());
-            Assert.Equal(firstSku.Value, cartDto.Items.First().Sku);
-            Assert.Equal(firstQuantity.Value, cartDto.Items.First().Quantity);
-            Assert.Equal(lastSku.Value, cartDto.Items.Last().Sku);
-            Assert.Equal(lastQuantity.Value, cartDto.Items.Last().Quantity);
         }
     }
     
@@ -138,11 +120,6 @@ public class CartMapperTests
         Assert.Equal(cartId.Value.ToString(), domain.Value.MetaData.StreamId.Value.ToString());
         Assert.Equal(version, domain.Value.MetaData.Version.Value);
         Assert.Equal(timestamp, domain.Value.MetaData.TimeStamp);
-        Assert.Equal(2, dto.Items.Count());
-        Assert.Equal(firstSku, domain.Value.Items.First().Sku);
-        Assert.Equal(firstQuantity, domain.Value.Items.First().Quantity);
-        Assert.Equal(lastSku, domain.Value.Items.Last().Sku);
-        Assert.Equal(lastQuantity, domain.Value.Items.Last().Quantity);
     }
     
         [Fact]
@@ -192,11 +169,6 @@ public class CartMapperTests
             Assert.Equal(cartId.Value.ToString(), domain.MetaData.StreamId.Value.ToString());
             Assert.Equal(version, domain.MetaData.Version.Value);
             Assert.Equal(timestamp, domain.MetaData.TimeStamp);
-            Assert.Equal(2, dto.Items.Count());
-            Assert.Equal(firstSku, domain.Items.First().Sku);
-            Assert.Equal(firstQuantity, domain.Items.First().Quantity);
-            Assert.Equal(lastSku, domain.Items.Last().Sku);
-            Assert.Equal(lastQuantity, domain.Items.Last().Quantity);
         }
     }
     

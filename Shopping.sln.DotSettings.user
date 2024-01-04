@@ -27,9 +27,9 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b534a390_002Dbe6e_002D4b6d_002D9487_002Dc3db55ff1294/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AddToCart_ForNew_Should_Return_Error_When_CommandHandler_Returns_Error" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2d653a7_002Dc2c7_002D4bce_002Dbdc0_002Dfea1d17342f2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="OrderHandlerUnitTest #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2d653a7_002Dc2c7_002D4bce_002Dbdc0_002Dfea1d17342f2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f51729ff_002D823d_002D4d43_002D979c_002Df42b19df4634/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OrderHandlerUnitTest #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f51729ff_002D823d_002D4d43_002D979c_002Df42b19df4634/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="OrderHandlerUnitTest #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

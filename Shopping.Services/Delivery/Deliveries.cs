@@ -103,14 +103,9 @@ public sealed class Deliveries : Service<DeliveryAggregate, Infrastructure.Persi
                 });
     }
 
-    protected override ErrorOr<DeliveryAggregate> ToDomain(Infrastructure.Persistence.Delivery.Delivery aggregate)
-    {
-        return _mapper.ToDomain(aggregate);
-    }
+    protected override ErrorOr<DeliveryAggregate> ToDomain(Infrastructure.Persistence.Delivery.Delivery aggregate) => _mapper.ToDomain(aggregate);
 
     protected override (Infrastructure.Persistence.Delivery.Delivery, IEnumerable<Infrastructure.Interfaces.IEvent>) 
-        FromDomain(DeliveryAggregate aggregate, IEnumerable<Domain.Delivery.Events.DeliveryEvent> events)
-    {
-        throw new NotImplementedException();
-    }
+        FromDomain(DeliveryAggregate aggregate, IEnumerable<Domain.Delivery.Events.DeliveryEvent> events) =>
+        _mapper.FromDomain(aggregate, events);
 }
