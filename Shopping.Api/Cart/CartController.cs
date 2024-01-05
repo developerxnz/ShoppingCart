@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shopping.Api.Cart.Requests;
 using Shopping.Domain.Cart.Core;
 using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
@@ -17,7 +18,7 @@ public class CartController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] AddToCartRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Post([FromBody] Requests.Requests request, CancellationToken cancellationToken)
     {
         CartQuantity quantity = new CartQuantity(request.Quantity);
         Sku sku = new Sku(request.Sku);
@@ -39,7 +40,7 @@ public class CartController : ControllerBase
     {
         Sku sku = new Sku(id);
         CartId cartId = new CartId(Guid.NewGuid());
-        CustomerId customerId = new CustomerId(Guid.NewGuid());
+        CustomerId customerId = new CustomerId(Guid.NewGuid()); //should come from auth (sub)
         CorrelationId correlationId = new CorrelationId(Guid.NewGuid());
         
         var deleteFromCartRequest = new Shopping.Api.Cart.DeleteFromCartRequest(customerId, cartId, sku, correlationId);
@@ -52,5 +53,3 @@ public class CartController : ControllerBase
                     errors => new BadRequestObjectResult(errors));
     }
 }
-
-public record AddToCartRequest(Guid CustomerId, string Sku, uint Quantity);

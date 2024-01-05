@@ -22,4 +22,8 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Shopping.Infrastructure\Shopping.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -5,7 +5,10 @@ namespace Shopping.Infrastructure.Persistence.Delivery;
 
 public class Repository : Repository<Delivery>, IRepository<Delivery>
 {
-    public Repository(CosmosClient client, string database, string container) : base(client, database, container) { }
+    private const string ContainerName = "Deliveries";
+    private const string DatabaseName = "Shopping";
+    
+    public Repository(CosmosClient client) : base(client, DatabaseName, ContainerName) { }
 
     public async Task BatchUpdateAsync(Delivery aggregate, IEnumerable<Interfaces.IEvent> events, CancellationToken cancellationToken)
     {

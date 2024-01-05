@@ -11,12 +11,19 @@ namespace Shopping.Api.Cart;
 public sealed record DeleteFromCartRequest(CustomerId CustomerId, CartId CartId, Sku Sku, CorrelationId CorrelationId) : IRequest<ErrorOr<DeleteFromCartResponse>>;
 public sealed record DeleteFromCartResponse(CorrelationId CorrelationId);
 
-public class DeleteFromCartCommandHandler(ICartService cartService) : IRequestHandler<DeleteFromCartRequest, ErrorOr<DeleteFromCartResponse>>
+public class DeleteFromCartCommandHandler : IRequestHandler<DeleteFromCartRequest, ErrorOr<DeleteFromCartResponse>>
 {
+    private readonly ICartService _cartService;
+
+    public DeleteFromCartCommandHandler(ICartService cartService)
+    {
+        _cartService = cartService;
+    }
+
     public async Task<ErrorOr<DeleteFromCartResponse>> Handle(DeleteFromCartRequest request, CancellationToken cancellationToken)
     {
         var x = new RemoveItemFromCartRequest(request.CustomerId, request.CartId, request.Sku);
-        var deleteFromCartResponse = await cartService.RemoveFromCartAsync(x, request.CorrelationId, cancellationToken);
+        var deleteFromCartResponse = await _cartService.RemoveFromCartAsync(x, request.CorrelationId, cancellationToken);
 
         return deleteFromCartResponse
             .Match<ErrorOr<DeleteFromCartResponse>>(

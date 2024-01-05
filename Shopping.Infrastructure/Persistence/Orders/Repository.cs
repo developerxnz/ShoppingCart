@@ -6,7 +6,11 @@ namespace Shopping.Infrastructure.Persistence.Orders;
 
 public class Repository : Repository<Order>, IRepository<Order>
 {
-    public Repository(CosmosClient client, string database, string container) : base(client, database, container)
+    
+    private const string ContainerName = "Orders";
+    private const string DatabaseName = "Shopping";
+    
+    public Repository(CosmosClient client) : base(client, DatabaseName, ContainerName)
     {
     }
 

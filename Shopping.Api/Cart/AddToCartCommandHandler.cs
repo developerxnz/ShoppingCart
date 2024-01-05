@@ -12,13 +12,20 @@ public record AddToCartRequest(CustomerId CustomerId, Sku Sku, CartQuantity Quan
 
 public record AddToCartResponse(CartId CartId, CorrelationId CorrelationId);
 
-public class AddToCartCommandHandler(ICartService cartService)
+public class AddToCartCommandHandler
     : IRequestHandler<AddToCartRequest, ErrorOr<AddToCartResponse>>
 {
+    private readonly ICartService _cartService;
+
+    public AddToCartCommandHandler(ICartService cartService)
+    {
+        _cartService = cartService;
+    }
+
     public async Task<ErrorOr<AddToCartResponse>> Handle(AddToCartRequest request, CancellationToken cancellationToken)
     {
         var addToCartResponse = 
-            await cartService
+            await _cartService
             .AddToCartAsync(request.CustomerId, request.Sku, request.Quantity, request.CorrelationId,
                 cancellationToken);
         return
