@@ -11,12 +11,12 @@ using IEvent = Shopping.Infrastructure.Interfaces.IEvent;
 
 namespace Shopping.Services.Products;
 
-public sealed class Product : Service<ProductAggregate, Infrastructure.Persistence.Products.Product, ProductEvent>, IProduct
+public sealed class Events : Service<ProductAggregate, Infrastructure.Persistence.Products.Product, ProductEvent>, IProduct
 {
     private readonly ICommandHandler _commandHandler;
     private readonly IMapper<ProductAggregate, Infrastructure.Persistence.Products.Product, IProductEvent, Infrastructure.Persistence.Products.ProductEvent> _mapper;
 
-    public Product(IRepository<Infrastructure.Persistence.Products.Product> repository,
+    public Events(IRepository<Infrastructure.Persistence.Products.Product> repository,
         IMapper<ProductAggregate, Infrastructure.Persistence.Products.Product, IProductEvent, Infrastructure.Persistence.Products.ProductEvent> mapper,
         ICommandHandler commandHandler) : base(repository)
     {

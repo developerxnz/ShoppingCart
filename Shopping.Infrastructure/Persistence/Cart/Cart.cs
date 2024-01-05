@@ -3,7 +3,7 @@ using Shopping.Infrastructure.Interfaces;
 
 namespace Shopping.Infrastructure.Persistence.Cart;
 
-public record CartAggregate : IPersistenceIdentifier
+public record Cart : IPersistenceIdentifier
 {
     public string PartitionKey => CustomerId;
 

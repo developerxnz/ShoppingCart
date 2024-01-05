@@ -17,11 +17,11 @@ public sealed class OrderService : Service<OrderAggregate, Infrastructure.Persis
     private readonly ICommandHandler _commandHandler;
 
     private readonly IMapper<OrderAggregate, Infrastructure.Persistence.Orders.Order, IOrderEvent,
-        Infrastructure.Persistence.Orders.OrderEvent> _mapper;
+        Infrastructure.Persistence.Orders.Events.OrderEvent> _mapper;
 
     public OrderService(ICommandHandler orderCommandHandler, IRepository<Infrastructure.Persistence.Orders.Order> repository,
         IMapper<OrderAggregate, Infrastructure.Persistence.Orders.Order, IOrderEvent,
-            Infrastructure.Persistence.Orders.OrderEvent> mapper) :
+            Infrastructure.Persistence.Orders.Events.OrderEvent> mapper) :
         base(repository)
     {
         _commandHandler = orderCommandHandler;

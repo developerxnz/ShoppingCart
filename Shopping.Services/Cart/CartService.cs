@@ -11,15 +11,15 @@ using IEvent = Shopping.Infrastructure.Interfaces.IEvent;
 
 namespace Shopping.Services.Cart;
 
-public sealed class CartAggregate : Service<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, ICartEvent>, ICartService
+public sealed class Cart : Service<Domain.Cart.Cart, Infrastructure.Persistence.Cart.Cart, ICartEvent>, ICartService
 {
     private readonly ICartCommandHandler _commandHandler;
-    private readonly IMapper<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, 
+    private readonly IMapper<Domain.Cart.Cart, Infrastructure.Persistence.Cart.Cart, 
         Domain.Cart.Events.ICartEvent, Infrastructure.Persistence.Cart.CartEvent> _mapper;
 
-    public CartAggregate(ICartCommandHandler commandHandler,
-        IRepository<Infrastructure.Persistence.Cart.CartAggregate> repository,
-        IMapper<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, 
+    public Cart(ICartCommandHandler commandHandler,
+        IRepository<Infrastructure.Persistence.Cart.Cart> repository,
+        IMapper<Domain.Cart.Cart, Infrastructure.Persistence.Cart.Cart, 
             Domain.Cart.Events.ICartEvent, Infrastructure.Persistence.Cart.CartEvent> mapper) : base(repository)
     {
         _mapper = mapper;
@@ -136,11 +136,11 @@ public sealed class CartAggregate : Service<Domain.Cart.CartAggregate, Infrastru
                 });
     }
 
-    protected override ErrorOr<Domain.Cart.CartAggregate> ToDomain(Infrastructure.Persistence.Cart.CartAggregate aggregate) 
+    protected override ErrorOr<Domain.Cart.Cart> ToDomain(Infrastructure.Persistence.Cart.Cart aggregate) 
         => _mapper.ToDomain(aggregate);
 
-    protected override (Infrastructure.Persistence.Cart.CartAggregate, IEnumerable<IEvent>) 
-        FromDomain(Domain.Cart.CartAggregate aggregate, IEnumerable<ICartEvent> events)
+    protected override (Infrastructure.Persistence.Cart.Cart, IEnumerable<IEvent>) 
+        FromDomain(Domain.Cart.Cart aggregate, IEnumerable<ICartEvent> events)
     {
         return _mapper.FromDomain(aggregate, events);
     }

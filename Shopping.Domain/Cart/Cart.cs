@@ -4,7 +4,7 @@ using Version = Shopping.Domain.Core.Version;
 
 namespace Shopping.Domain.Cart;
 
-public sealed record CartAggregate: Aggregate<CartAggregate>, IAggregate
+public sealed record Cart: Aggregate<Cart>, IAggregate
 {
     public CartId Id { get; init; } = new(Guid.NewGuid());
     
@@ -18,7 +18,7 @@ public sealed record CartAggregate: Aggregate<CartAggregate>, IAggregate
 
     public string Etag { get; init; } = "";
 
-    public CartAggregate(DateTime createdOnUtc, CustomerId customerId)
+    public Cart(DateTime createdOnUtc, CustomerId customerId)
     {
         Id = new(Guid.NewGuid());
         CustomerId = customerId;

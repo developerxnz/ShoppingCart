@@ -16,7 +16,7 @@ public class Repository : Repository<Order>, IRepository<Order>
 
     public async Task BatchUpdateAsync(Order aggregate, IEnumerable<Interfaces.IEvent> events, CancellationToken cancellationToken)
     {
-        PartitionKey partitionKey = new PartitionKey(aggregate.PartitionKey);
+        PartitionKey partitionKey = new PartitionKey(aggregate.Id);
         await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

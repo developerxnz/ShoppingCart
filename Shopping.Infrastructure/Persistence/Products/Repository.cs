@@ -1,5 +1,4 @@
 using Microsoft.Azure.Cosmos;
-using Shopping.Domain.Core.Persistence;
 using Shopping.Infrastructure.Interfaces;
 
 namespace Shopping.Infrastructure.Persistence.Products;
@@ -13,7 +12,7 @@ public class Repository : Repository<Product>, IRepository<Product>
 
     public async Task BatchUpdateAsync(Product aggregate, IEnumerable<Interfaces.IEvent> events, CancellationToken cancellationToken)
     {
-        Domain.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+        Domain.Core.PartitionKey partitionKey = new (aggregate.Id);
         await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

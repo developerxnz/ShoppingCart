@@ -15,12 +15,12 @@ using Version = Shopping.Domain.Core.Version;
 namespace Shopping.Services.Cart;
 
 public sealed class CartMapper :
-    Mapper<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, ICartEvent, CartEvent>,
-    IMapper<Domain.Cart.CartAggregate, Infrastructure.Persistence.Cart.CartAggregate, ICartEvent, CartEvent>
+    Mapper<Domain.Cart.Cart, Infrastructure.Persistence.Cart.Cart, ICartEvent, CartEvent>,
+    IMapper<Domain.Cart.Cart, Infrastructure.Persistence.Cart.Cart, ICartEvent, CartEvent>
 {
-    public override Infrastructure.Persistence.Cart.CartAggregate FromDomain(Domain.Cart.CartAggregate aggregate)
+    public override Infrastructure.Persistence.Cart.Cart FromDomain(Domain.Cart.Cart aggregate)
     {
-        return new Infrastructure.Persistence.Cart.CartAggregate
+        return new Infrastructure.Persistence.Cart.Cart
         {
             Id = aggregate.Id.Value.ToString(),
             CustomerId = aggregate.CustomerId.Value.ToString(),
@@ -44,13 +44,13 @@ public sealed class CartMapper :
             _ => throw new ArgumentOutOfRangeException(nameof(@event))
         };
 
-    public (Infrastructure.Persistence.Cart.CartAggregate, IEnumerable<CartEvent>) FromDomain(Domain.Cart.CartAggregate aggregate, IEnumerable<IEvent> events)
+    public (Infrastructure.Persistence.Cart.Cart, IEnumerable<CartEvent>) FromDomain(Domain.Cart.Cart aggregate, IEnumerable<IEvent> events)
     {
         throw new NotImplementedException();
     }
 
-    public (Infrastructure.Persistence.Cart.CartAggregate, IEnumerable<CartEvent>)
-        FromDomain(Domain.Cart.CartAggregate aggregate, IEnumerable<ICartEvent> events)
+    public (Infrastructure.Persistence.Cart.Cart, IEnumerable<CartEvent>)
+        FromDomain(Domain.Cart.Cart aggregate, IEnumerable<ICartEvent> events)
     {
         var aggregateDto = FromDomain(aggregate);
         var eventDtos = events.Select(FromDomain).ToList();
@@ -58,7 +58,7 @@ public sealed class CartMapper :
         return (aggregateDto, eventDtos);
     }
 
-    public override ErrorOr<Domain.Cart.CartAggregate> ToDomain(Infrastructure.Persistence.Cart.CartAggregate dto)
+    public override ErrorOr<Domain.Cart.Cart> ToDomain(Infrastructure.Persistence.Cart.Cart dto)
     {
         if (!Guid.TryParse(dto.CustomerId, out Guid customerId))
         {
@@ -70,7 +70,7 @@ public sealed class CartMapper :
             return Error.Validation("Invalid CustomerId");
         }
 
-        return new Domain.Cart.CartAggregate(dto.CreatedOnUtc, new CustomerId(customerId))
+        return new Domain.Cart.Cart(dto.CreatedOnUtc, new CustomerId(customerId))
         {
             Id = new CartId(cartId),
             Etag = dto.Etag,

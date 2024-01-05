@@ -7,10 +7,10 @@ namespace ShoppingUnitTests;
 
 public static class CartBuilder
 {
-    public static CartAggregate BasicCart()
+    public static Cart BasicCart()
     {
         return
-            new Faker<CartAggregate>()
+            new Faker<Cart>()
                 .StrictMode(true)
                 .RuleFor(x => x.CustomerId, new CustomerId(Guid.NewGuid()))
                 .RuleFor(x => x.CreatedOnUtc, DateTime.UtcNow)

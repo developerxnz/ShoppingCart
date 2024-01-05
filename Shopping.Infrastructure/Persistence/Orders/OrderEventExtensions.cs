@@ -6,7 +6,7 @@ namespace Shopping.Infrastructure.Persistence.Orders;
 
 public static class OrderEventExtensions
 {
-    public static Domain.Orders.Events.OrderCreatedEvent ToDomain(this OrderCreatedEvent dto)
+    public static Domain.Orders.Events.OrderCreatedEvent ToDomain(this Events.OrderCreatedEvent dto)
     {
         CustomerId customerId = new CustomerId(Guid.Parse(dto.CustomerId));
         Version version = new Version(dto.Version);
@@ -22,9 +22,9 @@ public static class OrderEventExtensions
         );
     }
 
-    public static OrderCreatedEvent FromDomain(this Domain.Orders.Events.OrderCreatedEvent domain)
+    public static Events.OrderCreatedEvent FromDomain(this Domain.Orders.Events.OrderCreatedEvent domain)
     {
-        return new OrderCreatedEvent(
+        return new Events.OrderCreatedEvent(
             domain.Id.Value.ToString(),
             domain.CreatedOnUtc,
             domain.CustomerId.Value.ToString(),
@@ -33,7 +33,7 @@ public static class OrderEventExtensions
             domain.CausationId.Value.ToString());
     }
     
-    public static Domain.Orders.Events.OrderCancelledEvent ToDomain(this OrderCancelledEvent dto)
+    public static Domain.Orders.Events.OrderCancelledEvent ToDomain(this Events.OrderCancelledEvent dto)
     {
         CustomerId customerId = new CustomerId(Guid.Parse(dto.CustomerId));
         Version version = new Version(dto.Version);
@@ -51,9 +51,9 @@ public static class OrderEventExtensions
         );
     }
 
-    public static OrderCancelledEvent FromDomain(this Domain.Orders.Events.OrderCancelledEvent domain)
+    public static Events.OrderCancelledEvent FromDomain(this Domain.Orders.Events.OrderCancelledEvent domain)
     {
-        return new OrderCancelledEvent(
+        return new Events.OrderCancelledEvent(
             domain.Id.Value.ToString(),
             domain.CancelledOnUtc,
             domain.CustomerId.Value.ToString(),
@@ -63,7 +63,7 @@ public static class OrderEventExtensions
             domain.CausationId.Value.ToString());
     }
     
-    public static Domain.Orders.Events.OrderCompletedEvent ToDomain(this OrderCompletedEvent dto)
+    public static Domain.Orders.Events.OrderCompletedEvent ToDomain(this Events.OrderCompletedEvent dto)
     {
         CustomerId customerId = new CustomerId(Guid.Parse(dto.CustomerId));
         Version version = new Version(dto.Version);
@@ -81,9 +81,9 @@ public static class OrderEventExtensions
         );
     }
 
-    public static OrderCompletedEvent FromDomain(this Domain.Orders.Events.OrderCompletedEvent domain)
+    public static Events.OrderCompletedEvent FromDomain(this Domain.Orders.Events.OrderCompletedEvent domain)
     {
-        return new OrderCompletedEvent(
+        return new Events.OrderCompletedEvent(
             domain.Id.Value.ToString(),
             domain.CompletedOnUtc,
             domain.CustomerId.Value.ToString(),

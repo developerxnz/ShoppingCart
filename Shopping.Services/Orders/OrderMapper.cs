@@ -9,7 +9,7 @@ using Shopping.Services.Interfaces;
 using OrderCancelledEvent = Shopping.Domain.Orders.Events.OrderCancelledEvent;
 using OrderCompletedEvent = Shopping.Domain.Orders.Events.OrderCompletedEvent;
 using OrderCreatedEvent = Shopping.Domain.Orders.Events.OrderCreatedEvent;
-using OrderEvent = Shopping.Infrastructure.Persistence.Orders.OrderEvent;
+using OrderEvent = Shopping.Infrastructure.Persistence.Orders.Events.OrderEvent;
 
 namespace Shopping.Services.Orders;
 
@@ -89,9 +89,9 @@ public class OrderMapper :
     public override ErrorOr<IOrderEvent> ToDomain(OrderEvent dto)
         => dto switch
         {
-            Infrastructure.Persistence.Orders.OrderCancelledEvent orderCancelledEvent => orderCancelledEvent.ToDomain(),
-            Infrastructure.Persistence.Orders.OrderCompletedEvent orderCompletedEvent => orderCompletedEvent.ToDomain(),
-            Infrastructure.Persistence.Orders.OrderCreatedEvent orderCreatedEvent => orderCreatedEvent.ToDomain(),
+            Infrastructure.Persistence.Orders.Events.OrderCancelledEvent orderCancelledEvent => orderCancelledEvent.ToDomain(),
+            Infrastructure.Persistence.Orders.Events.OrderCompletedEvent orderCompletedEvent => orderCompletedEvent.ToDomain(),
+            Infrastructure.Persistence.Orders.Events.OrderCreatedEvent orderCreatedEvent => orderCreatedEvent.ToDomain(),
             _ => throw new ArgumentOutOfRangeException(nameof(dto))
         };
 }

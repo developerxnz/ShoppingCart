@@ -12,7 +12,7 @@ public class Repository : Repository<Delivery>, IRepository<Delivery>
 
     public async Task BatchUpdateAsync(Delivery aggregate, IEnumerable<Interfaces.IEvent> events, CancellationToken cancellationToken)
     {
-        Domain.Core.PartitionKey partitionKey = new (aggregate.PartitionKey);
+        Domain.Core.PartitionKey partitionKey = new (aggregate.Id);
         await base.BatchUpdateAsync(partitionKey, aggregate, events, cancellationToken);
     }
 }

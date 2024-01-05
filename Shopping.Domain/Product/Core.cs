@@ -16,7 +16,7 @@ public record Description(string Value);
 
 public record ProductPrice(Decimal Amount);
 
-public record Product(ProductId ProductId, Sku Sku, ProductDescription Description);
+public record Events(ProductId ProductId, Sku Sku, ProductDescription Description);
 
 public record ProductDescription(string Description);
 

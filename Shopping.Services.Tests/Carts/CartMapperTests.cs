@@ -6,14 +6,14 @@ using Shopping.Domain.Core;
 using Shopping.Domain.Product.Core;
 using Shopping.Services.Cart;
 using Shopping.Services.Interfaces;
-using CartAggregate = Shopping.Domain.Cart.CartAggregate;
+using Cart = Shopping.Domain.Cart.Cart;
 using CartEvent = Shopping.Infrastructure.Persistence.Cart.CartEvent;
 
 namespace ShoppingUnitTests;
 
 public class CartMapperTests
 {
-    private readonly IMapper<Shopping.Domain.Cart.CartAggregate, Shopping.Infrastructure.Persistence.Cart.CartAggregate, ICartEvent, CartEvent> _mapper;
+    private readonly IMapper<Shopping.Domain.Cart.Cart, Shopping.Infrastructure.Persistence.Cart.Cart, ICartEvent, CartEvent> _mapper;
 
     public CartMapperTests()
     {
@@ -36,7 +36,7 @@ public class CartMapperTests
             new CartItem(firstSku, firstQuantity),
             new CartItem(lastSku, lastQuantity)
         };
-        CartAggregate aggregate = new CartAggregate(createdOnUtc, customerId)
+        Cart aggregate = new Cart(createdOnUtc, customerId)
         {
             Items = items
         };
@@ -61,7 +61,7 @@ public class CartMapperTests
         Sku lastSku = new(Guid.NewGuid().ToString());
         var lastQuantity = new CartQuantity(10);
         
-        CartAggregate aggregate = new CartAggregate(createdOnUtc, customerId);
+        Cart aggregate = new Cart(createdOnUtc, customerId);
 
         var cartDtos = _mapper.FromDomain(new [] { aggregate });
 
@@ -103,7 +103,7 @@ public class CartMapperTests
             new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value, firstQuantity.Value),
             new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value, lastQuantity.Value)
         };
-        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new()
+        Shopping.Infrastructure.Persistence.Cart.Cart dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,
@@ -150,7 +150,7 @@ public class CartMapperTests
             new Shopping.Infrastructure.Persistence.Cart.CartItem(firstSku.Value, firstQuantity.Value),
             new Shopping.Infrastructure.Persistence.Cart.CartItem(lastSku.Value, lastQuantity.Value)
         };
-        Shopping.Infrastructure.Persistence.Cart.CartAggregate dto = new()
+        Shopping.Infrastructure.Persistence.Cart.Cart dto = new()
         {
             CustomerId = customerId.Value.ToString(),
             CreatedOnUtc = createdOnUtc,
